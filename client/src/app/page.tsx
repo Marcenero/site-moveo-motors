@@ -18,6 +18,16 @@ import {
 } from 'lucide-react';
 import { FaWhatsapp } from "react-icons/fa";
 
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
 export default function LandingPage() {
   const featuredCars = [
     {
@@ -34,6 +44,8 @@ export default function LandingPage() {
     // id: , name: , price: , year: , km: , transmission: , image:
     //},
   ];
+
+  const posicao = [-23.535763, -46.786853]; //Localização da loja
 
   return (
     <div className="min-h-screen bg-white font-sans text-black selection:bg-orange-500 selection:text-white">
@@ -157,7 +169,10 @@ export default function LandingPage() {
             <div className="bg-black p-8 rounded-3xl shadow-2xl">
               <p className="text-orange-500 font-black text-2xl mb-4 italic uppercase">Dúvidas?</p>
               <p className="text-gray-400 mb-8 font-medium">Nossos especialistas estão prontos para encontrar o carro ideal para si.</p>
-              <button className="w-full bg-green-500 text-white py-5 rounded-2xl font-black text-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3">
+              <button 
+                className="w-full bg-green-500 text-white py-5 rounded-2xl font-black text-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3"
+                onClick={() => window.open("https://wa.me/5511984481526", "_blank", "noopener,noreferrer")}
+              >
                 <FaWhatsapp size={24} /> CONTATO VIA WHATSAPP
               </button>
             </div>
@@ -201,15 +216,6 @@ export default function LandingPage() {
             <h2 className="text-6xl font-black mt-4 mb-8 leading-[0.9]">VENHA VISITAR O NOSSO SHOWROOM</h2>
             <div className="space-y-10">
               <div className="flex gap-6 items-start">
-                <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-black shrink-0">
-                  <MapPin size={28} />
-                </div>
-                <div>
-                  <h4 className="font-black text-xl mb-1 uppercase text-orange-500">Localização</h4>
-                  <p className="text-gray-400 font-medium text-lg leading-snug">Av. Santo Antônio, 815 - Vila Osasco<br />Osasco, SP - 06083-200</p>
-                </div>
-              </div>
-              <div className="flex gap-6 items-start">
                 <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-orange-500 shrink-0">
                   <Phone size={28} />
                 </div>
@@ -218,23 +224,45 @@ export default function LandingPage() {
                   <p className="text-gray-400 font-medium text-lg leading-snug">(11) 4387-8767<br />(11) 91234-5678</p>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="h-[500px] rounded-[3rem] overflow-hidden border-[12px] border-white/5 relative group shadow-2xl">
-            {/* Mapa Customizado */}
-            <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/-46.7844,-23.5325,14/800x600?access_token=none')] bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-1000">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="relative">
-                  <div className="absolute -inset-10 bg-orange-500 rounded-full animate-ping opacity-20"></div>
-                  <MapPin className="relative text-orange-500 fill-orange-500 drop-shadow-[0_0_15px_rgba(249,115,22,1)]" size={64} />
+              <div className="flex gap-6 items-start">
+                <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-black shrink-0">
+                  <MapPin size={28} />
+                </div>
+                <div>
+                  <h4 className="font-black text-xl mb-1 uppercase text-orange-500">Localização</h4>
+                  <p className="text-gray-400 font-medium text-lg leading-snug">Av. Santo Antônio, 815 - Vila Osasco<br />Osasco, SP - 06083-200</p>
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-              <p className="text-sm font-bold text-white text-center italic">Aberto de Segunda a Sábado: 09h às 19h</p>
-            </div>
           </div>
+            
+          <div className="relative z-0">
+            <MapContainer
+              center={posicao}
+              zoom={15}
+              dragging={false}
+              touchZoom={false}
+              doubleClickZoom={false}
+              scrollWheelZoom={false}
+              boxZoom={false}
+              keyboard={false}
+              zoomControl={false}
+              className="h-[400px] w-full rounded-2xl"
+            >
+              <TileLayer 
+                attribution='&copy; OpenStreetMap contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+
+              <Marker position={posicao}>
+                <Popup>
+                  Estamos aqui.
+                </Popup>
+              </Marker>
+            </MapContainer>
+          </div>
+            
         </div>
       </section>
 
