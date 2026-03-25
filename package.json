@@ -1,7 +1,10 @@
 {
   "name": "site-moveo-motors",
   "private": true,
-  "workspaces": ["client", "server"],
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
