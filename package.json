@@ -1,0 +1,26 @@
+{
+  "name": "site-moveo-motors",
+  "private": true,
+  "workspaces": ["client", "server"],
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:client": "npm run dev -w client",
+    "dev:server": "npm run dev -w server",
+    "build:client": "npm run build -w client",
+    "start:client": "npm run start -w client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marcenero/site-moveo-motors.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Marcenero/site-moveo-motors/issues"
+  },
+  "homepage": "https://github.com/Marcenero/site-moveo-motors#readme"
+}
