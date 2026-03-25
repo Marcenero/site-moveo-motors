@@ -88,7 +88,10 @@ export default function LandingPage() {
               <span className="text-orange-500 font-black tracking-widest uppercase text-sm">Catálogo</span>
               <h2 className="text-5xl font-black text-black mt-2 leading-none">Destaques Moveo</h2>
             </div>
-            <button className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-orange-500 pb-1 hover:text-orange-600 transition-colors">
+            <button 
+              className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-orange-500 pb-1 hover:text-orange-600 transition-colors"
+              onClick={() => window.location.href = '/estoque'}
+            >
               VER TODOS OS MODELOS <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
             </button>
           </div>

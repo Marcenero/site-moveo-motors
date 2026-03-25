@@ -1,8 +1,10 @@
 "use client";
 
 import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import SearchBox from "../../components/estoque/SearchBox";
-import { Search } from "lucide-react";
+import VehicleGrid from "../../components/estoque/VehicleGrid";
+import { veiculos } from "../../data/veiculos";
 
 export default function EstoquePage() {
     return (
@@ -11,6 +13,10 @@ export default function EstoquePage() {
             <Header />
 
             <SearchBox />
+
+            <VehicleGrid veiculos={veiculos} />
+
+            <Footer />
 
         </div>
     );
