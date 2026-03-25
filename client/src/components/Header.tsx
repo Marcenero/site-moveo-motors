@@ -39,7 +39,7 @@ export default function Header() {
               <div className="hidden md:flex items-center gap-10 text-white/80 font-semibold text-sm uppercase tracking-widest">
                 <a href="/estoque" className="hover:text-orange-500 transition-colors">Estoque</a>
                 <a href="#servicos" className="hover:text-orange-500 transition-colors">Serviços</a>
-                <a href="#contato" className="hover:text-orange-500 transition-colors">Contato</a>
+                <a href="/contato" className="hover:text-orange-500 transition-colors">Contato</a>
                 <a href="#sobre" className="hover:text-orange-500 transition-colors">Sobre Nós</a>
               </div>
         
@@ -52,9 +52,9 @@ export default function Header() {
             {/* Mobile Navigation Dropdown */}
             {isMenuOpen && (
               <div className="md:hidden bg-black border-t border-orange-500/10 p-6 flex flex-col gap-6 animate-in slide-in-from-top fade-in duration-300">
-                <a href="#estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</a>
+                <a href="/estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</a>
                 <a href="#servicos" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</a>
-                <a href="#contato" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Contato</a>
+                <a href="/contato" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Contato</a>
                 <a href="#sobre" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Sobre Nós</a>
               </div>
             )}
