@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/Marcenero/site-moveo-motors/issues"
   },
-  "homepage": "https://github.com/Marcenero/site-moveo-motors#readme"
+  "homepage": "https://github.com/Marcenero/site-moveo-motors#readme",
+  "dependencies": {
+    "axios": "^1.14.0"
+  }
 }
