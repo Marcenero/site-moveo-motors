@@ -25,10 +25,20 @@ export default function Header() {
                   />
                       
                   <div className="flex flex-col leading-none ml-1">
-                    <span className="text-white font-black text-2xl tracking-[0.15em] italic">MOVEO</span>
+                    <span 
+                      className="text-white font-black text-2xl tracking-[0.15em] italic"
+                      onClick={() => window.location.href = '/'}
+                    >
+                        MOVEO
+                      </span>
                     <div className="flex items-center gap-1">
                       <div className="h-[2px] bg-orange-500 flex-grow"></div>
-                      <span className="text-orange-500 font-bold text-[10px] tracking-[0.4em] uppercase">MOTORS</span>
+                        <span 
+                          className="text-orange-500 font-bold text-[10px] tracking-[0.4em] uppercase"
+                          onClick={() => window.location.href = '/'}
+                        >
+                          MOTORS
+                        </span>
                       <div className="h-[2px] bg-orange-500 flex-grow"></div>
                     </div>
                   </div>
@@ -37,13 +47,10 @@ export default function Header() {
         
               {/* Desktop Links */}
               <div className="hidden md:flex items-center gap-10 text-white/80 font-semibold text-sm uppercase tracking-widest">
-                <a href="#estoque" className="hover:text-orange-500 transition-colors">Estoque</a>
+                <a href="/estoque" className="hover:text-orange-500 transition-colors">Estoque</a>
                 <a href="#servicos" className="hover:text-orange-500 transition-colors">Serviços</a>
-                <a href="#contato" className="hover:text-orange-500 transition-colors">Contato</a>
+                <a href="/contato" className="hover:text-orange-500 transition-colors">Contato</a>
                 <a href="#sobre" className="hover:text-orange-500 transition-colors">Sobre Nós</a>
-                <button className="bg-orange-500 text-black px-7 py-2.5 rounded-full font-black hover:bg-orange-600 hover:scale-105 transition-all shadow-[0px_0px_15px_rgba(249,115,22,0.3)]">
-                  LOGIN
-                </button>
               </div>
         
               {/* Mobile Menu Toggle */}
@@ -55,11 +62,10 @@ export default function Header() {
             {/* Mobile Navigation Dropdown */}
             {isMenuOpen && (
               <div className="md:hidden bg-black border-t border-orange-500/10 p-6 flex flex-col gap-6 animate-in slide-in-from-top fade-in duration-300">
-                <a href="#estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</a>
+                <a href="/estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</a>
                 <a href="#servicos" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</a>
-                <a href="#contato" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Contato</a>
+                <a href="/contato" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Contato</a>
                 <a href="#sobre" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Sobre Nós</a>
-                <button className="bg-orange-500 text-black w-full py-4 rounded-xl font-black">ENTRAR NA CONTA</button>
               </div>
             )}
             </nav>
