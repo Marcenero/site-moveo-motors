@@ -25,10 +25,20 @@ export default function Header() {
                   />
                       
                   <div className="flex flex-col leading-none ml-1">
-                    <span className="text-white font-black text-2xl tracking-[0.15em] italic">MOVEO</span>
+                    <span 
+                      className="text-white font-black text-2xl tracking-[0.15em] italic"
+                      onClick={() => window.location.href = '/'}
+                    >
+                        MOVEO
+                      </span>
                     <div className="flex items-center gap-1">
                       <div className="h-[2px] bg-orange-500 flex-grow"></div>
-                      <span className="text-orange-500 font-bold text-[10px] tracking-[0.4em] uppercase">MOTORS</span>
+                        <span 
+                          className="text-orange-500 font-bold text-[10px] tracking-[0.4em] uppercase"
+                          onClick={() => window.location.href = '/'}
+                        >
+                          MOTORS
+                        </span>
                       <div className="h-[2px] bg-orange-500 flex-grow"></div>
                     </div>
                   </div>

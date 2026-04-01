@@ -11,11 +11,11 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
             <img 
                 src={veiculo.imagem}
                 alt={veiculo.nome}
-                className="w-full h-56 object-cover"
+                className="w-full h-70 object-cover"
             />
 
             <div className="p-5 space-y-3">
-                <h3 className="text-xl font-black text-black">{veiculo.nome}</h3>
+                <h3 className="text-xl font-semibold text-black">{veiculo.nome}</h3>
 
                 <p className="text-orange-500 font-bold text-2xl">
                     R$ {veiculo.preco.toLocaleString("pt-BR")}

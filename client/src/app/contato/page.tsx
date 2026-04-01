@@ -84,7 +84,7 @@ export default function EstoquePage() {
                     </div>
 
                     <div className="flex flex-col justify-center">
-                        <p className="text-sm text-gray-500">Cheque nossas outras redes sociais</p>
+                        <p className="text-sm text-gray-500">Cheque nossas redes sociais</p>
                         <p className="text-base font-semibold">Facebook e Instagram</p>
                     </div>
                 </div>
