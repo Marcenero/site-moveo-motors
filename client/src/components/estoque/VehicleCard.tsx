@@ -33,10 +33,10 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
                 <div className="flex items-center gap-3 pt-2">
                     <Link
                         href={`/estoque/${veiculo.id}`}
-                        className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#111111] text-[#D9A300] transition hover:bg-[#D9A300] hover:text-black"
+                        className="p-4 bg-[#111111] text-[#D9A300] rounded-2xl transition-all hover:bg-[#D9A300] hover:text-black"
                         aria-label={`Ver detalhes de ${veiculo.nome}`}
                     >
-                        <ChevronsRight size={20} />
+                        <ChevronsRight size={24} />
                     </Link>
 
                     <Link

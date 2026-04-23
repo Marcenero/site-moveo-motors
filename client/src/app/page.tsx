@@ -16,6 +16,7 @@ import {
   Zap,
   ChevronRight,
 } from 'lucide-react';
+import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
 
 import "leaflet/dist/leaflet.css";
@@ -48,7 +49,7 @@ export default function LandingPage() {
   const posicao = [-23.535763, -46.786853]; //Localização da loja
 
   return (
-    <div className="min-h-screen bg-white font-sans text-black selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-white font-sans text-black selection:bg-[#D9A300] selection:text-white">
 
       {/* --- HEADER / NAVIGATION --- */}
       <Header />
@@ -68,23 +69,23 @@ export default function LandingPage() {
         {/* Hero Content */}
         <div className="relative z-20 container mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
           <div className="text-left">
-            <div className="inline-block bg-orange-500 text-black px-4 py-1 rounded-md font-black text-sm mb-6 animate-bounce">
+            <div className="inline-block bg-[#D9A300] text-black px-4 py-1 rounded-md font-black text-sm mb-6 animate-bounce">
               OFERTA DA SEMANA
             </div>
             <h1 className="text-white text-6xl md:text-8xl font-black mb-6 leading-[0.9] tracking-tighter">
               A EMOÇÃO DE <br />
-              <span className="text-orange-500 italic">DIRIGIR.</span>
+              <span className="text-[#D9A300] italic">DIRIGIR.</span>
             </h1>
             <p className="text-gray-300 text-lg md:text-xl mb-10 font-medium max-w-lg leading-relaxed">
-              Na <span className="text-orange-500 font-bold">MOVEO MOTORS</span>, selecionamos apenas o melhor para si. Veículos premium com garantia e procedência garantida.
+              Na <span className="text-[#D9A300] font-bold">MOVEO MOTORS</span>, selecionamos apenas o melhor para si. Veículos premium com garantia e procedência garantida.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button 
+              <button
                 onClick={() => window.location.href = '/estoque'}
-                className="bg-orange-500 hover:bg-white text-black px-10 py-5 rounded-xl text-lg font-black uppercase flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-xl shadow-orange-500/20">
-                  Ver Estoque <ArrowRight size={22} />
+                className="bg-[#D9A300] hover:bg-white text-black px-10 py-5 rounded-xl text-lg font-black uppercase flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-xl">
+                Ver Estoque <ArrowRight size={22} />
               </button>
-              <button className="border-2 border-white/30 hover:border-orange-500 text-white px-10 py-5 rounded-xl text-lg font-black uppercase transition-all hover:bg-white/5">
+              <button className="border-2 border-white/30 hover:border-[#D9A300] text-white px-10 py-5 rounded-xl text-lg font-black uppercase transition-all hover:bg-white/5">
                 Avaliar Meu Usado
               </button>
             </div>
@@ -97,11 +98,11 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
-              <span className="text-orange-500 font-black tracking-widest uppercase text-sm">Catálogo</span>
+              <span className="text[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
               <h2 className="text-5xl font-black text-black mt-2 leading-none">Destaques Moveo</h2>
             </div>
-            <button 
-              className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-orange-500 pb-1 hover:text-orange-600 transition-colors"
+            <button
+              className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-[#D9A300] pb-1 hover:text-[#C89200] transition-colors"
               onClick={() => window.location.href = '/estoque'}
             >
               VER TODOS OS MODELOS <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
@@ -110,17 +111,17 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {featuredCars.map((car) => (
-              <div key={car.id} className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-2xl hover:shadow-orange-500/10 transition-all">
+              <div key={car.id} className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-2xl hover:shadow-[#C89200] transition-all">
                 <div className="relative h-64 overflow-hidden">
                   <img src={car.image} alt={car.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute top-4 left-4 bg-orange-500 text-black px-3 py-1 rounded font-black text-xs">
+                  <div className="absolute top-4 left-4 bg-[#D9A300] text-black px-3 py-1 rounded font-black text-xs">
                     EM ESTOQUE
                   </div>
                 </div>
                 <div className="p-8">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-2xl font-black text-black group-hover:text-orange-500 transition-colors">{car.name}</h3>
+                    <h3 className="text-2xl font-black text-black group-hover:text-[#D9A300] transition-colors">{car.name}</h3>
                     <span className="text-gray-400 font-bold">{car.year}</span>
                   </div>
                   <div className="flex gap-4 text-gray-400 font-bold text-sm mb-6 italic">
@@ -130,9 +131,13 @@ export default function LandingPage() {
                   </div>
                   <div className="flex items-center justify-between pt-6 border-t border-gray-50">
                     <span className="text-3xl font-black text-black">{car.price}</span>
-                    <button className="p-4 bg-black text-white rounded-2xl group-hover:bg-orange-500 group-hover:text-black transition-all">
-                      <ChevronRight size={24} />
-                    </button>
+                    <Link
+                      href={`/estoque/${car.id}`}
+                      className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111111] text-[#D9A300] transition hover:bg-[#C89200] hover:text-black"
+                      aria-label={`Ver detalhes de ${car.name}`}
+                    >
+                      <ChevronRight size={20} />
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -143,7 +148,7 @@ export default function LandingPage() {
 
       {/* --- SEÇÃO DE CONFIANÇA --- */}
       <section className="py-20 px-6 bg-black">
-        <div className="max-w-7xl mx-auto bg-gradient-to-br from-orange-500 to-orange-600 rounded-[3rem] p-10 md:p-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto bg-gradient-to-br from-[#D9A300] to-[#FFFBEA] rounded-[3rem] p-10 md:p-20 relative overflow-hidden">
           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
 
           <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center text-black">
@@ -167,9 +172,9 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="bg-black p-8 rounded-3xl shadow-2xl">
-              <p className="text-orange-500 font-black text-2xl mb-4 italic uppercase">Dúvidas?</p>
+              <p className="text-[#D9A300] font-black text-2xl mb-4 italic uppercase">Dúvidas?</p>
               <p className="text-gray-400 mb-8 font-medium">Nossos especialistas estão prontos para encontrar o carro ideal para si.</p>
-              <button 
+              <button
                 className="w-full bg-green-500 text-white py-5 rounded-2xl font-black text-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3"
                 onClick={() => window.open("https://wa.me/5511984481526", "_blank", "noopener,noreferrer")}
               >
@@ -185,14 +190,14 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-black text-5xl font-black uppercase italic tracking-tighter">Serviços Premium</h2>
-            <div className="h-2 w-24 bg-orange-500 mx-auto mt-4 rounded-full"></div>
+            <div className="h-2 w-24 bg-[#D9A300] mx-auto mt-4 rounded-full"></div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-10">
-            <div className="bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(249,115,22,1)] hover:translate-y-[-5px] transition-transform">
+            <div className="bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(217,163,0,1)] hover:translate-y-[-5px] transition-transform">
               <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">Financiamento</h3>
               <p className="text-gray-500 font-medium mb-8 leading-relaxed">Taxas competitivas com aprovação imediata. Trabalhamos com os melhores parceiros financeiros para facilitar a sua vida.</p>
-              <button className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-500 hover:text-black transition-all">
+              <button className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-[#D9A300] hover:text-black transition-all">
                 Simular Agora
               </button>
             </div>
@@ -200,7 +205,7 @@ export default function LandingPage() {
             <div className="bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-5px] transition-transform">
               <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">Consignação</h3>
               <p className="text-gray-500 font-medium mb-8 leading-relaxed">Deixe o seu carro conosco e vendemos por si. Marketing profissional e exposição premium para garantir o melhor negócio.</p>
-              <button className="bg-orange-500 text-black px-8 py-3 rounded-xl font-bold hover:bg-black hover:text-white transition-all">
+              <button className="bg-[#D9A300] text-black px-8 py-3 rounded-xl font-bold hover:bg-black hover:text-white transition-all">
                 Quero Consignar
               </button>
             </div>
@@ -212,31 +217,31 @@ export default function LandingPage() {
       <section id="contato" className="bg-black py-24 px-6 text-white overflow-hidden">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
           <div className="relative z-10">
-            <span className="text-orange-500 font-black tracking-widest uppercase">Onde Estamos</span>
+            <span className="text-[#D9A300] font-black tracking-widest uppercase">Onde Estamos</span>
             <h2 className="text-6xl font-black mt-4 mb-8 leading-[0.9]">VENHA VISITAR O NOSSO SHOWROOM</h2>
             <div className="space-y-10">
               <div className="flex gap-6 items-start">
-                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-orange-500 shrink-0">
+                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#D9A300] shrink-0">
                   <Phone size={28} />
                 </div>
                 <div>
-                  <h4 className="font-black text-xl mb-1 uppercase text-orange-500">Atendimento</h4>
+                  <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">Atendimento</h4>
                   <p className="text-gray-400 font-medium text-lg leading-snug">(11) 4387-8767<br />(11) 91234-5678</p>
                 </div>
               </div>
 
               <div className="flex gap-6 items-start">
-                <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-black shrink-0">
+                <div className="w-14 h-14 bg-[#D9A300] rounded-2xl flex items-center justify-center text-black shrink-0">
                   <MapPin size={28} />
                 </div>
                 <div>
-                  <h4 className="font-black text-xl mb-1 uppercase text-orange-500">Localização</h4>
+                  <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">Localização</h4>
                   <p className="text-gray-400 font-medium text-lg leading-snug">Av. Santo Antônio, 815 - Vila Osasco<br />Osasco, SP - 06083-200</p>
                 </div>
               </div>
             </div>
           </div>
-            
+
           <div className="relative z-0">
             <MapContainer
               center={posicao}
@@ -250,7 +255,7 @@ export default function LandingPage() {
               zoomControl={false}
               className="h-[400px] w-full rounded-2xl"
             >
-              <TileLayer 
+              <TileLayer
                 attribution='&copy; OpenStreetMap contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
@@ -262,7 +267,7 @@ export default function LandingPage() {
               </Marker>
             </MapContainer>
           </div>
-            
+
         </div>
       </section>
 

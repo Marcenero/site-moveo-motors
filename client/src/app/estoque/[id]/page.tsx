@@ -22,7 +22,9 @@ export default function VehicleDetailsPage({
 }) {
     const veiculo = veiculos.find((item) => item.id === Number(params.id));
 
-    if (!veiculo) notFound();
+    if (!veiculo) {
+        notFound();
+    }
 
     const imagens = veiculo.imagens?.length ? veiculo.imagens : [veiculo.imagem];
     const [imagemAtual, setImagemAtual] = useState(0);
