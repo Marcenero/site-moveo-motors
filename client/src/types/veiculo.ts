@@ -6,4 +6,11 @@ export type Veiculo = {
     km: number;
     combustivel: string;
     imagem: string;
-}
+
+    imagens?: string[];
+    cambio?: string;
+    motor?: string;
+    portas?: string;
+    cor?: string;
+    descricao?: string;
+};
