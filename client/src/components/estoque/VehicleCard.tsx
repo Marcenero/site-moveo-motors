@@ -24,21 +24,13 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
 
                 <div className="flex flex-wrap gap-3 text-sm text-gray-700">
                     <span><strong>{veiculo.ano}</strong></span>
-                    <span>&#9702;</span>
+                    <span>&#8226;</span>
                     <span><strong>{veiculo.km.toLocaleString("pt-BR")} km</strong></span>
-                    <span>&#9702;</span>
+                    <span>&#8226;</span>
                     <span><strong>{veiculo.combustivel}</strong></span>
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
-                    <Link
-                        href={`/estoque/${veiculo.id}`}
-                        className="p-4 bg-[#111111] text-[#D9A300] rounded-2xl transition-all hover:bg-[#D9A300] hover:text-black"
-                        aria-label={`Ver detalhes de ${veiculo.nome}`}
-                    >
-                        <ChevronsRight size={24} />
-                    </Link>
-
                     <Link
                         href={`/estoque/${veiculo.id}`}
                         className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9A300] bg-white py-3 font-medium text-[#D9A300] transition-all duration-300 hover:border-[#C89200] hover:bg-[#C89200] hover:text-black"

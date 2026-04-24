@@ -80,11 +80,16 @@ export default function EstoquePage() {
                 <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
                     <div className="flex flex-row justify-center gap-3">
                         <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-blue-400 hover:text-white"><FaFacebookF size={30} /></div>
-                        <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-pink-500 hover:text-white"><FaInstagram size={30} /></div>
+                        <a 
+                            href="https://www.instagram.com/moveomotors?igsh=ankya3htZWVqMjZ2"
+                            className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-pink-500 hover:text-white"
+                        >
+                            <FaInstagram size={30} />
+                        </a>
                     </div>
 
                     <div className="flex flex-col justify-center">
-                        <p className="text-sm text-gray-500">Cheque nossas redes sociais</p>
+                        <p className="text-sm text-gray-500">Cheque nossas redes sociais (clique nos ícones)</p>
                         <p className="text-base font-semibold">Facebook e Instagram</p>
                     </div>
                 </div>

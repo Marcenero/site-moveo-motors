@@ -8,7 +8,18 @@ export const veiculos: Veiculo[] = [
         preco: 139900,
         km: 32000,
         combustivel: "Flex",
-        imagem: ""
+        imagens: [
+            "/honda1.webp",
+            "/honda2.jpg"
+        ],
+        cambio: "Automático",
+        motor: "1.0",
+        portas: "4",
+        cor: "Branco",
+        final_placa: 7,
+        lugares: 5,
+        estado_ipva: true,
+        aceita_troca: true
     },
     {
         id: 2,
@@ -17,7 +28,8 @@ export const veiculos: Veiculo[] = [
         preco: 129900,
         km: 41000,
         combustivel: "Flex",
-        imagem: ""
+        imagem: "",
+        cambio: "Automático"
     },
     {
         id: 3,
@@ -27,6 +39,7 @@ export const veiculos: Veiculo[] = [
         km: 18000,
         combustivel: "Flex",
         imagem: "",
+        cambio: "Automático"
     },
     {
         id: 4,
@@ -36,5 +49,6 @@ export const veiculos: Veiculo[] = [
         km: 52000,
         combustivel: "Gasolina",
         imagem: "",
+        cambio: "Automático"
     },
 ]
