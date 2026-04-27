@@ -54,7 +54,7 @@ export default function SearchBox() {
                 </div>
 
                 {/* Busca + botão */}
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                     <div className="relative flex-1">
                         <input
                             type="text"
@@ -63,7 +63,7 @@ export default function SearchBox() {
                         />
                     </div>
 
-                    <button className="bg-[#D9A300] hover:bg-black text-black hover:text-white font-black uppercase px-8 py-4 rounded-xl transition-all hover:scale-105 flex items-center gap-2">
+                    <button className="justify-center bg-[#D9A300] hover:bg-black text-black hover:text-white font-black uppercase px-8 py-4 rounded-xl transition-all hover:scale-105 flex items-center gap-2">
                         Buscar
                         <Search size={20}/>
                     </button>
