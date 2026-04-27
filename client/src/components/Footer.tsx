@@ -37,7 +37,7 @@ export default function Footer() {
                     <div>
                         <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">Institucional</h4>
                         <ul className="space-y-4 font-bold text-gray-500">
-                            <li><a href="#" className="hover:text-[#D9A300] transition-colors">Quem Somos</a></li>
+                            <li><a href="/sobre" className="hover:text-[#D9A300] transition-colors">Quem Somos</a></li>
                             <li><a href="#" className="hover:text-[#D9A300] transition-colors">Termos & Condições</a></li>
                             <li><a href="#" className="hover:text-[#D9A300] transition-colors">Privacidade</a></li>
                         </ul>

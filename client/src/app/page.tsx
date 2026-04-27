@@ -55,7 +55,7 @@ export default function LandingPage() {
       <Header />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[720px] md:min-h-screen py-28 md:py-0 flex items-center justify-center overflow-hidden">
         {/* Background Layer */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10" />
@@ -175,10 +175,13 @@ export default function LandingPage() {
               <p className="text-[#D9A300] font-black text-2xl mb-4 italic uppercase">Dúvidas?</p>
               <p className="text-gray-400 mb-8 font-medium">Nossos especialistas estão prontos para encontrar o carro ideal para si.</p>
               <button
-                className="w-full bg-green-500 text-white py-5 rounded-2xl font-black text-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3"
+                className="w-full bg-green-500 text-white px-4 py-5 rounded-2xl font-black text-sm sm:text-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 sm:gap-3 text-center"
                 onClick={() => window.open("https://wa.me/5511984481526", "_blank", "noopener,noreferrer")}
               >
-                <FaWhatsapp size={24} /> CONTATO VIA WHATSAPP
+                <span className="shrink-0 text-xl sm:text-2xl">
+                  <FaWhatsapp /> 
+                </span>
+                <span className="leading-tight">CONTATO VIA WHATSAPP</span>
               </button>
             </div>
           </div>
@@ -214,11 +217,11 @@ export default function LandingPage() {
       </section>
 
       {/* --- LOCALIZAÇÃO --- */}
-      <section id="contato" className="bg-black py-24 px-6 text-white overflow-hidden">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+      <section id="contato" className="bg-black py-16 md:py-24 px-4 md:px-6 text-white overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
           <div className="relative z-10">
             <span className="text-[#D9A300] font-black tracking-widest uppercase">Onde Estamos</span>
-            <h2 className="text-6xl font-black mt-4 mb-8 leading-[0.9]">VENHA VISITAR O NOSSO SHOWROOM</h2>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mt-4 mb-8 leading-tight md:leading-[0.9] break-words">VENHA VISITAR O NOSSO SHOWROOM</h2>
             <div className="space-y-10">
               <div className="flex gap-6 items-start">
                 <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#D9A300] shrink-0">

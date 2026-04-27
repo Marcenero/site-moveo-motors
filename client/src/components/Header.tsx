@@ -13,11 +13,8 @@ export default function Header() {
             <img
               src="/Moveo-motors-v2.png"
               alt="Moveo Motors Logo"
-              className="h-30 w-auto invert brightness-0 transition-transform"
+              className="h-30 w-auto transition-transform"
               onClick={() => window.location.href = '/'}
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
             />
 
             <div className="flex flex-col leading-none ml-1">
@@ -49,14 +46,14 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button className="hidden md:hidden text-white hover:text-[#FFFBEA] transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button className="md:hidden text-white hover:text-[#FFFBEA] transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <X size={32} /> : <Menu size={32} />}
         </button>
       </div>
 
       {/* Mobile Navigation Dropdown */}
       {isMenuOpen && (
-        <div className="md:hidden bg-black border-t border-[#D9A300]/10 p-6 flex flex-col gap-6 animate-in slide-in-from-top fade-in duration-300">
+        <div className="md:bg-black border-t border-[#D9A300]/10 p-6 flex flex-col gap-6 animate-in slide-in-from-top fade-in duration-300">
           <a href="/estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</a>
           <a href="/servicos" className="hidden text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</a>
           <a href="/sobre" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Sobre Nós</a>
