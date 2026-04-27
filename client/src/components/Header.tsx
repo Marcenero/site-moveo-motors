@@ -14,9 +14,6 @@ export default function Header() {
               src="/Moveo-motors-v2.png"
               alt="Moveo Motors Logo"
               className="h-30 w-auto invert brightness-0 transition-transform"
-              style={{
-                filter: "invert(58%) sepia(84%) saturate(1915%) hue-rotate(1deg) brightness(105%) contrast(106%)" // Filtro para aproximar ao laranja do logo
-              }}
               onClick={() => window.location.href = '/'}
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
@@ -47,12 +44,12 @@ export default function Header() {
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10 text-white/80 font-semibold text-sm uppercase tracking-widest">
           <a href="/estoque" className="hover:text-[#D9A300] transition-colors">Estoque</a>
-          <a href="/servicos" className="hover:text-[#D9A300] transition-colors">Serviços</a>
+          <a href="/servicos" className="hidden hover:text-[#D9A300] transition-colors">Serviços</a>
           <a href="/sobre" className="hover:text-[#D9A300] transition-colors">Sobre Nós</a>
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button className="md:hidden text-white hover:text-[#FFFBEA] transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button className="hidden md:hidden text-white hover:text-[#FFFBEA] transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <X size={32} /> : <Menu size={32} />}
         </button>
       </div>
@@ -61,7 +58,7 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden bg-black border-t border-[#D9A300]/10 p-6 flex flex-col gap-6 animate-in slide-in-from-top fade-in duration-300">
           <a href="/estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</a>
-          <a href="/servicos" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</a>
+          <a href="/servicos" className="hidden text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</a>
           <a href="/sobre" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Sobre Nós</a>
         </div>
       )}
