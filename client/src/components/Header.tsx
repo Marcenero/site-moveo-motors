@@ -10,9 +10,8 @@ export default function Header() {
         {/* Logo Section - Moveo Motors */}
         <div className="flex items-center gap-3 group cursor-pointer">
           <div className="relative h-12 w-auto flex items-center">
-            {/* Aqui você deve substituir o src pelo caminho real da imagem "Moveo motors.png" no seu projeto public/ */}
             <img
-              src="/Moveo-motors.png" // Placeholder para ícone caso a imagem falhe
+              src="/Moveo-motors-v2.png"
               alt="Moveo Motors Logo"
               className="h-30 w-auto invert brightness-0 transition-transform"
               style={{
