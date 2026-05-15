@@ -28,8 +28,16 @@ export default function Footer() {
                         <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">Menu</h4>
                         <ul className="space-y-4 font-bold text-gray-500">
                             <li><a href="/estoque" className="hover:text-[#D9A300] transition-colors">Novos & Usados</a></li>
-                            <li><a href="#servicos" className="hidden hover:text-[#D9A300] transition-colors">Financiamento</a></li>
-                            <li><a href="#" className="hover:text-[#D9A300] transition-colors">Avaliação Online</a></li>
+                            <li>
+                                <a
+                                    href="https://wa.me/5511912345678"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-[#D9A300] transition-colors"
+                                >
+                                    Avaliação online
+                                </a>
+                            </li>
                             <li><a href="/sobre" className="hover:text-[#D9A300] transition-colors">Localização</a></li>
                         </ul>
                     </div>

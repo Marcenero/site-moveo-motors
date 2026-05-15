@@ -5,9 +5,10 @@ export type Veiculo = {
     preco: number;
     km: number;
     combustivel: string;
-    imagem?: string;
 
+    imagem?: string;
     imagens?: string[];
+
     cambio: string;
     motor?: string;
     portas?: string;

@@ -40,16 +40,6 @@ export default function SearchBox() {
                             <option value="2024">2024</option>
                             <option value="2023">2023</option>
                         </select>
-                        </div>
-
-                    <div className="flex flex-col">
-                        <label className="text-sm font-bold text-gray-700 mb-2">Câmbio</label>
-                        <select className="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-orange-500">
-                            <option value="">Selecione</option>
-                            <option value="automatico">Automático</option>
-                            <option value="manual">Manual</option>
-                            <option value="cvt">CVT</option>
-                        </select>
                     </div>
                 </div>
 
@@ -65,7 +55,7 @@ export default function SearchBox() {
 
                     <button className="justify-center bg-[#D9A300] hover:bg-black text-black hover:text-white font-black uppercase px-8 py-4 rounded-xl transition-all hover:scale-105 flex items-center gap-2">
                         Buscar
-                        <Search size={20}/>
+                        <Search size={20} />
                     </button>
                 </div>
             </section>
