@@ -23,14 +23,38 @@ export default function EstoquePage() {
 
             <Header />
 
-            <div className="bg-white shadow-md p-6 text-left">
+            <div className="flex bg-gray-300 min-h-width h-[350px]">
+                Colocar imagem da loja aqui
+                .
+                .
+                .
+                .
+            </div>
+
+            <div className="mx-auto flex flex-col h-[180px] w-11/12 md:w-1/2 justify-center items-center text-center pt-6 gap-4">
+                <p>
+                    Na Moveo Motors, acreditamos que a compra de um veículo é um marco 
+                na vida de nossos clientes. Fundada com o objetivo de oferecer 
+                transparência e segurança, selecionamos cada item do nosso
+                estoque criteriosamente, garantindo que você leve para casa a
+                tranquilidade de um excelente negócio.
+                </p>
+
+                <p className="mt-4">
+                    Nossa missão é simples: unir qualidade, procedência e um atendimento
+                humano que entende as suas necessidades. Venha nos visitar e descubra
+                porque somos referência na região.
+                </p>
+            </div>
+
+            <div className="bg-white shadow-md p-6 text-left mt-6">
                 <h2 className="flex flex-col text-6xl font-bold leading-tight">
                     <span className="text-black">Canais de</span>
                     <span className="text-[#D9A300]">Atendimento</span>
                 </h2>
 
                 <p className="mt-3 text-gray-500 text-base leading-relaxed">
-                    Aqui você pode escolher a melhor forma de entrar em contato com nós.
+                    Aqui em baixo você pode escolher a melhor forma de entrar em contato com nós.
                 </p>
             </div>
 
@@ -94,14 +118,21 @@ export default function EstoquePage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
-                    <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0"><FiMapPin size={30} /></div>
+                <a
+                    href="https://share.google/hpbbcHh7iOsKFGfOx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group"
+                >
+                    <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300] group-hover:bg-[#D9A300]">
+                        <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 group-hover:bg-gray-300"><FiMapPin size={30} /></div>
 
-                    <div className="flex flex-col justify-center">
-                        <p className="text-sm text-gray-500">Localização</p>
-                        <p className="text-base font-semibold text-black">Avenida Santo Antônio, 815</p>
+                        <div className="flex flex-col justify-center">
+                            <p className="text-sm text-gray-500">Localização (Clique aqui para descobrir como chegar lá)</p>
+                            <p className="text-base font-semibold text-black">Avenida Santo Antônio, 815</p>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <Footer />
