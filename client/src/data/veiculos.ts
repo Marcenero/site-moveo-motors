@@ -10,7 +10,8 @@ export const veiculos: Veiculo[] = [
         combustivel: "Flex",
         imagens: [
             "/honda1.webp",
-            "/honda2.jpg"
+            "/honda2.jpg",
+            "/honda3.jpg"
         ],
         cambio: "Automático",
         motor: "1.0",

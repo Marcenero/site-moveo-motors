@@ -47,11 +47,11 @@ export default function VehicleDetailsPage({
     const [imagemAtual, setImagemAtual] = useState(0);
 
     const imagemAnterior = () => {
-        setImagemAtual((atual) => atual === 0 ? imagens.length-1 : atual-1);
+        setImagemAtual((atual) => atual === 0 ? imagens.length - 1 : atual - 1);
     };
 
     const proximaImagem = () => {
-        setImagemAtual((atual) => atual === imagens.length-1 ? 0 : atual+1);
+        setImagemAtual((atual) => atual === imagens.length - 1 ? 0 : atual + 1);
     };
 
     return (
@@ -62,7 +62,7 @@ export default function VehicleDetailsPage({
                 <div className="mb-6">
                     <Link
                         href="/estoque"
-                        className="inline-flex items-center rounded-full border border-black px-4 py-2 text-sm font-medium transition hover:bg-black hover:text-white"
+                        className="inline-flex items-center gap-2 rounded-full border border-black bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-white hover:text-black"
                     >
                         <ArrowLeft size={22} /> Voltar para estoque
                     </Link>
@@ -77,7 +77,7 @@ export default function VehicleDetailsPage({
                                     alt={veiculo.nome}
                                     className="h-full w-full object-contain"
                                 />
-                                
+
                                 <button
                                     onClick={imagemAnterior}
                                     className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black"
@@ -138,7 +138,7 @@ export default function VehicleDetailsPage({
 
                                     {copiado && (
                                         <span className="absolute right-0 top-8 whitespace-nowrap rounded-lg bg-black px-3 py-2 text-xs font-medium text-white shadow-lg">
-                                        Link copiado!
+                                            Link copiado!
                                         </span>
                                     )}
                                 </div>
@@ -176,28 +176,28 @@ export default function VehicleDetailsPage({
                             <h2 className="mb-5 text-2xl font-semibold text-black">Ficha técnica</h2>
 
                             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black"> 
-                                    <Calendar size={18} className="shrink-0" /> {String(veiculo.ano)} 
+                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black">
+                                    <Calendar size={18} className="shrink-0" /> {String(veiculo.ano)}
                                 </div>
 
-                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black"> 
-                                    <Gauge size={18} className="shrink-0" /> {veiculo.km.toLocaleString("pt-BR")} km 
+                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black">
+                                    <Gauge size={18} className="shrink-0" /> {veiculo.km.toLocaleString("pt-BR")} km
                                 </div>
 
-                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black"> 
-                                <Settings size={18} className="shrink-0" /> {veiculo.cambio} 
+                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black">
+                                    <Settings size={18} className="shrink-0" /> {veiculo.cambio}
                                 </div>
 
-                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black"> 
-                                    <Fuel size={18} className="shrink-0" /> {veiculo.combustivel} 
+                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black">
+                                    <Fuel size={18} className="shrink-0" /> {veiculo.combustivel}
                                 </div>
 
-                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black"> 
-                                    <Wrench size={18} className="shrink-0" /> {veiculo.motor} 
+                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black">
+                                    <Wrench size={18} className="shrink-0" /> {veiculo.motor}
                                 </div>
 
-                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black"> 
-                                    <CarFront size={18} className="shrink-0" /> {veiculo.portas} portas 
+                                <div className="flex items-center gap-2 rounded-2xl border border-gray-200 px-4 py-4 text-sm font-medium text-black">
+                                    <CarFront size={18} className="shrink-0" /> {veiculo.portas} portas
                                 </div>
                             </div>
                         </div>

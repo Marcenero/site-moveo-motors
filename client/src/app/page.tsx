@@ -99,7 +99,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
               <span className="text[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
-              <h2 className="text-5xl font-black text-black mt-2 leading-none">Destaques Moveo</h2>
+              <h2 className="text-5xl font-black text-black mt-2 leading-none">Recém adicionados</h2>
             </div>
             <button
               className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-[#D9A300] pb-1 hover:text-[#C89200] transition-colors"
@@ -179,7 +179,7 @@ export default function LandingPage() {
                 onClick={() => window.open("https://wa.me/5511984481526", "_blank", "noopener,noreferrer")}
               >
                 <span className="shrink-0 text-xl sm:text-2xl">
-                  <FaWhatsapp /> 
+                  <FaWhatsapp />
                 </span>
                 <span className="leading-tight">CONTATO VIA WHATSAPP</span>
               </button>
@@ -197,20 +197,42 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-10">
-            <div className="bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(217,163,0,1)] hover:translate-y-[-5px] transition-transform">
-              <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">Financiamento</h3>
-              <p className="text-gray-500 font-medium mb-8 leading-relaxed">Taxas competitivas com aprovação imediata. Trabalhamos com os melhores parceiros financeiros para facilitar a sua vida.</p>
-              <button className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-[#D9A300] hover:text-black transition-all">
-                Simular Agora
-              </button>
+            <div className="relative bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(217,163,0,1)] overflow-hidden">
+              <div className="opacity-30 blur-[1.5px] pointer-events-none select-none">
+                <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">
+                  Financiamento
+                </h3>
+
+                <p className="text-gray-500 font-medium mb-8 leading-relaxed">
+                  Taxas competitivas com aprovação imediata. Trabalhamos com os melhores
+                  parceiros financeiros para facilitar a sua vida.
+                </p>
+
+                <button className="bg-black text-white px-8 py-3 rounded-xl font-bold">
+                  Simular agora
+                </button>
+              </div>
+
+              <div className="absolute inset-0 bg-white/35"></div>
+
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl font-black mb-4 uppercase tracking-tight">
+                  Em breve
+                </span>
+              </div>
             </div>
 
             <div className="bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-5px] transition-transform">
               <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">Consignação</h3>
               <p className="text-gray-500 font-medium mb-8 leading-relaxed">Deixe o seu carro conosco e vendemos por si. Marketing profissional e exposição premium para garantir o melhor negócio.</p>
-              <button className="bg-[#D9A300] text-black px-8 py-3 rounded-xl font-bold hover:bg-black hover:text-white transition-all">
-                Quero Consignar
-              </button>
+              <a
+                href="https://wa.me/5511912345678"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-[#D9A300] text-black px-8 py-3 rounded-xl font-bold hover:bg-black hover:text-white transition-all"
+              >
+                Quero consignar
+              </a>
             </div>
           </div>
         </div>
