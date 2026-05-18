@@ -11,7 +11,7 @@ export default function Header() {
         <div className="flex items-center gap-3 group cursor-pointer">
           <div className="relative h-12 w-auto flex items-center">
             <img
-              src="/Moveo-motors-v2.png"
+              src="/Moveo-motors.png"
               alt="Moveo Motors Logo"
               className="h-30 w-auto transition-transform"
               onClick={() => window.location.href = '/'}
