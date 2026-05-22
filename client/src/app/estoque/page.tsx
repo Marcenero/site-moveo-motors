@@ -12,9 +12,10 @@ export default function EstoquePage() {
 
             <Header />
 
-            <SearchBox />
-
-            <VehicleGrid veiculos={veiculos} />
+            <div className="max-w-7xl mx-auto px-6">
+                <SearchBox />
+                <VehicleGrid veiculos={veiculos} />
+            </div>
 
             <Footer />
 

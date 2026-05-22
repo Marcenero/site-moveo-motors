@@ -39,7 +39,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
                 setImagemAtual(0);
             }}
         >
-            <div className="relative w-full h-72 overflow-hidden bg-gray-100">
+            <div className="relative w-full h-48 overflow-hidden bg-gray-100">
                 {imagens.map((imagem, index) => (
                     <img
                         key={imagem}
