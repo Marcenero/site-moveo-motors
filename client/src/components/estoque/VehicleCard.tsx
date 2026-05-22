@@ -31,14 +31,16 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
     }, [mouseEmCima, imagens.length]);
 
     return (
-        <div
-            className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:scale-[1.02] transition-all duration-300"
+        <Link
+            href={`/estoque/${veiculo.id}`}
+            className="group block bg-white rounded-2xl shadow-lg overflow-hidden hover:scale-[1.02] transition-all duration-300"
             onMouseEnter={() => setMouseEmCima(true)}
             onMouseLeave={() => {
                 setMouseEmCima(false);
                 setImagemAtual(0);
             }}
         >
+        
             <div className="relative w-full h-48 overflow-hidden bg-gray-100">
                 {imagens.map((imagem, index) => (
                     <img
@@ -93,15 +95,12 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
-                    <Link
-                        href={`/estoque/${veiculo.id}`}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9A300] bg-white py-3 font-medium text-[#D9A300] transition-all duration-300 hover:border-[#C89200] hover:bg-[#C89200] hover:text-black"
-                    >
+                    <div className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9A300] bg-white py-3 font-medium text-[#D9A300] transition-all duration-300 hover:border-[#C89200] hover:bg-[#C89200] hover:text-black">
                         Mais detalhes
                         <ChevronsRight size={20} />
-                    </Link>
+                    </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
