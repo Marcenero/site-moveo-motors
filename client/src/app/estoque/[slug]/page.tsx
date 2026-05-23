@@ -22,10 +22,12 @@ import { veiculos } from "../../../data/veiculos";
 export default function VehicleDetailsPage({
     params,
 }: {
-    params: Promise<{ id: string }>;
+    params: Promise<{ slug: string }>;
 }) {
-    const { id } = React.use(params);
-    const veiculo = veiculos.find((item) => item.id === Number(id));
+    const { slug } = React.use(params);
+    const id = Number(slug.split("-").pop());
+
+    const veiculo = veiculos.find((item) => item.id === id);
 
     const [copiado, setCopiado] = useState(false);
 

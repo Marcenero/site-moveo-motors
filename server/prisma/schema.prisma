@@ -13,7 +13,30 @@ datasource db {
 }
 
 model Veiculo {
-  id        Int @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
+  id            Int @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+
+  imagens       ImagemVeiculo[]
+
+  name          String
+  km            Int
+  cor           String
+  final_placa   Int
+  estado_IPVA   Boolean @default(false)
+
+  preco         Float
+  ano           Int
+  cambio        String
+  motor         String
+  combustivel   String
+  descricao     String
+  outras_infos  String[]
+}
+
+model ImagemVeiculo {
+  id         Int @id @default(autoincrement())
+  url        String
+  veiculoId  Int
+
+  veiculo    Veiculo @relation(fields: [veiculoId], references:[id], onDelete: Cascade)
 }
