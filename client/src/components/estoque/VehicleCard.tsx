@@ -9,13 +9,22 @@ type VehicleCardProps = {
     veiculo: Veiculo;
 };
 
+function gerarSlug(texto: string) {
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+}
+
 export default function VehicleCard({ veiculo }: VehicleCardProps) {
+    const urlDetalhes = `/estoque/${gerarSlug(`${veiculo.nome}-${veiculo.ano}`)}-${veiculo.id}`;
+    
     const imagens =
         veiculo.imagens && veiculo.imagens.length > 0
             ? veiculo.imagens
-            : veiculo.imagem
-                ? [veiculo.imagem]
-                : ["/placeholder-carro.png"];
+            : ["/placeholder-carro.png"];
 
     const [imagemAtual, setImagemAtual] = useState(0);
     const [mouseEmCima, setMouseEmCima] = useState(false);
@@ -32,7 +41,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
 
     return (
         <Link
-            href={`/estoque/${veiculo.id}`}
+            href={urlDetalhes}
             className="group block bg-white rounded-2xl shadow-lg overflow-hidden hover:scale-[1.02] transition-all duration-300"
             onMouseEnter={() => setMouseEmCima(true)}
             onMouseLeave={() => {

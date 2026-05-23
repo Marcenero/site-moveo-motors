@@ -1,8 +1,10 @@
 "use client";
 
 import Header from "../components/Header";
-import Footer from "../components/Footer"
-import React, { useState } from 'react';
+import Footer from "../components/Footer";
+import VehicleCard from "../components/estoque/VehicleCard";
+import React, { useEffect, useState } from "react";
+import type { Veiculo } from "../types/veiculo";
 import {
   MapPin,
   Phone,
@@ -30,23 +32,20 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function LandingPage() {
-  const featuredCars = [
-    {
-      id: 1,
-      name: "EXEMPLO",
-      price: "R$123,00",
-      year: "2026",
-      km: "12500 km",
-      transmission: "Manual",
-      image: ""
-    },
-    // Adicionar carros
-    // {
-    // id: , name: , price: , year: , km: , transmission: , image:
-    //},
-  ];
+  const [veiculosRecentes, setVeiculosRecentes] = useState<Veiculo[]>([]);
 
-  const posicao = [-23.535763, -46.786853]; //Localização da loja
+  useEffect(() => {
+    async function buscarVeiculosRecentes() {
+      const resposta = await fetch("/api/veiculos/recentes");
+      const dados = await resposta.json();
+
+      setVeiculosRecentes(dados);
+    }
+
+    buscarVeiculosRecentes();
+  }, []);
+
+  const posicao: [number, number] = [-23.535763, -46.786853]; //Localização da loja
 
   return (
     <div className="min-h-screen bg-white font-sans text-black selection:bg-[#D9A300] selection:text-white">
@@ -110,37 +109,8 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {featuredCars.map((car) => (
-              <div key={car.id} className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-2xl hover:shadow-[#C89200] transition-all">
-                <div className="relative h-64 overflow-hidden">
-                  <img src={car.image} alt={car.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute top-4 left-4 bg-[#D9A300] text-black px-3 py-1 rounded font-black text-xs">
-                    EM ESTOQUE
-                  </div>
-                </div>
-                <div className="p-8">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-2xl font-black text-black group-hover:text-[#D9A300] transition-colors">{car.name}</h3>
-                    <span className="text-gray-400 font-bold">{car.year}</span>
-                  </div>
-                  <div className="flex gap-4 text-gray-400 font-bold text-sm mb-6 italic">
-                    <span>{car.km}</span>
-                    <span>•</span>
-                    <span>{car.transmission}</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-6 border-t border-gray-50">
-                    <span className="text-3xl font-black text-black">{car.price}</span>
-                    <Link
-                      href={`/estoque/${car.id}`}
-                      className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111111] text-[#D9A300] transition hover:bg-[#C89200] hover:text-black"
-                      aria-label={`Ver detalhes de ${car.name}`}
-                    >
-                      <ChevronRight size={20} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
+            {veiculosRecentes.map((veiculo) => (
+              <VehicleCard key={veiculo.id} veiculo={veiculo} />
             ))}
           </div>
         </div>
