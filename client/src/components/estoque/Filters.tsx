@@ -60,8 +60,7 @@ export function filtrar(veiculos: Veiculo[], f: FilterState): Veiculo[] {
         if (v.km > f.kmMax) return false;
         if (f.cambio.length > 0 && !f.cambio.includes(v.cambio)) return false;
         if (f.combustivel.length > 0 && !f.combustivel.includes(v.combustivel)) return false;
-        if (f.aceitaTroca && !v.aceita_troca) return false;  // ← correct field
-        if (f.ipvaPago && !v.estado_ipva) return false;       // ← correct field
+        if (f.ipvaPago && !v.estado_IPVA) return false;       // ← correct field
 
         return true;
     });
