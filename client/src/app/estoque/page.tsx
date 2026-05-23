@@ -99,7 +99,7 @@ export default function EstoquePage() {
                         </div>
 
                         <div className="flex flex-col relative shrink-0">
-                            <span className="ml-1 text-gray-600">
+                            <span className="ml-1 text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">
                                 Ordenar
                             </span>
 

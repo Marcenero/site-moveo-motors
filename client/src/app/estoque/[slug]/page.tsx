@@ -15,7 +15,8 @@ import {
     ArrowRight,
     ArrowLeft,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Check
 } from "lucide-react";
 import { veiculos } from "../../../data/veiculos";
 
@@ -45,7 +46,10 @@ export default function VehicleDetailsPage({
         notFound();
     }
 
-    const imagens = veiculo.imagens?.length ? veiculo.imagens : [veiculo.imagem];
+    const imagens = veiculo.imagens?.length
+        ? veiculo.imagens.map((imagem) => imagem.url)
+        : ["/placeholder-carro.png"];
+
     const [imagemAtual, setImagemAtual] = useState(0);
 
     const imagemAnterior = () => {
@@ -152,11 +156,7 @@ export default function VehicleDetailsPage({
                                     <span>&#8226;</span>
                                     <span>Placa final {veiculo.final_placa}</span>
                                     <span>&#8226;</span>
-                                    <span>{veiculo.lugares} lugares</span>
-                                    <span>&#8226;</span>
-                                    <span>{veiculo.estado_ipva ? "IPVA pago" : "IPVA pendente"}</span>
-                                    <span>&#8226;</span>
-                                    <span>{veiculo.aceita_troca ? "Aceita troca" : "Não aceita troca"}</span>
+                                    <span>{veiculo.estado_IPVA ? "IPVA pago" : "IPVA pendente"}</span>
                                 </p>
 
                                 <div className="mb-6 rounded-2xl border-2 border-[#D9A300] bg-[#FFFBEA] px-6 py-4">
@@ -185,7 +185,6 @@ export default function VehicleDetailsPage({
                                         { label: "Câmbio", valor: veiculo.cambio, icon: Settings },
                                         { label: "Combustível", valor: veiculo.combustivel, icon: Fuel },
                                         { label: "Motor", valor: veiculo.motor, icon: Wrench },
-                                        { label: "Portas", valor: `${veiculo.portas} portas`, icon: CarFront },
                                     ].map(({ label, valor, icon: Icon }) => (
                                         <div
                                             key={label}
@@ -216,9 +215,25 @@ export default function VehicleDetailsPage({
                     <div className="mt-8 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                         <h2 className="mb-4 text-2xl font-semibold text-black">Outras informações</h2>
 
-                        <p className="leading-7 text-gray-700">
-                            {veiculo.descricao ?? "Veículo em ótimo estado de conservação."}
-                        </p>
+                        <div className="space-y-3">
+                            <p className="leading-7 text-gray-700">
+                                {veiculo.descricao ?? "Veículo em ótimo estado de conservação."}
+                            </p>
+
+                            {veiculo.outras_infos && veiculo.outras_infos.length > 0 && (
+                                <ul className="space-y-2 pt-2">
+                                    {veiculo.outras_infos.map((info, index) => (
+                                        <li
+                                            key={index}
+                                            className="flex items-center gap-2 text-gray-700"
+                                        >
+                                            <Check size={18} className="text-black" />
+                                            {info}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     </div>
                 </section>
             </div>
