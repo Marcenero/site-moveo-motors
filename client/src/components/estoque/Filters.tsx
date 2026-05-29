@@ -14,7 +14,6 @@ export interface FilterState {
     kmMax: number;
     cambio: string[];
     combustivel: string[];
-    aceitaTroca: boolean;
     ipvaPago: boolean;
 }
 
@@ -34,7 +33,6 @@ export const FILTROS_INICIAIS: FilterState = {
     kmMax: KM_MAX_GLOBAL,
     cambio: [],
     combustivel: [],
-    aceitaTroca: false,
     ipvaPago: false,
 };
 
@@ -235,12 +233,6 @@ export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
 
             {/* Toggles */}
             <div className="space-y-3">
-                <Toggle
-                    id={`${uid}-troca`}
-                    label="Aceita troca"
-                    checked={valor.aceitaTroca}
-                    onChange={(v) => set("aceitaTroca", v)}
-                />
                 <Toggle
                     id={`${uid}-ipva`}
                     label="IPVA pago"

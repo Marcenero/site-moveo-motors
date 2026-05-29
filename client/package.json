@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.6.0",
     "next": "16.1.7",
