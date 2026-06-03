@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "../../supabase/server";
 import LogoutButton from "../../components/admin/logout-button";
 
@@ -31,17 +32,10 @@ export default async function AdminPage() {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
-                    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                        <p className="text-sm text-gray-500">
-                            Veículos cadastrados
-                        </p>
-
-                        <strong className="text-3xl text-gray-900">
-                            0
-                        </strong>
-                    </div>
-
-                    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <Link 
+                        href="/admin/disponiveis"
+                        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:bg-gray-200"
+                    >
                         <p className="text-sm text-gray-500">
                             Disponíveis
                         </p>
@@ -49,7 +43,7 @@ export default async function AdminPage() {
                         <strong className="text-3xl text-gray-900">
                             0
                         </strong>
-                    </div>
+                    </Link>
 
                     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                         <p className="text-sm text-gray-500">

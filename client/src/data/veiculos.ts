@@ -58,3 +58,10 @@ export const veiculos: Veiculo[] = [
         estado_IPVA: true,
     },
 ]
+
+/*
+const { data: veiculos } = await supabase
+  .from("veiculos")
+  .select("*")
+  .eq("vendido", false); 
+*/

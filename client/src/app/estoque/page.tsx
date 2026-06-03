@@ -186,7 +186,6 @@ function construirChipsAtivos(f: FilterState): Array<{ chave: keyof FilterState;
 
     if (f.cambio.length > 0) chips.push({ chave: "cambio", rotulo: f.cambio.join(" / ") });
     if (f.combustivel.length > 0) chips.push({ chave: "combustivel", rotulo: f.combustivel.join(" / ") });
-    if (f.aceitaTroca) chips.push({ chave: "aceitaTroca", rotulo: "Aceita troca" });
     if (f.ipvaPago) chips.push({ chave: "ipvaPago", rotulo: "IPVA pago" });
 
     return chips;
