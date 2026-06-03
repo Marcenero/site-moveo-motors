@@ -10,7 +10,6 @@ import {
     Settings,
     Fuel,
     Wrench,
-    CarFront,
     Share2,
     ArrowRight,
     ArrowLeft,
