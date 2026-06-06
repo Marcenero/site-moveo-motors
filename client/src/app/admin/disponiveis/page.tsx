@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { veiculos } from "../../../data/veiculos";
 import { 
     ArrowLeft,
     Edit,
     CheckCircle,
     Eye
 } from "lucide-react";
+
+import { createClient } from "../../../supabase/server";
+import { revalidatePath } from "next/cache";
 
 function gerarSlug(texto: string) {
     return texto
@@ -16,8 +18,31 @@ function gerarSlug(texto: string) {
         .replace(/(^-|-$)+/g, "");
 }
 
-export default function DisponiveisPage() {
-    const disponiveis = veiculos;
+async function marcarVendido(formData: FormData) {
+    "use server";
+
+    const id = Number(formData.get("id"));
+
+    const supabase = await createClient();
+
+    await supabase.from("Veiculo").update({
+        vendido: true,
+        data_venda: new Date().toISOString(),
+    }).eq("id", id);
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/disponiveis");
+}
+
+export default async function DisponiveisPage() {
+    const supabase = await createClient();
+
+    const { data: veiculos } = await supabase
+    .from("Veiculo")
+    .select("*")
+    .eq("vendido", false);
+
+    const disponiveis = veiculos ?? [];
 
     return (
         <main className="min-h-screen bg-[#f7f7f7] p-6">
@@ -64,13 +89,17 @@ export default function DisponiveisPage() {
                                     Editar
                                 </Link>
 
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-800"
-                                >
-                                    <CheckCircle size={16} />
-                                    Vendido
-                                </button>
+                                <form action={marcarVendido}>
+                                    <input type="hidden" name="id" value={veiculo.id} />
+
+                                    <button
+                                        type="submit"
+                                        className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-800"
+                                    >
+                                        <CheckCircle size={16} />
+                                        Vendido
+                                    </button>
+                                </form>
 
                                 <Link
                                     href={`/estoque/${gerarSlug(`${veiculo.nome}-${veiculo.ano}`)}-${veiculo.id}`}

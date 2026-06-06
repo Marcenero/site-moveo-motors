@@ -14,6 +14,8 @@ export const veiculos: Veiculo[] = [
         cor: "Branco",
         final_placa: 7,
         estado_IPVA: true,
+        vendido: true,
+        data_venda: "2026-06-06",
     },
     {
         id: 2,
@@ -28,6 +30,8 @@ export const veiculos: Veiculo[] = [
         cor: "Branco",
         final_placa: 7,
         estado_IPVA: true,
+        vendido: false,
+        data_venda: null,
     },
     {
         id: 3,
@@ -42,6 +46,8 @@ export const veiculos: Veiculo[] = [
         cor: "Branco",
         final_placa: 7,
         estado_IPVA: true,
+        vendido: true,
+        data_venda: "2026-06-05",
     },
     {
         id: 4,
@@ -56,6 +62,8 @@ export const veiculos: Veiculo[] = [
         cor: "Branco",
         final_placa: 7,
         estado_IPVA: true,
+        vendido: false,
+        data_venda: null,
     },
 ]
 
