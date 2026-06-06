@@ -20,4 +20,7 @@ export type Veiculo = {
     final_placa: number;
     estado_IPVA: boolean;
     outras_infos?: string[];
+
+    vendido: boolean;
+    data_venda: string | null;
 }
