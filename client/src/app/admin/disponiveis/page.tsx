@@ -6,8 +6,8 @@ import {
     Eye
 } from "lucide-react";
 
-import { createClient } from "../../../supabase/server";
-import { revalidatePath } from "next/cache";
+import { marcarVendido } from "../../../../../server/src/actions/disponiveis";
+import { buscarVeiculosDisponiveis } from "../../../../../server/src/queries/veiculosDisponiveis";
 
 function gerarSlug(texto: string) {
     return texto
@@ -18,31 +18,16 @@ function gerarSlug(texto: string) {
         .replace(/(^-|-$)+/g, "");
 }
 
-async function marcarVendido(formData: FormData) {
+async function marcarVendidoAction(formData: FormData) {
     "use server";
 
     const id = Number(formData.get("id"));
 
-    const supabase = await createClient();
-
-    await supabase.from("Veiculo").update({
-        vendido: true,
-        data_venda: new Date().toISOString(),
-    }).eq("id", id);
-
-    revalidatePath("/admin");
-    revalidatePath("/admin/disponiveis");
+    await marcarVendido(id);
 }
 
 export default async function DisponiveisPage() {
-    const supabase = await createClient();
-
-    const { data: veiculos } = await supabase
-    .from("Veiculo")
-    .select("*")
-    .eq("vendido", false);
-
-    const disponiveis = veiculos ?? [];
+    const disponiveis = await buscarVeiculosDisponiveis();
 
     return (
         <main className="min-h-screen bg-[#f7f7f7] p-6">
@@ -89,7 +74,7 @@ export default async function DisponiveisPage() {
                                     Editar
                                 </Link>
 
-                                <form action={marcarVendido}>
+                                <form action={marcarVendidoAction}>
                                     <input type="hidden" name="id" value={veiculo.id} />
 
                                     <button
