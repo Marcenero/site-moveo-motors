@@ -1,4 +1,4 @@
-import { createClient } from "../../../supabase/server.js";
+import { createClient } from "../../../supabase/server";
 
 export async function marcarVendido(id: number) {
     const supabase = await createClient();
