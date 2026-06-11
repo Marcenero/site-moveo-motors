@@ -1,4 +1,4 @@
-import { createClient } from "../../../supabase/server.js";
+import { createClient } from "../../../supabase/server";
 import type { Veiculo } from "../../../client/src/types/veiculo.js";
 
 export async function buscarVeiculosDisponiveis(): Promise<Veiculo[]> {

@@ -33,13 +33,30 @@ L.Icon.Default.mergeOptions({
 
 export default function LandingPage() {
   const [veiculosRecentes, setVeiculosRecentes] = useState<Veiculo[]>([]);
+  const [carregandoRecentes, setCarregandoRecentes] = useState(true);
 
   useEffect(() => {
     async function buscarVeiculosRecentes() {
-      const resposta = await fetch("/api/veiculos/recentes");
-      const dados = await resposta.json();
+      try {
+        //Em produção, trocar para: `${process.env.NEXT_PUBLIC_API_URL}/veiculos/recentes`
+        const resposta = await fetch("http://localhost:3001/veiculos/recentes");
+        const dados = await resposta.json();
 
-      setVeiculosRecentes(dados);
+        const lista = Array.isArray(dados)
+          ? dados
+          : Array.isArray(dados.veiculos)
+            ? dados.veiculos
+            : [];
+
+        setVeiculosRecentes(lista);
+      }
+      catch (error) {
+        console.error("Erro ao buscar veículos recentes:", error);
+        setVeiculosRecentes([]);
+      }
+      finally {
+        setCarregandoRecentes(false);
+      }
     }
 
     buscarVeiculosRecentes();
@@ -98,7 +115,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
               <span className="text[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
-              <h2 className="text-5xl font-black text-black mt-2 leading-none">Recém adicionados</h2>
+              <h2 className="text-5xl font-black text-black mt-2 leading-none">Destaques</h2>
             </div>
             <button
               className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-[#D9A300] pb-1 hover:text-[#C89200] transition-colors"
@@ -109,9 +126,17 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {veiculosRecentes.map((veiculo) => (
-              <VehicleCard key={veiculo.id} veiculo={veiculo} />
-            ))}
+            {carregandoRecentes ? (
+              <p className="text-sm text-gray-500">Carregando destaques...</p>
+            ) : veiculosRecentes.length === 0 ? (
+              <p className="text-sm text-gray-500">
+                Nenhum veículo cadastrado no momento.
+              </p>
+            ) : (
+              veiculosRecentes.map((veiculo) => (
+                <VehicleCard key={veiculo.id} veiculo={veiculo} />
+              ))
+            )}
           </div>
         </div>
       </section>

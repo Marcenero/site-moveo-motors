@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
 import Header from "../../components/Header";
@@ -11,7 +11,7 @@ import Filters, {
     filtrar,
     type FilterState,
 } from "../../components/estoque/Filters";
-import { veiculos } from "../../data/veiculos";
+import { Veiculo } from "../../types/veiculo";
 
 type Ordenacao = "recentes" | "preco-asc" | "preco-desc" | "km-asc" | "ano-desc";
 
@@ -24,13 +24,44 @@ const OPCOES_ORDENACAO: Record<Ordenacao, string> = {
 };
 
 export default function EstoquePage() {
+    const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+    const [carregando, setCarregando] = useState(true);
+
+    useEffect(() => {
+        async function buscarVeiculos() {
+            try {
+                //Em produção, trocar por `${process.env.NEXT_PUBLIC_API_URL}/veiculos`
+                const resposta = await fetch("http://localhost:3001/veiculos");
+                const dados = await resposta.json();
+
+                const lista = Array.isArray(dados)
+                    ? dados
+                    : Array.isArray(dados.veiculos)
+                        ? dados.veiculos
+                        : [];
+
+                setVeiculos(lista);
+            }
+            catch (error) {
+                console.error("Erro ao buscar veículos:", error);
+            }
+            finally {
+                setCarregando(false);
+            }
+        }
+
+        buscarVeiculos();
+    }, []);
+
     const [filtros, setFiltros] = useState<FilterState>(FILTROS_INICIAIS);
     const [ordenacao, setOrdenacao] = useState<Ordenacao>("recentes");
     const [filtrosMobileAberto, setFiltrosMobileAberto] = useState(false);
 
     const resultados = useMemo(() => {
-        const filtrados = filtrar(veiculos, filtros);
+        const listaVeiculos = Array.isArray(veiculos) ? veiculos: [];
+        const filtrados = filtrar(listaVeiculos, filtros);
         const ordenados = [...filtrados];
+
         switch (ordenacao) {
             case "preco-asc": ordenados.sort((a, b) => a.preco - b.preco); break;
             case "preco-desc": ordenados.sort((a, b) => b.preco - a.preco); break;
@@ -38,8 +69,9 @@ export default function EstoquePage() {
             case "ano-desc": ordenados.sort((a, b) => b.ano - a.ano); break;
             default: ordenados.sort((a, b) => b.id - a.id);
         }
+
         return ordenados;
-    }, [filtros, ordenacao]);
+    }, [veiculos, filtros, ordenacao]);
 
     const chipsAtivos = useMemo(() => construirChipsAtivos(filtros), [filtros]);
     const removerChip = (chave: keyof FilterState) =>
@@ -60,7 +92,11 @@ export default function EstoquePage() {
             <div className="max-w-7xl mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
                 {/* Sidebar (desktop) */}
                 <div className="hidden lg:block">
-                    <Filters veiculos={veiculos} valor={filtros} aoMudar={setFiltros} />
+                    <Filters 
+                        veiculos={Array.isArray(veiculos) ? veiculos : []} 
+                        valor={filtros} 
+                        aoMudar={setFiltros} 
+                    />
                 </div>
 
                 {/* Results */}
@@ -119,7 +155,9 @@ export default function EstoquePage() {
                     </div>
 
                     {/* Grid / empty state */}
-                    {resultados.length === 0 ? (
+                    {carregando ? (
+                        <p className="text-sm text-gray-500">Carregando veículos...</p>
+                    ) : resultados.length === 0 ? (
                         <EstadoVazio aoLimpar={() => setFiltros(FILTROS_INICIAIS)} />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

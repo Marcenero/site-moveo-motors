@@ -22,7 +22,7 @@ function gerarUltimos5Dias(
 
         const vendidos = veiculos.filter(
             (veiculo) =>
-                veiculo.vendido &&
+                veiculo.vendido === true &&
                 veiculo.data_venda?.split("T")[0] === dataFormatada
         ).length;
 
@@ -48,6 +48,9 @@ export default async function AdminPage() {
         .from("Veiculo")
         .select("id, vendido, data_venda");
 
+    console.log("Erro ao buscar veículos:", error);
+    console.log("Veículos recebidos:", veiculos);
+
     if (error) {
         console.error("Erro ao buscar veículos:", error);
     }
@@ -55,7 +58,7 @@ export default async function AdminPage() {
     const listaVeiculos = veiculos ?? [];
 
     const quantidade_disponiveis = listaVeiculos.filter(
-        (veiculo) => !veiculo.vendido
+        (veiculo) => veiculo.vendido !== true
     ).length;
 
     const vendasUltimosDias = gerarUltimos5Dias(listaVeiculos);
@@ -104,7 +107,7 @@ export default async function AdminPage() {
                     </Link>
 
                     <Link
-                        href="/admin/cadastrar"
+                        href="/admin/cadastro"
                         className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:bg-gray-200"
                     >
                         <div className="mb-6 flex items-center justify-between">
