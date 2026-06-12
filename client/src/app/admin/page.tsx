@@ -36,6 +36,10 @@ function gerarUltimos5Dias(
 export default async function AdminPage() {
     const supabase = await createClient();
 
+    let quantidade_disponiveis: number | string = "-";
+    let erroQuantidade = "";
+    let listaVeiculos: { vendido: boolean; data_venda: string | null }[] = [];
+
     const {
         data: { user },
     } = await supabase.auth.getUser();
@@ -44,22 +48,26 @@ export default async function AdminPage() {
         redirect("/admin/login");
     }
 
-    const { data: veiculos, error } = await supabase
-        .from("Veiculo")
-        .select("id, vendido, data_venda");
+    try {
+        const response = await fetch("http://localhost:3001/veiculos", {
+            cache: "no-store",
+        });
 
-    console.log("Erro ao buscar veículos:", error);
-    console.log("Veículos recebidos:", veiculos);
+        if (!response.ok) {
+            throw new Error("Erro ao buscar veículos no banco de dados.");
+        }
 
-    if (error) {
-        console.error("Erro ao buscar veículos:", error);
+        const resultado = await response.json();
+
+        const listaVeiculos = resultado.veiculos ?? [];
+
+        quantidade_disponiveis = listaVeiculos.length;
     }
+    catch (error) {
+        console.error("Erro ao carregar quantidade de veículos:", error);
 
-    const listaVeiculos = veiculos ?? [];
-
-    const quantidade_disponiveis = listaVeiculos.filter(
-        (veiculo) => veiculo.vendido !== true
-    ).length;
+        erroQuantidade = "Erro";
+    }
 
     const vendasUltimosDias = gerarUltimos5Dias(listaVeiculos);
 
@@ -92,7 +100,7 @@ export default async function AdminPage() {
                                 </p>
 
                                 <strong className="text-3xl text-gray-900">
-                                    {quantidade_disponiveis}
+                                    {erroQuantidade || quantidade_disponiveis}
                                 </strong>
                             </div>
 
