@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { supabase } from "../services/supabase.js";
+import multer from "multer";
 
 const router = Router();
 
+/* Rota para pegar todos os veículos do banco de dados */
 router.get("/", async (req, res) => {
     console.log("GET /veiculos chamado");
 
@@ -30,6 +32,7 @@ router.get("/", async (req, res) => {
     });
 });
 
+/* Rota para pegar os 3 veículos mais recentes */
 router.get("/recentes", async (req, res) => {
     console.log("GET /veiculos/recentes chamado");
 
@@ -53,6 +56,7 @@ router.get("/recentes", async (req, res) => {
     });
 });
 
+/* Rota para cadastro de veículo */
 router.post("/", async (req, res) => {
     const {
         nome,
@@ -112,6 +116,66 @@ router.post("/", async (req, res) => {
         ok: true,
         veiculo,
     });
+});
+
+/* Rota para upload de imagens no cadastro */
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+    },
+});
+
+router.post("/upload-imagens", upload.array("imagens"), async (req, res) => {
+    try {
+        const arquivos = req.files as Express.Multer.File[];
+
+        if (!arquivos || arquivos.length === 0) {
+            return res.status(400).json({
+                ok: false,
+                error: "Nenhuma imagem enviada.",
+            });
+        }
+
+        const urls: string[] = [];
+
+        for (const arquivo of arquivos) {
+            const extensao = arquivo.originalname.split(".").pop();
+            const nomeArquivo = `${crypto.randomUUID()}.${extensao}`;
+            const caminho = `veiculos/${nomeArquivo}`;
+
+            const { error } = await supabase.storage
+                .from("Imagens")
+                .upload(caminho, arquivo.buffer, {
+                    cacheControl: "3600",
+                    upsert: false,
+                    contentType: arquivo.mimetype,
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            const { data } = supabase.storage
+                .from("Imagens")
+                .getPublicUrl(caminho);
+
+            urls.push(data.publicUrl);
+        }
+
+        return res.json({
+            ok: true,
+            urls,
+        });
+    }
+    catch (error) {
+        console.error("Erro ao enviar imagens:", error);
+
+        return res.status(500).json({
+            ok: false,
+            error: "Erro ao enviar imagens.",
+        });
+    }
 });
 
 export default router;
