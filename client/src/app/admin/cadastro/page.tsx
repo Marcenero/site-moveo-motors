@@ -24,6 +24,15 @@ async function uploadImagensNoBackend(arquivos: File[]) {
     return dados.urls as string[];
 }
 
+function CampoObrigatorio({ children }: { children: React.ReactNode }) {
+    return (
+        <span className="flex items-center gap-1">
+            <span>{children}</span>
+            <span className="text-red-600">*</span>
+        </span>
+    );
+}
+
 export default function CadastrarVeiculoPage() {
     const router = useRouter();
 
@@ -33,6 +42,14 @@ export default function CadastrarVeiculoPage() {
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+
+        const confirmou = window.confirm(
+            "Confira as informações antes de cadastrar."
+        );
+
+        if (!confirmou) {
+            return;
+        }
 
         setErro("");
         setCarregando(true);
@@ -104,47 +121,47 @@ export default function CadastrarVeiculoPage() {
 
                         <div className="grid gap-4 md:grid-cols-2">
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Nome
+                                <CampoObrigatorio>Nome</CampoObrigatorio>
                                 <input name="nome" placeholder="Nome" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Ano
+                                <CampoObrigatorio>Ano</CampoObrigatorio>
                                 <input name="ano" type="number" placeholder="Ano" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Preço
+                                <CampoObrigatorio>Preço</CampoObrigatorio>
                                 <input name="preco" type="number" placeholder="Preço" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Quilometragem
+                                <CampoObrigatorio>QUilometragem</CampoObrigatorio>
                                 <input name="km" type="number" placeholder="Km" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Cor
+                                <CampoObrigatorio>Cor</CampoObrigatorio>
                                 <input name="cor" placeholder="Cor" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Final da placa
+                                <CampoObrigatorio>Final da placa</CampoObrigatorio>
                                 <input name="final_placa" type="number" placeholder="Final da placa" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Câmbio
+                                <CampoObrigatorio>Câmbio</CampoObrigatorio>
                                 <input name="cambio" placeholder="Câmbio" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Motor
+                                <CampoObrigatorio>Motor</CampoObrigatorio>
                                 <input name="motor" placeholder="Motor" required className="rounded-lg border p-3" />
                             </label>
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Combustível
+                                <CampoObrigatorio>Combustível</CampoObrigatorio>
                                 <input name="combustivel" placeholder="Combustível" required className="rounded-lg border p-3" />
                             </label>
                         </div>
@@ -157,7 +174,7 @@ export default function CadastrarVeiculoPage() {
 
                         <div className="grid gap-4">
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
-                                Descrição do veículo
+                                <CampoObrigatorio>Descrição do veículo</CampoObrigatorio>
                                 <textarea 
                                     name="descricao"
                                     placeholder="Descrição"
@@ -267,7 +284,7 @@ export default function CadastrarVeiculoPage() {
 
                     <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
                         <button
-                            type="submit"
+                            type="button"
                             disabled={carregando}
                             onClick={() => router.push("/admin")}
                             className="rounded-lg border border-red-300 px-5 py-3 font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
