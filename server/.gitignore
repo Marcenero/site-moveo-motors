@@ -1,5 +1,55 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# Dependências
+node_modules/
 
-/src/generated/prisma
+# Variáveis de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Exemplo de env pode ir para o Git
+!.env.example
+
+# Builds / saída compilada
+dist/
+build/
+out/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache
+.cache/
+.turbo/
+.next/
+
+# Prisma gerado
+/src/generated/prisma/
+
+# Uploads temporários / arquivos locais gerados
+uploads/
+tmp/
+temp/
+
+# Coverage de testes
+coverage/
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db
+
+# VS Code local
+.vscode/settings.json
+.vscode/launch.json
+
+# Vercel, se usar deploy
+.vercel/

@@ -5,32 +5,9 @@ import LogoutButton from "../../components/admin/logout-button";
 import GraficoVendas from "../../components/admin/grafico-vendas";
 import { Car, TrendingUp, Plus } from "lucide-react";
 
-function gerarUltimos5Dias(
-    veiculos: { vendido: boolean; data_venda: string | null }[]
-) {
-    const hoje = new Date();
-
-    return Array.from({ length: 5 }, (_, index) => {
-        const data = new Date(hoje);
-        data.setDate(hoje.getDate() - (4 - index));
-
-        const ano = data.getFullYear();
-        const mes = String(data.getMonth() + 1).padStart(2, "0");
-        const dia = String(data.getDate()).padStart(2, "0");
-
-        const dataFormatada = `${ano}-${mes}-${dia}`;
-
-        const vendidos = veiculos.filter(
-            (veiculo) =>
-                veiculo.vendido === true &&
-                veiculo.data_venda?.split("T")[0] === dataFormatada
-        ).length;
-
-        return {
-            dia: `${data.getDate()}/${data.getMonth() + 1}`,
-            vendidos,
-        };
-    });
+type VendaGrafico = {
+    dia: string;
+    vendidos: number;
 }
 
 export default async function AdminPage() {
@@ -38,7 +15,7 @@ export default async function AdminPage() {
 
     let quantidade_disponiveis: number | string = "-";
     let erroQuantidade = "";
-    let listaVeiculos: { vendido: boolean; data_venda: string | null }[] = [];
+    let vendasUltimosDias: VendaGrafico[] = [];
 
     const {
         data: { user },
@@ -69,7 +46,32 @@ export default async function AdminPage() {
         erroQuantidade = "Erro";
     }
 
-    const vendasUltimosDias = gerarUltimos5Dias(listaVeiculos);
+    try {
+        const response = await fetch("http:localhost:3001/veiculos/vendas/ultimos-5-dias", {
+            cache: "no-store",
+        });
+
+        if (!response.ok) {
+            throw new Error("Erro ao buscar vendas dos últimos 5 dias");
+        }
+
+        const resultado = await response.json();
+
+        vendasUltimosDias = Array.isArray(resultado.vendas)
+            ? resultado.vendas
+            : [];
+    }
+    catch (error) {
+        console.error("Erro ao carregar dados do gráfico:", error);
+
+        vendasUltimosDias = [
+            { dia: "Hoje -4", vendidos: 0 },
+            { dia: "Hoje -3", vendidos: 0 },
+            { dia: "Hoje -2", vendidos: 0 },
+            { dia: "Ontem", vendidos: 0 },
+            { dia: "Hoje", vendidos: 0 },
+        ];
+    }
 
     return (
         <main className="min-h-screen bg-[#f7f7f7] p-6">

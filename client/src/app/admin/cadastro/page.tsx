@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
 async function uploadImagensNoBackend(arquivos: File[]) {
@@ -24,7 +24,7 @@ async function uploadImagensNoBackend(arquivos: File[]) {
     return dados.urls as string[];
 }
 
-function CampoObrigatorio({ children }: { children: React.ReactNode }) {
+function CampoObrigatorio({ children }: { children: ReactNode }) {
     return (
         <span className="flex items-center gap-1">
             <span>{children}</span>
@@ -40,7 +40,7 @@ export default function CadastrarVeiculoPage() {
     const [erro, setErro] = useState("");
     const [arquivos, setArquivos] = useState<File[]>([]);
 
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
         const confirmou = window.confirm(
@@ -68,7 +68,7 @@ export default function CadastrarVeiculoPage() {
                 km: formData.get("km"),
                 cor: formData.get("cor"),
                 final_placa: formData.get("final_placa"),
-                estado_IPVA: formData.get("estado_IPVA") === "on",
+                estado_ipva: formData.get("estado_ipva") === "on",
                 preco: formData.get("preco"),
                 ano: formData.get("ano"),
                 cambio: formData.get("cambio"),
@@ -259,7 +259,7 @@ export default function CadastrarVeiculoPage() {
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                         <label className="flex cursor-pointer items-center gap-3">
                             <input 
-                                name="estado_IPVA" 
+                                name="estado_ipva" 
                                 type="checkbox"
                                 className="h-5 w-5 accent-black"
                             />

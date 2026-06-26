@@ -112,68 +112,6 @@ router.get("/", async (req, res) => {
     });
 });
 
-/* Rota para pegar dados do veículo específico */
-router.get("/:id", async (req, res) => {
-    const id = Number(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            ok: false,
-            erro: "ID inválido",
-        });
-    }
-
-    try {
-        const { data: veiculo, error: erroVeiculo } = await supabase
-            .from("Veiculo")
-            .select("*")
-            .eq("id", id)
-            .maybeSingle();
-
-        if (erroVeiculo) {
-            return res.status(500).json({
-                ok: false,
-                erro: erroVeiculo.message,
-            });
-        }
-
-        if (!veiculo) {
-            return res.status(404).json({
-                ok: false,
-                erro: "Veículo não encontrado.",
-            });
-        }
-
-        const { data: imagens, error: erroImagens } = await supabase
-            .from("ImagemVeiculo")
-            .select("id, url")
-            .eq("veiculoId", id);
-
-        if (erroImagens) {
-            return res.status(500).json({
-                ok: false,
-                erro: erroImagens.message,
-            });
-        }
-
-        return res.json({
-            ok: true,
-            veiculo: {
-                ...veiculo,
-                imagens: imagens ?? [],
-            },
-        });
-    }
-    catch (error) {
-        console.error("Erro ao buscar veículo por ID:", error);
-
-        return res.status(500).json({
-            ok: false,
-            erro: "Erro ao buscar veículo.",
-        });
-    }
-});
-
 /* Rota para pegar os 3 veículos mais recentes */
 router.get("/recentes", async (req, res) => {
     console.log("GET /veiculos/recentes chamado");
@@ -205,7 +143,7 @@ router.post("/", async (req, res) => {
         km,
         cor,
         final_placa,
-        estado_IPVA,
+        estado_ipva,
         preco,
         ano,
         cambio,
@@ -217,9 +155,9 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     const ipvaPago =
-        estado_IPVA === true ||
-        estado_IPVA === "true" ||
-        estado_IPVA === "on";
+        estado_ipva === true ||
+        estado_ipva === "true" ||
+        estado_ipva === "on";
 
     const { data: veiculo, error: erroVeiculo } = await supabase
         .from("Veiculo")
@@ -228,7 +166,7 @@ router.post("/", async (req, res) => {
             km: Number(km),
             cor,
             final_placa: Number(final_placa),
-            estado_IPVA: ipvaPago,
+            estado_ipva: ipvaPago,
             preco: Number(preco),
             ano: Number(ano),
             cambio,
@@ -241,7 +179,14 @@ router.post("/", async (req, res) => {
         .single();
 
     if (erroVeiculo) {
-        return res.status(500).json({ error: erroVeiculo.message });
+        console.error("Erro ao inserir veículo:", erroVeiculo);
+
+        return res.status(500).json({
+            ok: false,
+            etapa: "cadastro_veiculo",
+            erro: erroVeiculo.message,
+            detalhes: erroVeiculo,
+        });
     }
 
     if (imagens?.length > 0) {
@@ -382,6 +327,152 @@ router.get("/vendas/ultimos-5-dias", async (req, res) => {
         return res.status(500).json({
             ok: false,
             erro: "Erro ao buscar vendas dos últimos 5 dias.",
+        });
+    }
+});
+
+/* Rota para pegar dados do veículo específico */
+router.get("/:id", async (req, res) => {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+        return res.status(400).json({
+            ok: false,
+            erro: "ID inválido",
+        });
+    }
+
+    try {
+        const { data: veiculo, error: erroVeiculo } = await supabase
+            .from("Veiculo")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
+
+        if (erroVeiculo) {
+            return res.status(500).json({
+                ok: false,
+                erro: erroVeiculo.message,
+            });
+        }
+
+        if (!veiculo) {
+            return res.status(404).json({
+                ok: false,
+                erro: "Veículo não encontrado.",
+            });
+        }
+
+        const { data: imagens, error: erroImagens } = await supabase
+            .from("ImagemVeiculo")
+            .select("id, url")
+            .eq("veiculoId", id);
+
+        if (erroImagens) {
+            return res.status(500).json({
+                ok: false,
+                erro: erroImagens.message,
+            });
+        }
+
+        return res.json({
+            ok: true,
+            veiculo: {
+                ...veiculo,
+                imagens: imagens ?? [],
+            },
+        });
+    }
+    catch (error) {
+        console.error("Erro ao buscar veículo por ID:", error);
+
+        return res.status(500).json({
+            ok: false,
+            erro: "Erro ao buscar veículo.",
+        });
+    }
+});
+
+/* Rota para editar informações de um veículo */
+router.patch("/:id", async (req, res) => {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+        return res.status(400).json({
+            ok: false,
+            erro: "ID inválido.",
+        });
+    }
+
+    const {
+        nome,
+        km,
+        cor,
+        final_placa,
+        estado_ipva,
+        preco,
+        ano,
+        cambio,
+        motor,
+        combustivel,
+        descricao,
+        outras_infos,
+    } = req.body;
+
+    const ipvaPago =
+        estado_ipva === true ||
+        estado_ipva === "true" ||
+        estado_ipva === "on";
+
+    try {
+        const { data: veiculoAtualizado, error } = await supabase
+            .from("Veiculo")
+            .update({
+                nome,
+                km: Number(km),
+                cor,
+                final_placa: Number(final_placa),
+                estado_ipva: ipvaPago,
+                preco: Number(preco),
+                ano: Number(ano),
+                cambio,
+                motor,
+                combustivel,
+                descricao,
+                outras_infos: outras_infos ?? [],
+            })
+            .eq("id", id)
+            .select()
+            .maybeSingle();
+
+        if (error) {
+            console.error("Erro ao editar veículo:", error);
+
+            return res.status(500).json({
+                ok: false,
+                erro: error.message,
+            });
+        }
+
+        if (!veiculoAtualizado) {
+            return res.status(404).json({
+                ok: false,
+                erro: "Veículo não encontrado.",
+            });
+        }
+
+        return res.json({
+            ok: true,
+            mensagem: "Veículo atualizado com sucesso.",
+            veiculo: veiculoAtualizado,
+        });
+    }
+    catch (error) {
+        console.error("Erro inesperado ao editar veículo:", error);
+
+        return res.status(500).json({
+            ok: false,
+            erro: "Erro inesperado ao editar veículo.",
         });
     }
 });

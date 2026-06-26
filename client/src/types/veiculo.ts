@@ -18,7 +18,7 @@ export type Veiculo = {
     cor: string;
     descricao?: string;
     final_placa: number;
-    estado_IPVA: boolean;
+    estado_ipva: boolean;
     outras_infos?: string[];
 
     vendido: boolean;

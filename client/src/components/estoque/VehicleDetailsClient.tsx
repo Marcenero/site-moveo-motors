@@ -145,7 +145,7 @@ export default function VehicleDetailsClient({ veiculo }: VehicleDetailsClientPr
                                     <span>&#8226;</span>
                                     <span>Placa final {veiculo.final_placa}</span>
                                     <span>&#8226;</span>
-                                    <span>{veiculo.estado_IPVA ? "IPVA pago" : "IPVA pendente"}</span>
+                                    <span>{veiculo.estado_ipva ? "IPVA pago" : "IPVA pendente"}</span>
                                 </p>
 
                                 <div className="mb-6 rounded-2xl border-2 border-[#D9A300] bg-[#FFFBEA] px-6 py-4">
