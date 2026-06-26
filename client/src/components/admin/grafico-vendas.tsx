@@ -6,6 +6,14 @@ type GraficoVendasProps = {
 };
 
 export default function GraficoVendas({ dados }: GraficoVendasProps) {
+  if (!dados || dados.length === 0) {
+    return (
+      <p className="text-sm text-gray-500">
+        Nenhum dado de venda disponível.
+      </p>
+    )
+  }
+
   const largura = 600;
   const altura = 240;
   const paddingX = 42;
