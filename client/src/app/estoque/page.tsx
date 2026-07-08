@@ -120,7 +120,10 @@ export default function EstoquePage() {
 
                     {/* Grid / empty state */}
                     {resultados.length === 0 ? (
-                        <EstadoVazio aoLimpar={() => setFiltros(FILTROS_INICIAIS)} />
+                        <EstadoVazio
+                            aoLimpar={() => setFiltros(FILTROS_INICIAIS)}
+                            sugestoes={[...veiculos].sort((a, b) => b.id - a.id).slice(0, 3)}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {resultados.map((v) => (
@@ -194,25 +197,114 @@ function construirChipsAtivos(f: FilterState): Array<{ chave: keyof FilterState;
 
 // --- Empty state ------------------------------------------------------------
 
-function EstadoVazio({ aoLimpar }: { aoLimpar: () => void }) {
+function EstadoVazio({
+    aoLimpar,
+    sugestoes,
+}: {
+    aoLimpar: () => void;
+    sugestoes: typeof veiculos;
+}) {
     return (
-        <div className="bg-white rounded-3xl border border-gray-200 p-10 md:p-16 text-center">
-            <div className="w-16 h-16 mx-auto rounded-full bg-[#FFFBEA] text-[#D9A300] flex items-center justify-center">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="m20 20-3.5-3.5" />
-                </svg>
+        <div>
+            <div className="mb-6">
+                <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-400 mb-2">
+                    Estoque · Sem resultados
+                </p>
+
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight">
+                    Quando os filtros zeram.
+                </h2>
             </div>
-            <h2 className="text-2xl font-black mt-5">Nenhum veículo bateu com a sua busca.</h2>
-            <p className="text-gray-600 mt-2 max-w-md mx-auto text-sm leading-relaxed">
-                Tente afrouxar os filtros — entram veículos novos toda semana.
-            </p>
-            <button
-                onClick={aoLimpar}
-                className="mt-7 h-11 px-6 rounded-xl bg-[#D9A300] text-black font-black text-xs uppercase tracking-wider"
-            >
-                Limpar filtros
-            </button>
+
+            <div className="bg-white rounded-3xl border border-gray-200 px-6 py-12 md:px-10 md:py-14 text-center">
+                <div className="w-16 h-16 mx-auto rounded-full bg-[#FFFBEA] text-[#D9A300] flex items-center justify-center">
+                    <svg
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-3.5-3.5" />
+                    </svg>
+                </div>
+
+                <h3 className="text-2xl font-black mt-6">
+                    Nenhum veículo bateu com a sua busca.
+                </h3>
+
+                <p className="text-gray-500 mt-2 max-w-md mx-auto text-sm leading-relaxed">
+                    Que tal afrouxar um pouco os filtros? Ou deixe-nos avisar quando algo assim chegar — entram veículos novos toda semana.
+                </p>
+
+                <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                        onClick={aoLimpar}
+                        className="h-11 px-6 rounded-xl border border-black bg-white text-black font-black text-xs uppercase tracking-wider hover:bg-black hover:text-white transition"
+                    >
+                        Limpar filtros
+                    </button>
+
+                    <a
+                        href="https://wa.me/5511999999999?text=Olá! Quero criar um alerta para quando chegar um veículo parecido."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-11 px-6 rounded-xl bg-[#D9A300] text-black font-black text-xs uppercase tracking-wider hover:bg-black hover:text-[#D9A300] transition flex items-center justify-center"
+                    >
+                        Criar alerta ⚡
+                    </a>
+                </div>
+
+                {sugestoes.length > 0 && (
+                    <>
+                        <div className="mt-10 flex items-center gap-4">
+                            <div className="h-px flex-1 bg-gray-200" />
+
+                            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400">
+                                Talvez você goste de
+                            </span>
+
+                            <div className="h-px flex-1 bg-gray-200" />
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {sugestoes.map((veiculo) => {
+                                const imagem = veiculo.imagens?.[0] ?? veiculo.imagem;
+
+                                return (
+                                    <a
+                                        key={veiculo.id}
+                                        href={`/estoque/${veiculo.id}`}
+                                        className="text-left rounded-xl border border-gray-200 overflow-hidden bg-white hover:shadow-md transition"
+                                    >
+                                        <div className="aspect-[4/3] bg-gray-100">
+                                            <img
+                                                src={imagem}
+                                                alt={veiculo.nome}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+
+                                        <div className="p-3">
+                                            <h4 className="text-sm font-black truncate">
+                                                {veiculo.nome}
+                                            </h4>
+
+                                            <p className="text-xs text-gray-500">
+                                                a partir de R$ {veiculo.preco.toLocaleString("pt-BR")}
+                                            </p>
+                                        </div>
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }
