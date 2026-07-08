@@ -1,21 +1,26 @@
+export type ImagemVeiculo = {
+    id: number;
+    url: string;
+};
+
 export type Veiculo = {
     id: number;
+    
     nome: string;
     ano: number;
     preco: number;
     km: number;
     combustivel: string;
-
-    imagem?: string;
-    imagens?: string[];
+    imagens: ImagemVeiculo[];
 
     cambio: string;
-    motor?: string;
-    portas?: string;
-    cor?: string;
+    motor: string;
+    cor: string;
     descricao?: string;
-    final_placa?: number;
-    lugares?: number;
-    estado_ipva?: boolean;
-    aceita_troca?: boolean;
-};
+    final_placa: number;
+    estado_ipva: boolean;
+    outras_infos?: string[];
+
+    vendido: boolean;
+    data_venda: string | null;
+}

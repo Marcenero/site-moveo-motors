@@ -14,7 +14,6 @@ export interface FilterState {
     kmMax: number;
     cambio: string[];
     combustivel: string[];
-    aceitaTroca: boolean;
     ipvaPago: boolean;
 }
 
@@ -34,7 +33,6 @@ export const FILTROS_INICIAIS: FilterState = {
     kmMax: KM_MAX_GLOBAL,
     cambio: [],
     combustivel: [],
-    aceitaTroca: false,
     ipvaPago: false,
 };
 
@@ -60,8 +58,7 @@ export function filtrar(veiculos: Veiculo[], f: FilterState): Veiculo[] {
         if (v.km > f.kmMax) return false;
         if (f.cambio.length > 0 && !f.cambio.includes(v.cambio)) return false;
         if (f.combustivel.length > 0 && !f.combustivel.includes(v.combustivel)) return false;
-        if (f.aceitaTroca && !v.aceita_troca) return false;  // ← correct field
-        if (f.ipvaPago && !v.estado_ipva) return false;       // ← correct field
+        if (f.ipvaPago && !v.estado_IPVA) return false;       // ← correct field
 
         return true;
     });
@@ -77,6 +74,8 @@ interface FiltersProps {
 
 export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
     const uid = useId();
+
+    const listaVeiculos = Array.isArray(veiculos) ? veiculos : [];
 
     const marcas = Array.from(
         new Set(veiculos.map((v) => extrairMarca(v.nome)))
@@ -236,12 +235,6 @@ export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
 
             {/* Toggles */}
             <div className="space-y-3">
-                <Toggle
-                    id={`${uid}-troca`}
-                    label="Aceita troca"
-                    checked={valor.aceitaTroca}
-                    onChange={(v) => set("aceitaTroca", v)}
-                />
                 <Toggle
                     id={`${uid}-ipva`}
                     label="IPVA pago"
