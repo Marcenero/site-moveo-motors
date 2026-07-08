@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
 import Header from "../../components/Header";
@@ -11,7 +11,7 @@ import Filters, {
     filtrar,
     type FilterState,
 } from "../../components/estoque/Filters";
-import { Veiculo } from "../../types/veiculo";
+import { veiculos } from "../../data/veiculos";
 
 type Ordenacao = "recentes" | "preco-asc" | "preco-desc" | "km-asc" | "ano-desc";
 
@@ -24,44 +24,13 @@ const OPCOES_ORDENACAO: Record<Ordenacao, string> = {
 };
 
 export default function EstoquePage() {
-    const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
-    const [carregando, setCarregando] = useState(true);
-
-    useEffect(() => {
-        async function buscarVeiculos() {
-            try {
-                //Em produção, trocar por `${process.env.NEXT_PUBLIC_API_URL}/veiculos`
-                const resposta = await fetch("http://localhost:3001/veiculos");
-                const dados = await resposta.json();
-
-                const lista = Array.isArray(dados)
-                    ? dados
-                    : Array.isArray(dados.veiculos)
-                        ? dados.veiculos
-                        : [];
-
-                setVeiculos(lista);
-            }
-            catch (error) {
-                console.error("Erro ao buscar veículos:", error);
-            }
-            finally {
-                setCarregando(false);
-            }
-        }
-
-        buscarVeiculos();
-    }, []);
-
     const [filtros, setFiltros] = useState<FilterState>(FILTROS_INICIAIS);
     const [ordenacao, setOrdenacao] = useState<Ordenacao>("recentes");
     const [filtrosMobileAberto, setFiltrosMobileAberto] = useState(false);
 
     const resultados = useMemo(() => {
-        const listaVeiculos = Array.isArray(veiculos) ? veiculos: [];
-        const filtrados = filtrar(listaVeiculos, filtros);
+        const filtrados = filtrar(veiculos, filtros);
         const ordenados = [...filtrados];
-
         switch (ordenacao) {
             case "preco-asc": ordenados.sort((a, b) => a.preco - b.preco); break;
             case "preco-desc": ordenados.sort((a, b) => b.preco - a.preco); break;
@@ -69,9 +38,8 @@ export default function EstoquePage() {
             case "ano-desc": ordenados.sort((a, b) => b.ano - a.ano); break;
             default: ordenados.sort((a, b) => b.id - a.id);
         }
-
         return ordenados;
-    }, [veiculos, filtros, ordenacao]);
+    }, [filtros, ordenacao]);
 
     const chipsAtivos = useMemo(() => construirChipsAtivos(filtros), [filtros]);
     const removerChip = (chave: keyof FilterState) =>
@@ -92,11 +60,7 @@ export default function EstoquePage() {
             <div className="max-w-7xl mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
                 {/* Sidebar (desktop) */}
                 <div className="hidden lg:block">
-                    <Filters 
-                        veiculos={Array.isArray(veiculos) ? veiculos : []} 
-                        valor={filtros} 
-                        aoMudar={setFiltros} 
-                    />
+                    <Filters veiculos={veiculos} valor={filtros} aoMudar={setFiltros} />
                 </div>
 
                 {/* Results */}
@@ -135,7 +99,7 @@ export default function EstoquePage() {
                         </div>
 
                         <div className="flex flex-col relative shrink-0">
-                            <span className="ml-1 text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">
+                            <span className="ml-1 text-gray-600">
                                 Ordenar
                             </span>
 
@@ -155,10 +119,11 @@ export default function EstoquePage() {
                     </div>
 
                     {/* Grid / empty state */}
-                    {carregando ? (
-                        <p className="text-sm text-gray-500">Carregando veículos...</p>
-                    ) : resultados.length === 0 ? (
-                        <EstadoVazio aoLimpar={() => setFiltros(FILTROS_INICIAIS)} />
+                    {resultados.length === 0 ? (
+                        <EstadoVazio
+                            aoLimpar={() => setFiltros(FILTROS_INICIAIS)}
+                            sugestoes={[...veiculos].sort((a, b) => b.id - a.id).slice(0, 3)}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {resultados.map((v) => (
@@ -224,6 +189,7 @@ function construirChipsAtivos(f: FilterState): Array<{ chave: keyof FilterState;
 
     if (f.cambio.length > 0) chips.push({ chave: "cambio", rotulo: f.cambio.join(" / ") });
     if (f.combustivel.length > 0) chips.push({ chave: "combustivel", rotulo: f.combustivel.join(" / ") });
+    if (f.aceitaTroca) chips.push({ chave: "aceitaTroca", rotulo: "Aceita troca" });
     if (f.ipvaPago) chips.push({ chave: "ipvaPago", rotulo: "IPVA pago" });
 
     return chips;
@@ -231,25 +197,114 @@ function construirChipsAtivos(f: FilterState): Array<{ chave: keyof FilterState;
 
 // --- Empty state ------------------------------------------------------------
 
-function EstadoVazio({ aoLimpar }: { aoLimpar: () => void }) {
+function EstadoVazio({
+    aoLimpar,
+    sugestoes,
+}: {
+    aoLimpar: () => void;
+    sugestoes: typeof veiculos;
+}) {
     return (
-        <div className="bg-white rounded-3xl border border-gray-200 p-10 md:p-16 text-center">
-            <div className="w-16 h-16 mx-auto rounded-full bg-[#FFFBEA] text-[#D9A300] flex items-center justify-center">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="m20 20-3.5-3.5" />
-                </svg>
+        <div>
+            <div className="mb-6">
+                <p className="text-[10px] font-mono uppercase tracking-[0.35em] text-gray-400 mb-2">
+                    Estoque · Sem resultados
+                </p>
+
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight">
+                    Quando os filtros zeram.
+                </h2>
             </div>
-            <h2 className="text-2xl font-black mt-5">Nenhum veículo bateu com a sua busca.</h2>
-            <p className="text-gray-600 mt-2 max-w-md mx-auto text-sm leading-relaxed">
-                Tente afrouxar os filtros — entram veículos novos toda semana.
-            </p>
-            <button
-                onClick={aoLimpar}
-                className="mt-7 h-11 px-6 rounded-xl bg-[#D9A300] text-black font-black text-xs uppercase tracking-wider"
-            >
-                Limpar filtros
-            </button>
+
+            <div className="bg-white rounded-3xl border border-gray-200 px-6 py-12 md:px-10 md:py-14 text-center">
+                <div className="w-16 h-16 mx-auto rounded-full bg-[#FFFBEA] text-[#D9A300] flex items-center justify-center">
+                    <svg
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-3.5-3.5" />
+                    </svg>
+                </div>
+
+                <h3 className="text-2xl font-black mt-6">
+                    Nenhum veículo bateu com a sua busca.
+                </h3>
+
+                <p className="text-gray-500 mt-2 max-w-md mx-auto text-sm leading-relaxed">
+                    Que tal afrouxar um pouco os filtros? Ou deixe-nos avisar quando algo assim chegar — entram veículos novos toda semana.
+                </p>
+
+                <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button
+                        onClick={aoLimpar}
+                        className="h-11 px-6 rounded-xl border border-black bg-white text-black font-black text-xs uppercase tracking-wider hover:bg-black hover:text-white transition"
+                    >
+                        Limpar filtros
+                    </button>
+
+                    <a
+                        href="https://wa.me/5511999999999?text=Olá! Quero criar um alerta para quando chegar um veículo parecido."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-11 px-6 rounded-xl bg-[#D9A300] text-black font-black text-xs uppercase tracking-wider hover:bg-black hover:text-[#D9A300] transition flex items-center justify-center"
+                    >
+                        Criar alerta ⚡
+                    </a>
+                </div>
+
+                {sugestoes.length > 0 && (
+                    <>
+                        <div className="mt-10 flex items-center gap-4">
+                            <div className="h-px flex-1 bg-gray-200" />
+
+                            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400">
+                                Talvez você goste de
+                            </span>
+
+                            <div className="h-px flex-1 bg-gray-200" />
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {sugestoes.map((veiculo) => {
+                                const imagem = veiculo.imagens?.[0] ?? veiculo.imagem;
+
+                                return (
+                                    <a
+                                        key={veiculo.id}
+                                        href={`/estoque/${veiculo.id}`}
+                                        className="text-left rounded-xl border border-gray-200 overflow-hidden bg-white hover:shadow-md transition"
+                                    >
+                                        <div className="aspect-[4/3] bg-gray-100">
+                                            <img
+                                                src={imagem}
+                                                alt={veiculo.nome}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+
+                                        <div className="p-3">
+                                            <h4 className="text-sm font-black truncate">
+                                                {veiculo.nome}
+                                            </h4>
+
+                                            <p className="text-xs text-gray-500">
+                                                a partir de R$ {veiculo.preco.toLocaleString("pt-BR")}
+                                            </p>
+                                        </div>
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }
