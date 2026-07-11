@@ -23,7 +23,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
     
     const imagens =
         veiculo.imagens && veiculo.imagens.length > 0
-            ? veiculo.imagens
+            ? veiculo.imagens.map((imagem) => imagem.url)
             : ["/placeholder-carro.png"];
 
     const [imagemAtual, setImagemAtual] = useState(0);
@@ -53,10 +53,11 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
             <div className="relative w-full h-48 overflow-hidden bg-gray-100">
                 {imagens.map((imagem, index) => (
                     <img
-                        key={imagem}
+                        key={`${imagem}-${index}`}
                         src={imagem}
                         alt={veiculo.nome}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${index === imagemAtual ? "opacity-100" : "opacity-0"
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+                                index === imagemAtual ? "opacity-100" : "opacity-0"
                             }`}
                     />
                 ))}
