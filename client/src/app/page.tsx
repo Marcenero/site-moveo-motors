@@ -85,9 +85,6 @@ export default function LandingPage() {
         {/* Hero Content */}
         <div className="relative z-20 container mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
           <div className="text-left">
-            <div className="inline-block bg-[#D9A300] text-black px-4 py-1 rounded-md font-black text-sm mb-6 animate-bounce">
-              OFERTA DA SEMANA
-            </div>
             <h1 className="text-white text-6xl md:text-8xl font-black mb-6 leading-[0.9] tracking-tighter">
               A EMOÇÃO DE <br />
               <span className="text-[#D9A300] italic">DIRIGIR.</span>
@@ -156,13 +153,13 @@ export default function LandingPage() {
                   <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shrink-0">
                     <ShieldCheck size={24} />
                   </div>
-                  <p className="font-bold text-lg">Garantia estendida de procedência MOVEO.</p>
+                  <p className="font-bold text-lg">Veículos selecionados com cuidado e transparência.</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shrink-0">
                     <Zap size={24} />
                   </div>
-                  <p className="font-bold text-lg">Avaliação do seu usado acima do mercado.</p>
+                  <p className="font-bold text-lg">Avaliação justa e personalizada do seu usado.</p>
                 </div>
               </div>
             </div>
@@ -185,52 +182,29 @@ export default function LandingPage() {
 
       {/* --- NOSSOS SERVIÇOS --- */}
       <section id="servicos" className="py-24 bg-gray-50">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-black text-5xl font-black uppercase italic tracking-tighter">Serviços Premium</h2>
-            <div className="h-2 w-24 bg-[#D9A300] mx-auto mt-4 rounded-full"></div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-10">
-            <div className="relative bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(217,163,0,1)] overflow-hidden">
-              <div className="opacity-30 blur-[1.5px] pointer-events-none select-none">
-                <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">
-                  Financiamento
-                </h3>
-
-                <p className="text-gray-500 font-medium mb-8 leading-relaxed">
-                  Taxas competitivas com aprovação imediata. Trabalhamos com os melhores
-                  parceiros financeiros para facilitar a sua vida.
-                </p>
-
-                <button className="bg-black text-white px-8 py-3 rounded-xl font-bold">
-                  Simular agora
-                </button>
+          <div className="max-w-5xl mx-auto px-6">
+              <div className="text-center mb-16">
+                <h2 className="text-black text-5xl font-black uppercase italic tracking-tighter">Serviços MOVEO</h2>
+                <div className="h-2 w-24 bg-[#D9A300] mx-auto mt-4 rounded-full"></div>
               </div>
 
-              <div className="absolute inset-0 bg-white/35"></div>
+              <h2 className="text-2xl font-black uppercase tracking-tight mt-4 mb-6 leading-[0.95]">
+                  Muito além de encontrar seu próximo carro.
+              </h2>
 
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-black mb-4 uppercase tracking-tight">
-                  Em breve
-                </span>
-              </div>
-            </div>
+              <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-xl">
+                  Conheça as soluções que a Moveo Motors oferece para tornar sua experiência automotiva mais simples, segura e completa.
+              </p>
 
-            <div className="bg-white p-12 rounded-[2.5rem] border-2 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-5px] transition-transform">
-              <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">Consignação</h3>
-              <p className="text-gray-500 font-medium mb-8 leading-relaxed">Deixe o seu carro conosco e vendemos por si. Marketing profissional e exposição premium para garantir o melhor negócio.</p>
-              <a
-                href="https://wa.me/5511912345678"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-[#D9A300] text-black px-8 py-3 rounded-xl font-bold hover:bg-black hover:text-white transition-all"
+              <Link
+                  href="/servicos"
+                  className="group inline-flex items-center gap-3 bg-[#D9A300] text-black px-8 py-4 rounded-xl font-black uppercase hover:bg-[#f3f3f3] transition-all"
               >
-                Quero consignar
-              </a>
-            </div>
+                  Conhecer nossos Serviços
+
+                  <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+              </Link>
           </div>
-        </div>
       </section>
 
       {/* --- LOCALIZAÇÃO --- */}

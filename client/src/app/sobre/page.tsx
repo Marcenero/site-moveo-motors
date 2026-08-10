@@ -31,32 +31,41 @@ export default function EstoquePage() {
                 .
             </div>
 
-            <div className="mx-auto flex flex-col h-[180px] w-11/12 md:w-1/2 justify-center items-center text-center pt-6 gap-4">
-                <p>
-                    Na Moveo Motors, acreditamos que a compra de um veículo é um marco 
-                na vida de nossos clientes. Fundada com o objetivo de oferecer 
-                transparência e segurança, selecionamos cada item do nosso
-                estoque criteriosamente, garantindo que você leve para casa a
-                tranquilidade de um excelente negócio.
-                </p>
+            <div className="max-w-7xl mx-auto px-6 mt-10 relative z-10">
+                <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 border-l-8 border-[#D9A300]">
 
-                <p className="mt-4">
-                    Nossa missão é simples: unir qualidade, procedência e um atendimento
-                humano que entende as suas necessidades. Venha nos visitar e descubra
-                porque somos referência na região.
-                </p>
+                    <span className="text-[#D9A300] font-black uppercase tracking-widest text-sm">
+                        Sobre a Moveo Motors
+                    </span>
+
+                    <p className="mt-4 text-lg md:text-xl font-semibold text-black leading-relaxed">
+                        Na Moveo Motors, acreditamos que a compra de um veículo é um marco 
+                        na vida de nossos clientes. Fundada com o objetivo de oferecer 
+                        transparência e segurança, selecionamos cada item do nosso estoque 
+                        criteriosamente, garantindo que você leve para casa a tranquilidade 
+                        de um excelente negócio.
+                    </p>
+
+                    <div className="w-16 h-1 bg-[#D9A300] my-6 rounded-full" />
+
+                    <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                        Nossa missão é simples: unir qualidade, procedência e um atendimento 
+                        humano que entende as suas necessidades.
+                    </p>
+
+                </div>
             </div>
 
-            <div className="bg-white shadow-md p-6 text-left mt-6">
-                <h2 className="flex flex-col text-6xl font-bold leading-tight">
-                    <span className="text-black">Canais de</span>
-                    <span className="text-[#D9A300]">Atendimento</span>
-                </h2>
-
-                <p className="mt-3 text-gray-500 text-base leading-relaxed">
-                    Aqui em baixo você pode escolher a melhor forma de entrar em contato com nós.
-                </p>
+            <div className="max-w-7xl mx-auto px-6 mt-20">
+                <div className="border-t border-gray-200 pt-16 text-center mb-16">
+                    <h2 className="text-black text-5xl font-black uppercase italic tracking-tighter">Canais de atendimento</h2>
+                    <div className="h-2 w-24 bg-[#D9A300] mx-auto mt-4 rounded-full"></div>
+                </div>
             </div>
+
+            <p className="text-gray-500 text-base text-center leading-relaxed">
+                 Aqui em baixo você pode escolher a melhor forma de entrar em contato com nós.
+            </p>
 
             <div className=" grid grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto gap-6 pt-15 px-4 mb-24">
                 <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">

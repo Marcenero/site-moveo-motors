@@ -84,7 +84,7 @@ export default function EstoquePage() {
             {/* Page header */}
             <header className="max-w-7xl mx-auto px-6 pt-10 pb-6">
                 <p className="text-xs font-mono uppercase tracking-[0.3em] text-gray-500 mb-2">
-                    Catálogo · Mostrando {resultados.length} veículos
+                    Catálogo - Mostrando {resultados.length} veículos
                 </p>
                 <h1 className="text-4xl md:text-5xl font-black tracking-tight">Estoque</h1>
             </header>

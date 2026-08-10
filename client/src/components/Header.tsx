@@ -6,13 +6,13 @@ export default function Header() {
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/95 backdrop-blur-sm border-b border-[#D9A300]/20">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-end sm:justify-between">
         {/* Logo Section - Moveo Motors */}
-        <div className="flex items-center gap-3 group cursor-pointer">
+        <div className="flex scale-45 items-center gap-3 group cursor-pointer">
           <img
             src="/Moveo-motors3.png"
             alt="Moveo Motors Logo"
-            className="h-30 w-auto md:scale-180 sm:scale-130 transition-transform"
+            className="h-30 w-auto sm:-translate-x-80"
             onClick={() => window.location.href = '/'}
           />
         </div>

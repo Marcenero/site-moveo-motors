@@ -43,7 +43,7 @@ const servicos: Servico[] = [
             "+5% acima da FIPE na troca",
         ],
         botao: "Avaliar grátis",
-        href: "https://wa.me/5511999999999?text=Olá! Quero avaliar meu usado.",
+        href: "https://wa.me/5511999999999?text=Olá! Gostaria de avaliar meu usado.",
         destaque: "black",
     },
     {
@@ -55,8 +55,8 @@ const servicos: Servico[] = [
             "Taxas a partir de 1,29% a.m.",
             "Aprovação online",
         ],
-        botao: "Simular agora",
-        href: "https://wa.me/5511999999999?text=Olá! Quero simular um financiamento.",
+        botao: "Consultar agora",
+        href: "https://wa.me/5511999999999?text=Olá! Gostaria de discutir um financiamento.",
         destaque: "white",
     },
 ];
@@ -85,8 +85,8 @@ export default function ServicosPage() {
                     </p>
 
                     <h1 className="max-w-4xl text-4xl md:text-6xl font-black tracking-tight leading-none">
-                        Quatro serviços. {" "}
-                        <span className="text-[#D9A300]">Um padrão.</span>
+                        Quatro serviços. 
+                        <span className="text-[#D9A300]"> Um padrão.</span>
                     </h1>
 
                     <p className="mt-5 max-w-2xl text-sm md:text-base text-gray-600 leading-relaxed">
