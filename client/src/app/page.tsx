@@ -34,24 +34,34 @@ L.Icon.Default.mergeOptions({
 export default function LandingPage() {
   const [veiculosRecentes, setVeiculosRecentes] = useState<Veiculo[]>([]);
   const [carregandoRecentes, setCarregandoRecentes] = useState(true);
+  const [mostrarWhatsapp, setMostrarWhatsapp] = useState(false);
 
   useEffect(() => {
     async function buscarVeiculosRecentes() {
       try {
         //Em produção, trocar para: `${process.env.NEXT_PUBLIC_API_URL}/veiculos/recentes`
-        const resposta = await fetch("http://localhost:3001/veiculos/recentes");
+        const resposta = await fetch("http://localhost:3001/veiculos");
+
+        if (!resposta.ok) {
+          throw new Error("Erro ao buscar veículos");
+        }
+
         const dados = await resposta.json();
 
-        const lista = Array.isArray(dados)
+        const lista: Veiculo[] = Array.isArray(dados)
           ? dados
           : Array.isArray(dados.veiculos)
             ? dados.veiculos
             : [];
 
-        setVeiculosRecentes(lista);
+        const destaques = [...lista]
+          .sort((a, b) => b.id - a.id)
+          .slice(0, 3);
+
+        setVeiculosRecentes(destaques);
       }
       catch (error) {
-        console.error("Erro ao buscar veículos recentes:", error);
+        console.error("Erro ao buscar veículos em destaque:", error);
         setVeiculosRecentes([]);
       }
       finally {
@@ -60,6 +70,20 @@ export default function LandingPage() {
     }
 
     buscarVeiculosRecentes();
+  }, []);
+
+  useEffect(() => {
+    const verificarScroll = () => {
+      setMostrarWhatsapp(window.scrollY > 500);
+    };
+
+    verificarScroll();
+
+    window.addEventListener("scroll", verificarScroll);
+
+    return () => {
+      window.removeEventListener("scroll", verificarScroll);
+    };
   }, []);
 
   const posicao: [number, number] = [-23.535763, -46.786853]; //Localização da loja
@@ -109,7 +133,7 @@ export default function LandingPage() {
       {/* --- SEÇÃO DE DESTAQUES --- */}
       <section id="estoque" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div className="flex flex-row md:flex-row justify-between items-end mb-16 gap-6">
             <div>
               <span className="text[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
               <h2 className="text-5xl font-black text-black mt-2 leading-none">Destaques</h2>
@@ -273,7 +297,13 @@ export default function LandingPage() {
         href="https://wa.me/5511912345678"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-10 right-10 bg-[#25D366] text-white p-6 rounded-full shadow-[0_15px_40px_rgba(37,211,102,0.4)] hover:scale-110 active:scale-95 transition-all z-[60] group animate-bounce"
+        className={`fixed bottom-10 right-10 bg-[#25D366] text-white p-6 rounded-full shadow-[0_15px_40px_rgba(37,211,102,0.4)] hover:scale-110 active:scale-95 z-[60] group animate-bounce transition-all duration-500 ease-out
+            ${
+              mostrarWhatsapp
+                ? "opacity-100 translate-y-0 pointer-events-auto"
+                : "opacity-0 translate-y-10 pointer-events-none"
+            }
+          `}
       >
         <MessageCircle size={36} fill="white" />
         <span className="absolute right-full mr-6 top-1/2 -translate-y-1/2 bg-black text-white px-5 py-3 rounded-2xl text-sm font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl border border-white/10 uppercase tracking-widest">
