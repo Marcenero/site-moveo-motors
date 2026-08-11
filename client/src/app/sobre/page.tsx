@@ -17,7 +17,7 @@ L.Icon.Default.mergeOptions({
 
 const posicao = [-23.535763, -46.786853]; //Localização da loja
 
-export default function EstoquePage() {
+export default function SobrePage() {
     return (
         <div className="min-h-screen bg-gray-100 font-sans text-black selection:bg-[#D9A300] selection:text-white pt-20">
 
