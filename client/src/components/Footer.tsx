@@ -46,17 +46,9 @@ export default function Footer() {
                         <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">Institucional</h4>
                         <ul className="space-y-4 font-bold text-gray-500">
                             <li><a href="/sobre" className="hover:text-[#D9A300] transition-colors">Quem Somos</a></li>
-                            <li><a href="#" className="hover:text-[#D9A300] transition-colors">Termos & Condições</a></li>
-                            <li><a href="#" className="hover:text-[#D9A300] transition-colors">Privacidade</a></li>
+                            <li><a href="/termos" className="hover:text-[#D9A300] transition-colors">Termos & Condições</a></li>
+                            <li><a href="/condicoes" className="hover:text-[#D9A300] transition-colors">Privacidade</a></li>
                         </ul>
-                    </div>
-
-                    <div className="bg-black p-10 rounded-[2.5rem] text-white shadow-2xl">
-                        <h4 className="font-black mb-4 uppercase text-[#D9A300] italic">Venda Conosco</h4>
-                        <p className="text-sm text-gray-400 mb-8 font-medium">Anuncie o seu veículo na melhor montra da região.</p>
-                        <button className="w-full border-2 border-[#D9A300] text-[#D9A300] py-3 rounded-xl font-black text-sm uppercase hover:bg-[#D9A300] hover:text-black transition-all">
-                            Anunciar Agora
-                        </button>
                     </div>
                 </div>
 
