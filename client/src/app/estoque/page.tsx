@@ -73,6 +73,27 @@ export default function EstoquePage() {
         return ordenados;
     }, [veiculos, filtros, ordenacao]);
 
+    const sugestoes = useMemo(() => {
+        if (veiculos.length === 0) {
+            return [];
+        }
+
+        return [...veiculos]
+            .map((veiculo) => ({
+                veiculo,
+                pontos: pontuarVeiculo(veiculo, filtros),
+            }))
+            .sort((a, b) => {
+                if (b.pontos !== a.pontos) {
+                    return b.pontos - a.pontos;
+                }
+
+                return b.veiculo.id - a.veiculo.id;
+            })
+            .slice(0, 3)
+            .map(({veiculo}) => veiculo);
+    }, [veiculos, filtros]);
+
     const chipsAtivos = useMemo(() => construirChipsAtivos(filtros), [filtros]);
     const removerChip = (chave: keyof FilterState) =>
         setFiltros({ ...filtros, [chave]: FILTROS_INICIAIS[chave] });
@@ -160,7 +181,7 @@ export default function EstoquePage() {
                     ) : resultados.length === 0 ? (
                         <EstadoVazio 
                             aoLimpar={() => setFiltros(FILTROS_INICIAIS)} 
-                            sugestoes={[...veiculos].sort((a, b) => b.id - a.id).slice(0, 3)}
+                            sugestoes={sugestoes}
                         />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -208,6 +229,34 @@ export default function EstoquePage() {
     );
 }
 
+//Funções auxiliares
+function gerarSlug(texto: string) {
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+}
+
+function normalizarTexto(valor: unknown) {
+    return String(valor ?? "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function nomeCorrespondeMarca(nome: string, marca: string) {
+    const nomeNormalizado = normalizarTexto(nome);
+    const marcaNormalizada = normalizarTexto(marca);
+
+    return (
+        nomeNormalizado === marcaNormalizada ||
+        nomeNormalizado.startsWith(`${marcaNormalizada} `)
+    );
+}
+
 //Active-filter chip helpers
 function construirChipsAtivos(f: FilterState): Array<{ chave: keyof FilterState; rotulo: string }> {
     const chips: Array<{ chave: keyof FilterState; rotulo: string }> = [];
@@ -231,16 +280,146 @@ function construirChipsAtivos(f: FilterState): Array<{ chave: keyof FilterState;
     return chips;
 }
 
-//Estado vazio
-function gerarSlug(texto: string) {
-    return texto
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "");
+//Determinação de sugestões
+function pontuarVeiculo(
+    veiculo: Veiculo, 
+    filtros: FilterState
+) {
+    let pontos = 0;
+
+    //Busca livre
+    if (filtros.busca) {
+        const busca = normalizarTexto(filtros.busca);
+        const nome = normalizarTexto(veiculo.nome);
+
+        if (nome.includes(busca)) {
+            pontos += 10;
+        }
+        else {
+            const palavrasBusca = busca
+                .split(" ")
+                .filter((palavra) => palavra.length >= 2);
+
+            const palavrasEncontradas = palavrasBusca.filter(
+                (palavra) => nome.includes(palavra)
+            );
+
+            pontos += Math.min(palavrasEncontradas.length * 2, 6);
+        }
+    }
+
+    //Marca
+    if (filtros.marca) {
+        if (nomeCorrespondeMarca(veiculo.nome, filtros.marca)) {
+            pontos += 12;
+        }
+    }
+
+    //Preço
+    if (filtros.precoMax !== FILTROS_INICIAIS.precoMax) {
+        const precoMax = filtros.precoMax;
+        const preco = veiculo.preco;
+
+        if (preco <= precoMax) {
+            pontos += 8;
+        }
+        else {
+            const percentualAcima = (preco - precoMax) / precoMax;
+
+            if (percentualAcima <= 0.10) {
+                pontos += 6;
+            }
+            else if (percentualAcima <= 0.20) {
+                pontos += 4;
+            }
+            else if (percentualAcima <= 0.35) {
+                pontos += 2;
+            }
+        }
+    }
+
+    //Ano
+    const filtroAnoAtivo =
+        filtros.anoMin !== FILTROS_INICIAIS.anoMin ||
+        filtros.anoMax !== FILTROS_INICIAIS.anoMax;
+
+    if (filtroAnoAtivo) {
+        if (veiculo.ano >= filtros.anoMin && veiculo.ano <= filtros.anoMax) {
+            pontos += 6;
+        }
+        else {
+            let distanciaAno = 0;
+
+            if (veiculo.ano < filtros.anoMin) {
+                distanciaAno = filtros.anoMin - veiculo.ano;
+            }
+            else if (veiculo.ano > filtros.anoMax) {
+                distanciaAno = veiculo.ano - filtros.anoMax;
+            }
+
+            if (distanciaAno === 1) {
+                pontos += 4;
+            }
+            else if (distanciaAno === 2) {
+                pontos += 2;
+            }
+        }
+    }
+
+    //Quilometragem
+    if (filtros.kmMax !== FILTROS_INICIAIS.kmMax) {
+        if (veiculo.km <= filtros.kmMax) {
+            pontos += 5;
+        }
+        else {
+            const percentualAcima = (veiculo.km - filtros.kmMax) / filtros.kmMax;
+
+            if (percentualAcima <= 0.15) {
+                pontos += 3;
+            }
+            else if (percentualAcima <= 0.30) {
+                pontos += 1;
+            }
+        }
+    }
+
+    //Câmbio
+    if (filtros.cambio.length > 0) {
+        const cambioVeiculo = normalizarTexto(veiculo.cambio);
+
+        const cambioCompativel = filtros.cambio.some(
+            (cambio) => normalizarTexto(cambio) === cambioVeiculo
+        );
+
+        if (cambioCompativel) {
+            pontos += 5;
+        }
+    }
+
+    //Combustível
+    if (filtros.combustivel.length > 0) {
+        const combustivelVeiculo = normalizarTexto(veiculo.combustivel);
+
+        const combustivelCompativel = filtros.combustivel.some(
+            (combustivel) => normalizarTexto(combustivel) === combustivelVeiculo
+        );
+
+        if (combustivelCompativel) {
+            pontos += 4;
+        }
+    }
+
+    //IPVA
+    if (filtros.ipvaPago) {
+        if (veiculo.estado_ipva) {
+            pontos += 2;
+        }
+    }
+
+    return pontos;
 }
 
+//Estado vazio
 function EstadoVazio({
     aoLimpar,
     sugestoes,
@@ -274,11 +453,11 @@ function EstadoVazio({
                 </div>
 
                 <h3 className="text-2xl font-black mt-6">
-                    Nenhum veículo bateu com sua busca.
+                    Nenhum veículo corresponde exatamente à sua busca.
                 </h3>
 
                 <p className="text-gray-500 mt-2 max-w-md mx-auto text-sm leading-relaxed">
-                    Que tal afrouxar um pouco os filtros?
+                    Encontramos algumas opções próximas das características que você procura.
                 </p>
 
                 <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -293,7 +472,7 @@ function EstadoVazio({
                 <div className="mt-10 flex items-center gap-4">
                     <div className="h-px flex-1 bg-gray-200" />
                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400">
-                        Talvez você goste de
+                        Opções sugeridas
                     </span>
                     <div className="h-px flex-1 bg-gray-200" />
                 </div>

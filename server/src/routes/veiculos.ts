@@ -90,7 +90,14 @@ router.get("/", async (req, res) => {
 
     const { data: veiculos, error } = await supabase
         .from("Veiculo")
-        .select("*");
+        .select(`
+                *,
+                imagens:ImagemVeiculo (
+                    id,
+                    url,
+                    veiculoId
+                )
+            `);
 
     if (error) {
         console.error("Erro supabase:", error);
@@ -108,30 +115,6 @@ router.get("/", async (req, res) => {
     return res.json({
         ok: true,
         total: veiculos?.length ?? 0,
-        veiculos: veiculos ?? [],
-    });
-});
-
-/* Rota para pegar os 3 veículos mais recentes */
-router.get("/recentes", async (req, res) => {
-    console.log("GET /veiculos/recentes chamado");
-
-    const { data: veiculos, error } = await supabase
-        .from("Veiculo")
-        .select("*")
-        .order("createdAt", { ascending: false })
-        .limit(3);
-
-    if (error) {
-        return res.status(500).json({
-            error: error.message,
-        });
-    }
-
-    console.log("Veículos encontrados:", veiculos?.length ?? 0);
-
-    return res.json({
-        ok: true,
         veiculos: veiculos ?? [],
     });
 });
