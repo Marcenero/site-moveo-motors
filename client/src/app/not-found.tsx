@@ -1,5 +1,6 @@
-import { Voltaire } from "next/font/google";
 import Link from "next/link";
+
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function NotFound() {
     return (
@@ -30,23 +31,25 @@ export default function NotFound() {
                 <div className="flex flex-wrap gap-3">
                     <Link
                         href="/"
-                        className="h-11 px-6 rounded-xl bg-[#D9A300] text-black font-black text-xs uppercase tracking-wider flex items-center justify-center hover:bg-white transition"
+                        className="h-11 px-5 rounded-xl bg-[#D9A300] text-black font-black text-xs uppercase tracking-wider inline-flex items-center justify-center gap-2 hover:bg-white transition"
                     >
-                        ‹ Voltar
+                        <ChevronLeft size={16} strokeWidth={2.5} /> 
+                        Voltar
                     </Link>
 
                     <Link
                         href="/estoque"
-                        className="h-11 px-6 rounded-xl border border-white/30 text-white font-black text-xs uppercase tracking-wider flex items-center justify-centerhover:bg-white hover:text-black transition"
+                        className="h-11 px-6 rounded-xl border border-white/30 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center hover:bg-white hover:text-black transition"
                     >
                         Ir para o estoque
                     </Link>
                 </div>
 
-                <div className="mt-14 border-t border-white/10 pt-6">
+                <div className="hidden mt-14 border-t border-white/10 pt-6">
                     <code className="text-xs text-gray-500">
                         <span className="text-[#D9A300]">$</span>{" "}
-                        grep -r &quot;params.id&quot; estoque → no match
+                        grep -r &quot;params.id&quot; estoque 
+                        <span className="text-gray-600">  → no match</span>
                     </code>
                 </div>
             </div>

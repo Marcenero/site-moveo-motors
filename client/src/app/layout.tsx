@@ -13,20 +13,39 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://moveomotors.com.br"),
+
   title: {
-    default: "Moveo Motors - Seminovos premium em Osasco",
+    default: "Moveo Motors - Seminovos em Osasco",
     template: "%s | Moveo Motors",
   },
-  description: "Carros seminovos com procedência e garantia. " +
-    "Visite o nosso showroom em Osasco/SP",
-  metadataBase: new URL("https://moveomotors.com.br"),
+
+  description: "Encontre carros seminovos com procedência e garantia na Moveo Motors. Confira nosso estoque e visite o showroom em Osasco, SP.",
+
   openGraph: {
-    title: "Moveo Motors",
-    description: "Seminovos premium com procedência.",
-    images: ["/og.png"],
+    title: "Moveo Motors - Seminovos em Osasco",
+    description: "Seminovos premium com procedência e garantia. Confira o estoque da Moveo Motors em Osasco, SP.",
+    url: "/",
+    siteName: "Moveo Motors",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Moveo Motors - Seminovos em Osasco",
+      },
+    ],
     locale: "pt_BR",
     type: "website",
   },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Moveo Motors - Seminovos em Osasco",
+    description: "Carros seminovos com procedência e garantia em Osasco, SP.",
+    images: ["/og.png"],
+  },
+
   icons: { icon: "/favicon.ico" },
 };
 
@@ -36,7 +55,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
