@@ -5,6 +5,7 @@ import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import Breadcrumbs from "../../components/estoque/Breadcrumbs";
 import VehicleCard from "../../components/estoque/VehicleCard";
 import Filters, {
     FILTROS_INICIAIS,
@@ -102,8 +103,18 @@ export default function EstoquePage() {
         <div className="min-h-screen bg-[#F5F5F2] text-black selection:bg-[#D9A300] selection:text-black pt-20">
             <Header />
 
+            {/* Breadcrumbs */}
+            <div className="pt-6">
+                <Breadcrumbs
+                    items={[
+                        { label: "Início", href: "/" },
+                        { label: "Estoque" },
+                    ]}
+                />
+            </div>
+
             {/* Page header */}
-            <header className="max-w-7xl mx-auto px-6 pt-10 pb-6">
+            <header className="max-w-7xl mx-auto px-6 pt-6 pb-6">
                 <p className="text-xs font-mono uppercase tracking-[0.3em] text-gray-500 mb-2">
                     Catálogo - Mostrando {resultados.length} veículos
                 </p>

@@ -119,8 +119,8 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => window.location.href = '/estoque'}
-                className="bg-[#D9A300] hover:bg-white text-black px-10 py-5 rounded-xl text-lg font-black uppercase flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-xl">
-                Ver Estoque <ArrowRight size={22} />
+                className="group bg-[#D9A300] hover:bg-white text-black px-10 py-5 rounded-xl text-lg font-black uppercase flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-xl">
+                Ver Estoque <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
               </button>
               <button className="border-2 border-white/30 hover:border-[#D9A300] text-white px-10 py-5 rounded-xl text-lg font-black uppercase transition-all hover:bg-white/5">
                 Avaliar Meu Usado
@@ -222,7 +222,7 @@ export default function LandingPage() {
 
               <Link
                   href="/servicos"
-                  className="group inline-flex items-center gap-3 bg-[#D9A300] text-black px-8 py-4 rounded-xl font-black uppercase hover:bg-[#f3f3f3] transition-all"
+                  className="group inline-flex items-center gap-3 bg-[#D9A300] text-black px-8 py-4 rounded-xl font-black uppercase hover:bg-[#111111] hover:text-white transition-all"
               >
                   Conhecer nossos Serviços
 
