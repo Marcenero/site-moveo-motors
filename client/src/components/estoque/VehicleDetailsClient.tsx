@@ -1,231 +1,615 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import Header from "../Header";
 import {
-    Calendar,
-    Gauge,
-    Settings,
+    CalendarDays,
     Fuel,
-    Wrench,
-    Share2,
-    ArrowRight,
-    ArrowLeft,
+    Gauge,
+    MessageCircle,
+    Settings2,
+    ShieldCheck,
     ChevronLeft,
     ChevronRight,
-    Check
+    Check,
 } from "lucide-react";
+
+import Header from "../Header";
+import Footer from "../Footer";
+import Breadcrumbs from "../estoque/Breadcrumbs";
 
 import type { Veiculo } from "../../types/veiculo";
 
-type VehicleDetailsClientProps = {
+type Props = {
     veiculo: Veiculo;
 };
 
-export default function VehicleDetailsClient({ veiculo }: VehicleDetailsClientProps) {
-    const [copiado, setCopiado] = useState(false);
-    const [imagemAtual, setImagemAtual] = useState(0);
+export default function VehicleDetailsClient({ veiculo }: Props) {
+    const [imagemAtiva, setImagemAtiva] = useState(0);
 
-    const imagens = veiculo.imagens?.length
-        ? veiculo.imagens.map((imagem) => imagem.url)
-        : ["/placeholder-carro.png"];
+    const imagens =
+        veiculo.imagens?.length > 0
+            ? veiculo.imagens
+            : [{ url: "/placeholder-car.png" }];
 
-    async function copiarLink() {
-        await navigator.clipboard.writeText(window.location.href);
-
-        setCopiado(true);
-
-        setTimeout(() => {
-            setCopiado(false);
-        }, 3000);
+    function imagemAnterior() {
+        setImagemAtiva((atual) =>
+            atual === 0 ? imagens.length - 1 : atual - 1
+        );
     }
 
-    const imagemAnterior = () => {
-        setImagemAtual((atual) => atual === 0 ? imagens.length-1 : atual-1);
-    };
+    function proximaImagem() {
+        setImagemAtiva((atual) =>
+            atual === imagens.length - 1 ? 0 : atual + 1
+        );
+    }
 
-    const proximaImagem = () => {
-        setImagemAtual((atual) => atual === imagens.length-1 ? 0 : atual+1);
-    };
+    const mensagemWhatsApp = encodeURIComponent(
+        //Colocar também o link da página do veículo
+        `Olá! Tenho interesse no ${veiculo.nome}. Gostaria de mais informações.`
+    );
 
     return (
-        <main className="min-h-screen bg-[#F5F5F2] pt-20">
+        <div className="min-h-screen bg-[#f5f5f2] text-black pt-20">
             <Header />
 
-            <div className="mx-auto max-w-7xl">
-                <section className="px-4 py-8">
-                    <div className="mb-6">
-                        <Link
-                            href="/estoque"
-                            className="inline-flex items-center rounded-full border border-black px-4 py-2 text-sm font-medium transition hover:bg-black hover:text-white"
-                        >
-                            <ArrowLeft size={22} /> Voltar para estoque
-                        </Link>
-                    </div>
+            {/* Breadcrumb */}
+            <div className="pt-6">
+                <Breadcrumbs
+                    items={[
+                        { label: "Início", href: "/" },
+                        { label: "Estoque", href: "/estoque" },
+                        { label: veiculo.nome },
+                    ]}
+                />
+            </div>
 
-                    <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-                        <div className="space-y-4">
-                            <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                                <div className="relative aspect-video bg-[#f7f7f7]">
-                                    <img
-                                        src={imagens[imagemAtual]}
-                                        alt={veiculo.nome}
-                                        className="h-full w-full object-cover object-center"
-                                    />
-                                    
+            <main className="max-w-7xl mx-auto px-6 pt-6 pb-20">
+                {/* Área principal */}
+                <section className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-8 lg:gap-10 items-start">
+
+                    {/* Galeria */}
+                    <div className="min-w-0">
+                        <div className="relative overflow-hidden rounded-3xl bg-[#e9e9e5] aspect-[4/3] group">
+                            <img
+                                src={imagens[imagemAtiva]?.url}
+                                alt={`${veiculo.nome} - foto ${imagemAtiva + 1}`}
+                                className="w-full h-full object-cover"
+                            />
+
+                            {imagens.length > 1 && (
+                                <>
                                     <button
+                                        type="button"
                                         onClick={imagemAnterior}
-                                        className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black"
+                                        aria-label="Imagem anterior"
+                                        className="
+                                            absolute left-4 top-1/2 -translate-y-1/2
+                                            w-11 h-11
+                                            flex items-center justify-center
+                                            rounded-full
+                                            bg-white/90
+                                            shadow-lg
+                                            opacity-0 group-hover:opacity-100
+                                            hover:bg-white
+                                            transition
+                                        "
                                     >
-                                        <ChevronLeft size={28} />
+                                        <ChevronLeft size={20} />
                                     </button>
 
                                     <button
+                                        type="button"
                                         onClick={proximaImagem}
-                                        className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white transition hover:bg-black"
+                                        aria-label="Próxima imagem"
+                                        className="
+                                            absolute right-4 top-1/2 -translate-y-1/2
+                                            w-11 h-11
+                                            flex items-center justify-center
+                                            rounded-full
+                                            bg-white/90
+                                            shadow-lg
+                                            opacity-0 group-hover:opacity-100
+                                            hover:bg-white
+                                            transition
+                                        "
                                     >
-                                        <ChevronRight size={28} />
+                                        <ChevronRight size={20} />
                                     </button>
 
-                                    <div className="absolute right-4 top-4 rounded-full bg-black/20 px-3 py-1 text-sm font-semibold text-white backdrop-blur">
-                                        {imagemAtual + 1} / {imagens.length}
+                                    <div className="
+                                        absolute bottom-4 right-4
+                                        rounded-full
+                                        bg-black/70 text-white
+                                        px-3 py-1.5
+                                        text-xs font-bold
+                                    ">
+                                        {imagemAtiva + 1} / {imagens.length}
                                     </div>
-                                </div>
-
-                                <div className="flex gap-3 overflow-x-auto p-4">
-                                    {imagens.map((img, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setImagemAtual(index)}
-                                            className={`h-20 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition ${imagemAtual === index
-                                                ? "border-[#D9A300]"
-                                                : "border-transparent hover:border-gray-300"
-                                                }`}
-                                        >
-                                            <img
-                                                src={img}
-                                                alt={`Miniatura ${index + 1}`}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                                </>
+                            )}
                         </div>
 
-                        <div className="space-y-6">
-                            <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                                <div className="mb-3 flex items-start justify-between gap-3">
-                                    <div>
-                                        <h1 className="text-2xl font-bold text-black">{veiculo.nome}</h1>
-                                        <p className="mt-1 text-sm text-gray-500">
-                                            {veiculo.km.toLocaleString("pt-BR")} km
-                                        </p>
-                                    </div>
+                        {/* Miniaturas */}
+                        {imagens.length > 1 && (
+                            <div className="
+                                flex gap-3 mt-4
+                                overflow-x-auto
+                                pb-2
+                            ">
+                                {imagens.map((imagem, index) => (
+                                    <button
+                                        type="button"
+                                        key={`${imagem.url}-${index}`}
+                                        onClick={() => setImagemAtiva(index)}
+                                        className={`
+                                            shrink-0
+                                            w-24 h-20
+                                            rounded-xl
+                                            overflow-hidden
+                                            border-2
+                                            transition
+                                            ${
+                                                imagemAtiva === index
+                                                    ? "border-[#d9a300]"
+                                                    : "border-transparent hover:border-gray-300"
+                                            }
+                                        `}
+                                    >
+                                        <img
+                                            src={imagem.url}
+                                            alt={`${veiculo.nome} - miniatura ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                                    <div className="relative flex gap-3 text-gray-500">
-                                        <button
-                                            onClick={copiarLink}
-                                            className="transition hover:text-black"
-                                        >
-                                            <Share2 size={25} />
-                                        </button>
+                    {/* Painel do veículo */}
+                    <aside className="lg:sticky lg:top-28">
+                        <div className="
+                            bg-white
+                            rounded-3xl
+                            border border-black/5
+                            shadow-[0_16px_50px_rgba(0,0,0,0.06)]
+                            p-6 md:p-8
+                        ">
+                            <p className="
+                                text-[10px]
+                                font-black
+                                uppercase
+                                tracking-[0.3em]
+                                text-[#b98a00]
+                                mb-3
+                            ">
+                                Veículo selecionado
+                            </p>
 
-                                        {copiado && (
-                                            <span className="absolute right-0 top-8 whitespace-nowrap rounded-lg bg-black px-3 py-2 text-xs font-medium text-white shadow-lg">
-                                            Link copiado!
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
+                            <h1 className="
+                                text-3xl md:text-4xl
+                                font-black
+                                tracking-tight
+                                leading-[1.05]
+                            ">
+                                {veiculo.nome}
+                            </h1>
 
-                                <p className="flex flex-wrap gap-1.5 mb-5 text-sm text-gray-500">
-                                    <span>{veiculo.cor}</span>
-                                    <span>&#8226;</span>
-                                    <span>Placa final {veiculo.final_placa}</span>
-                                    <span>&#8226;</span>
-                                    <span>{veiculo.estado_ipva ? "IPVA pago" : "IPVA pendente"}</span>
+                            {/* Preço */}
+                            <div className="mt-7 pb-7 border-b border-gray-100">
+                                <p className="
+                                    text-xs
+                                    uppercase
+                                    tracking-widest
+                                    font-bold
+                                    text-gray-400
+                                    mb-1
+                                ">
+                                    Por
                                 </p>
 
-                                <div className="mb-6 rounded-2xl border-2 border-[#D9A300] bg-[#FFFBEA] px-6 py-4">
-                                    <strong className="text-4xl font-semibold text-black">
-                                        R$ {veiculo.preco.toLocaleString("pt-BR")}
-                                    </strong>
-                                </div>
+                                <p className="
+                                    text-3xl md:text-4xl
+                                    font-black
+                                    tracking-tight
+                                ">
+                                    {veiculo.preco.toLocaleString("pt-BR", {
+                                        style: "currency",
+                                        currency: "BRL",
+                                    })}
+                                </p>
+                            </div>
 
+                            {/* Características principais */}
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-6 py-7">
+                                <Caracteristica
+                                    icone={<CalendarDays size={19} />}
+                                    label="Ano"
+                                    valor={String(veiculo.ano)}
+                                />
+
+                                <Caracteristica
+                                    icone={<Gauge size={19} />}
+                                    label="Quilometragem"
+                                    valor={`${veiculo.km.toLocaleString("pt-BR")} km`}
+                                />
+
+                                <Caracteristica
+                                    icone={<Settings2 size={19} />}
+                                    label="Câmbio"
+                                    valor={veiculo.cambio}
+                                />
+
+                                <Caracteristica
+                                    icone={<Fuel size={19} />}
+                                    label="Combustível"
+                                    valor={veiculo.combustivel}
+                                />
+                            </div>
+
+                            {veiculo.estado_ipva && (
+                                <div className="
+                                    flex items-center gap-3
+                                    rounded-2xl
+                                    bg-[#fff9df]
+                                    px-4 py-3.5
+                                    mb-6
+                                ">
+                                    <div className="
+                                        w-9 h-9
+                                        shrink-0
+                                        rounded-full
+                                        bg-[#d9a300]
+                                        flex items-center justify-center
+                                    ">
+                                        <ShieldCheck size={18} />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-black">
+                                            IPVA pago
+                                        </p>
+
+                                        <p className="text-xs text-gray-500 mt-0.5">
+                                            Mais tranquilidade para você.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* CTA */}
+                            <div className="space-y-3">
                                 <a
-                                    href={`https://wa.me/5511999999999?text=Olá! Tenho interesse no veículo ${veiculo.nome}`}
+                                    href={`https://wa.me/55NUMERO?text=${mensagemWhatsApp}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center rounded-full bg-[#111111] gap-1.5 px-8 py-4 font-semibold text-[#D9A300] transition hover:bg-[#D9A300] hover:text-black"
+                                    className="
+                                        w-full h-14
+                                        flex items-center justify-center gap-2
+                                        rounded-xl
+                                        border-2 border-black
+                                        bg-white text-black
+                                        font-black
+                                        text-sm uppercase
+                                        tracking-wider
+                                        hover:bg-black
+                                        hover:text-white
+                                        transition-colors
+                                    "
                                 >
-                                    Tenho interesse <ArrowRight size={22} />
+                                    <MessageCircle size={19} />
+                                    Tenho interesse
                                 </a>
                             </div>
 
-                            <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                                <h2 className="mb-5 text-2xl font-semibold text-black">Ficha técnica</h2>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    {[
-                                        { label: "Ano", valor: String(veiculo.ano), icon: Calendar },
-                                        { label: "Quilometragem", valor: `${veiculo.km.toLocaleString("pt-BR")} km`, icon: Gauge },
-                                        { label: "Câmbio", valor: veiculo.cambio, icon: Settings },
-                                        { label: "Combustível", valor: veiculo.combustivel, icon: Fuel },
-                                        { label: "Motor", valor: veiculo.motor, icon: Wrench },
-                                    ].map(({ label, valor, icon: Icon }) => (
-                                        <div
-                                            key={label}
-                                            className="flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4"
-                                        >
-                                            <div className="-ml-4 flex items-center gap-4">
-                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#D9A300]/10 text-[#D9A300]">
-                                                    <Icon size={21}/>
-                                                </div>
-
-                                                <div className="min-w-0">
-                                                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                                                        {label}
-                                                    </p>
-
-                                                    <p className="truncate text-sm font-semibold text-black">
-                                                        {valor || "Não informado"}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            <p className="
+                                mt-5
+                                text-center
+                                text-xs
+                                leading-relaxed
+                                text-gray-400
+                            ">
+                                Consulte disponibilidade e condições com nossa equipe.
+                            </p>
                         </div>
+                    </aside>
+                </section>
+
+                {/* Ficha técnica */}
+                <section className="mt-16 md:mt-20">
+                    <div className="mb-7">
+                        <p className="
+                            text-[10px]
+                            uppercase
+                            tracking-[0.3em]
+                            font-black
+                            text-[#b98a00]
+                            mb-2
+                        ">
+                            Detalhes
+                        </p>
+
+                        <h2 className="
+                            text-3xl md:text-4xl
+                            font-black
+                            tracking-tight
+                        ">
+                            Ficha técnica
+                        </h2>
                     </div>
 
-                    <div className="mt-8 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                        <h2 className="mb-4 text-2xl font-semibold text-black">Outras informações</h2>
+                    <div className="
+                        bg-white
+                        rounded-3xl
+                        border border-gray-200
+                        overflow-hidden
+                    ">
+                        <div className="
+                            grid
+                            grid-cols-1
+                            sm:grid-cols-2
+                            lg:grid-cols-5
+                        ">
+                            <FichaTecnicaItem
+                                label="Ano"
+                                valor={String(veiculo.ano)}
+                            />
 
-                        <div className="space-y-3">
-                            <p className="leading-7 text-gray-700">
-                                {veiculo.descricao ?? "Veículo em ótimo estado de conservação."}
+                            <FichaTecnicaItem
+                                label="Quilometragem"
+                                valor={`${veiculo.km.toLocaleString("pt-BR")} km`}
+                            />
+
+                            <FichaTecnicaItem
+                                label="Câmbio"
+                                valor={veiculo.cambio}
+                            />
+
+                            <FichaTecnicaItem
+                                label="Combustível"
+                                valor={veiculo.combustivel}
+                            />
+
+                            <FichaTecnicaItem
+                                label="Motor"
+                                valor={veiculo.motor || "Não informado"}
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                {/* Outros detalhes */}
+                <section className="mt-16 md:mt-20">
+                    <div className="mb-7">
+                        <p className="
+                            text-[10px]
+                            uppercase
+                            tracking-[0.3em]
+                            font-black
+                            text-[#b98a00]
+                            mb-2
+                        ">
+                            Sobre o veículo
+                        </p>
+
+                        <h2 className="
+                            text-3xl md:text-4xl
+                            font-black
+                            tracking-tight
+                        ">
+                            Outros detalhes
+                        </h2>
+                    </div>
+
+                    <div className="
+                        bg-white
+                        rounded-3xl
+                        border border-gray-200
+                        overflow-hidden
+                    ">
+                        {/* Descrição */}
+                        <div className="p-6 md:p-8 lg:p-10 lg:border-r border-gray-100">
+                            <p className="
+                                text-[10px] 
+                                font-black 
+                                uppercase 
+                                tracking-[0.2em] 
+                                text-gray-400 
+                                mb-4
+                            ">
+                                Descrição
                             </p>
 
-                            {veiculo.outras_infos && veiculo.outras_infos.length > 0 && (
-                                <ul className="space-y-2 pt-2">
+                            <p className="
+                            text-gray-600
+                            text-base
+                            md:text-lg
+                            leading-8
+                            max-w-2xl
+                        ">
+                            {veiculo.descricao || "Veículo em ótimo estado de conservação."}
+                        </p>
+                        </div>
+
+                        {/* Linha divisória */}
+                        <div className="mx-auto border-t border-gray-200" />
+
+                        {/* Detalhes extras */}
+                        <div className="
+                            p-6
+                            md:p-8
+                            lg:p-10
+                            bg-white
+                        ">
+                            <p className="
+                                text-[10px]
+                                font-black
+                                uppercase
+                                tracking-[0.2em]
+                                text-gray-400
+                                mb-5
+                            ">
+                                Mais detalhes
+                            </p>
+
+                            {veiculo.outras_infos &&
+                            veiculo.outras_infos.length > 0 ?(
+                                <ul className="space-y-4">
                                     {veiculo.outras_infos.map((info, index) => (
                                         <li
-                                            key={index}
-                                            className="flex items-center gap-2 text-gray-700"
+                                            key={`${info}-${index}`}
+                                            className="
+                                                flex
+                                                items-start
+                                                gap-3
+                                                text-sm
+                                                md:text-base
+                                                font-semibold
+                                                text-gray-700
+                                            "
                                         >
-                                            <Check size={18} className="text-black" />
-                                            {info}
+                                            <span className="
+                                                mt-0.5
+                                                w-6 h-6
+                                                shrink-0
+                                                rounded-full
+                                                flex
+                                                items-center
+                                                justify-center
+                                                text-black
+                                            ">
+                                                <Check
+                                                    size={24}
+                                                    strokeWidth={3}
+                                                />
+                                            </span>
+
+                                            <span className="leading-6">
+                                                {info}
+                                            </span>
                                         </li>
                                     ))}
                                 </ul>
+                            ) : (
+                                <p className="text-sm text-gray-400">
+                                    Nenhum detalhe adicional informado.
+                                </p>
                             )}
                         </div>
                     </div>
                 </section>
+            </main>
+
+            {/* CTA fixo somente no celular */}
+            <div className="
+                fixed
+                left-0 right-0 bottom-0
+                z-50
+                lg:hidden
+                bg-white/95
+                backdrop-blur
+                border-t border-gray-200
+                p-3
+            ">
+                <a
+                    href={`https://wa.me/55NUMERO?text=${mensagemWhatsApp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="
+                        h-13
+                        flex items-center justify-center gap-2
+                        rounded-xl
+                        bg-black
+                        text-white
+                        font-black
+                        text-sm
+                    "
+                >
+                    <MessageCircle size={18} />
+                    Falar no WhatsApp
+                </a>
             </div>
-        </main>
+
+            <Footer />
+        </div>
+    );
+}
+
+function Caracteristica({
+    icone,
+    label,
+    valor,
+}: {
+    icone: React.ReactNode;
+    label: string;
+    valor: string;
+}) {
+    return (
+        <div className="flex gap-3 min-w-0">
+            <div className="
+                w-9 h-9
+                shrink-0
+                rounded-xl
+                bg-[#f5f5f2]
+                flex items-center justify-center
+                text-[#a77b00]
+            ">
+                {icone}
+            </div>
+
+            <div className="min-w-0">
+                <p className="
+                    text-[10px]
+                    uppercase
+                    tracking-wider
+                    font-bold
+                    text-gray-400
+                ">
+                    {label}
+                </p>
+
+                <p className="
+                    text-sm
+                    font-black
+                    mt-0.5
+                    truncate
+                ">
+                    {valor}
+                </p>
+            </div>
+        </div>
+    );
+}
+
+function FichaTecnicaItem({
+    label,
+    valor,
+}: {
+    label: string;
+    valor: string;
+}) {
+    return (
+        <div className="
+            px-6 py-6
+            border-b
+            sm:border-r
+            border-gray-100
+            last:border-r-0
+        ">
+            <p className="
+                text-[10px]
+                font-black
+                uppercase
+                tracking-[0.2em]
+                text-gray-400
+                mb-2
+            ">
+                {label}
+            </p>
+
+            <p className="text-lg font-black">
+                {valor}
+            </p>
+        </div>
     );
 }
