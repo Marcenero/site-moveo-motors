@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { supabase } from "../services/supabase.js";
 import multer from "multer";
+import sharp from "sharp";
 
 const router = Router();
 
@@ -196,8 +197,28 @@ router.post("/", async (req, res) => {
 /* Rota para upload de imagens no cadastro */
 const upload = multer({
     storage: multer.memoryStorage(),
+
     limits: {
-        fileSize: 5 * 1024 * 1024,
+        fileSize: 8 * 1024 * 1024,
+        files: 20,
+    },
+
+    fileFilter: (req, file, callback) => {
+        const tiposPermitidos = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+        ];
+
+        if (!tiposPermitidos.includes(file.mimetype)) {
+            return callback(
+                new Error(
+                    "Formato de imagem não permitido. Utilize JPG, PNG ou WebP."
+                )
+            );
+        }
+
+        callback(null, true);
     },
 });
 
@@ -215,17 +236,35 @@ router.post("/upload-imagens", upload.array("imagens"), async (req, res) => {
         const urls: string[] = [];
 
         for (const arquivo of arquivos) {
-            const extensao = arquivo.originalname.split(".").pop();
-            const nomeArquivo = `${crypto.randomUUID()}.${extensao}`;
+            const imagemOtimizada = await sharp(arquivo.buffer)
+                .rotate()
+                .resize({
+                    width: 1920,
+                    height: 1920,
+                    fit: "inside",
+                    withoutEnlargement: true,
+                })
+                .webp({
+                    quality: 82,
+                    effort: 4,
+                })
+                .toBuffer();
+
+            const nomeArquivo = `${crypto.randomUUID()}.webp`;
+
             const caminho = `veiculos/${nomeArquivo}`;
 
             const { error } = await supabase.storage
                 .from("Imagens")
-                .upload(caminho, arquivo.buffer, {
-                    cacheControl: "3600",
-                    upsert: false,
-                    contentType: arquivo.mimetype,
-                });
+                .upload(
+                    caminho,
+                    imagemOtimizada,
+                    {
+                        cacheControl: "31536000",
+                        upsert: false,
+                        contentType: "image/webp",
+                    }
+                );
 
             if (error) {
                 throw error;

@@ -4,6 +4,10 @@ export const metadata: Metadata = {
     title: "Termos & Condições",
 
     description: "Consulte os Termos e Condições da Moveo Motors para uso do site, informações sobre veículos, preços, financiamento, serviços e atendimento.",
+
+    alternates: {
+        canonical: "/termos",
+    },
 };
 
 export default function ServicosLayout({

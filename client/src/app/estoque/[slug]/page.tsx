@@ -7,6 +7,15 @@ type Props = {
     params: Promise<{ slug: string }>;
 }
 
+function gerarSlug(texto: string) {
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+}
+
 async function buscarVeiculoPorId(id: number): Promise<Veiculo | null> {
     const resposta = await fetch(`${process.env.API_URL ?? "http://localhost:3001"}/veiculos/${id}`, {
         cache: "no-store",
@@ -69,32 +78,30 @@ export async function generateMetadata({
         process.env.NEXT_PUBLIC_SITE_URL ??
         "https://moveomotors.com.br";
 
-    const imagemPrincipalUrl = veiculo.imagens?.[0]?.url;
+    const imagemPrincipal = veiculo.imagens?.[0]?.url ?? "https://moveomotors.com.br/og.png";
 
-    const imagemPrincipal = imagemPrincipalUrl
-        ? imagemPrincipalUrl.startsWith("http")
-            ? imagemPrincipalUrl
-            : new URL(imagemPrincipalUrl, siteUrl). toString()
-        : new URL("/og.png", siteUrl).toString();
+    const slugCanonico = `${gerarSlug(veiculo.nome)}-${veiculo.id}`
 
     return {
         title: nomeComAno,
 
-        description:
-            `${nomeComAno} com ${detalhes}. ` +
-            "Confira fotos, ficha técnica e condições na Moveo Motors em Osasco, SP.",
+        description: descricao,
+
+        alternates: {
+            canonical: `/estoque/${slugCanonico}`,
+        },
 
         openGraph: {
             title: `${nomeComAno} | Moveo Motors`,
             description: descricao,
-            url: `/estoque/${slug}`,
+            url: `/estoque/${slugCanonico}`,
             siteName: "Moveo Motors",
             locale: "pt_BR",
             type: "website",
 
             images: [
                 {
-                    url: imagemPrincipalUrl,
+                    url: imagemPrincipal,
                     alt: `${nomeComAno} à venda na Moveo Motors`,
                 },
             ],

@@ -69,6 +69,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const paginasVeiculos: MetadataRoute.Sitemap = veiculos.map(
         (veiculo) => ({
             url: `${siteUrl}/estoque/${gerarSlug(veiculo.nome)}-${veiculo.id}`,
+
+            images:
+                veiculo.imagens
+                    ?.map((imagem) => imagem.url)
+                    .filter(Boolean) ?? [],
+
             changeFrequency: "daily",
             priority: 0.8,
         })

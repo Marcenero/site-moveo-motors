@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronsRight } from "lucide-react";
 import type { Veiculo } from "../../types/veiculo";
 
@@ -51,26 +52,28 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
         >
         
             <div className="relative w-full h-48 overflow-hidden bg-gray-100">
-                {imagens.map((imagem, index) => (
-                    <img
-                        key={`${imagem}-${index}`}
-                        src={imagem}
-                        alt={veiculo.nome}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
-                                index === imagemAtual ? "opacity-100" : "opacity-0"
-                            }`}
-                    />
-                ))}
+                <Image
+                    src={imagens[imagemAtual]}
+                    alt={`${veiculo.nome} ${veiculo.ano} à venda na Moveo Motors`}
+                    fill
+                    sizes="
+                        (max-width: 768px) 100vw,
+                        (max-width: 120px) 50vw,
+                        33vw
+                    "
+                    className="object-cover"
+                />
 
                 {imagens.length > 1 && (
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                         {imagens.map((_, index) => (
                             <span
                                 key={index}
-                                className={`h-2 rounded-full transition-all duration-500 ${index === imagemAtual
-                                    ? "w-6 bg-[#D9A300]"
-                                    : "w-2 bg-white/80"
-                                    }`}
+                                className={`h-2 rounded-full transition-all duration-500 ${
+                                    index === imagemAtual
+                                        ? "w-6 bg-[#D9A300]"
+                                        : "w-2 bg-white/80"
+                                }`}
                             />
                         ))}
                     </div>

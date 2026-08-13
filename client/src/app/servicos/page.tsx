@@ -10,11 +10,11 @@ const servicos: Servico[] = [
     {
         categoria: "Compra",
         titulo: "Seminovos premium",
-        descricao: "Curadoria de carros, vistoria cautelar e laudo de procedência em todos os veículos antes de irem para o estoque.",
+        descricao: "Selecionamos veículos com atenção à procedência, conservação e histórico para oferecer mais segurança na sua escolha.",
         itens: [
-            "Vistoria cautelar inclusa",
-            "Garantia mínima de 90 dias",
-            "Histórico DETRAN auditado",
+            "Veículos criteriosamente selecionados",
+            "Vistoria e análise de procedência",
+            "Informações transparentes sobre cada veículo",
         ],
         botao: "Ver estoque",
         href: "/estoque",
@@ -23,11 +23,11 @@ const servicos: Servico[] = [
     {
         categoria: "Venda",
         titulo: "Consignação inteligente",
-        descricao: "Deixe o seu carro conosco. Fotografamos, anunciamos e negociamos por você, com repasse rápido e seguro.",
+        descricao: "Conte com a Moveo para apresentar, divulgar e conduzir a negociação do seu veículo com praticidade e transparência.",
         itens: [
-            "Fotografia profissional",
-            "Anúncio em vários portais",
-            "Comissão a partir de 4%",
+            "Apresentação porfissional do veículo",
+            "Divulgação em canais selecionados",
+            "Acompanhamento durante a negociação",
         ],
         botao: "Quero consignar",
         href: "https://wa.me/5511999999999?text=Olá! Tenho interesse em consignar meu veículo.",
@@ -38,11 +38,11 @@ const servicos: Servico[] = [
         titulo: "Compro o seu usado",
         descricao: "Nós avaliamos seu carro e fazemos uma oferta justa. Pagamento em até 24h após a inspeção presencial.",
         itens: [
-            "Resposta em até 24h",
-            "Pagamento via PIX ou TED",
-            "+5% acima da FIPE na troca",
+            "Avaliação personalizada do seu veículo",
+            "Proposta baseada nas condições do carro",
+            "Possibilidade de venda ou troca",
         ],
-        botao: "Avaliar grátis",
+        botao: "Avaliar meu usado",
         href: "https://wa.me/5511999999999?text=Olá! Gostaria de avaliar meu usado.",
         destaque: "black",
     },
@@ -51,11 +51,11 @@ const servicos: Servico[] = [
         titulo: "Financiamento facilitado",
         descricao: "Trabalhamos com diversos bancos. Pré-aprovação online em minutos.",
         itens: [
-            "Até 60x sem entrada",
-            "Taxas a partir de 1,29% a.m.",
-            "Aprovação online",
+            "Consulta a instituições financeiras parceiras",
+            "Simulação conforme o seu perfil",
+            "Condições sujeitas à análise de crédito",
         ],
-        botao: "Consultar agora",
+        botao: "Consultar opções",
         href: "https://wa.me/5511999999999?text=Olá! Gostaria de discutir um financiamento.",
         destaque: "white",
     },
@@ -90,7 +90,8 @@ export default function ServicosPage() {
                     </h1>
 
                     <p className="mt-5 max-w-2xl text-sm md:text-base text-gray-600 leading-relaxed">
-                        De compra a financiamento, cada operação passa pela mesma vistoria, a mesma curadoria e a mesma equipe.
+                        Da escolha do veículo à negociação, buscamos oferecer um atendimento transparente,
+                        cuidadoso e próximo em cada etapa.
                     </p>
                 </div>
 
@@ -120,7 +121,7 @@ export default function ServicosPage() {
                             {
                                 numero: "03",
                                 titulo: "Cuidamos do processo",
-                                texto: "A Moveo acompanha documentação, negociação e entrega do veículo.",
+                                texto: "Orientamos você ao longo da negociação, documentação e entrega do veículo.",
                             },
                         ].map((etapa, index, etapas) => (
                             <div key={etapa.numero} className="relative flex gap-5">
