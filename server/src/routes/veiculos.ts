@@ -3,6 +3,9 @@ import { supabase } from "../services/supabase.js";
 import multer from "multer";
 import sharp from "sharp";
 
+import { exigirAdmin } from "../middlewares/exigirAdmin.js";
+import { rateLimit } from "express-rate-limit";
+
 const router = Router();
 
 /* Funções */
@@ -121,7 +124,10 @@ router.get("/", async (req, res) => {
 });
 
 /* Rota para cadastro de veículo */
-router.post("/", async (req, res) => {
+router.post(
+    "/",
+    exigirAdmin,
+    async (req, res) => {
     const {
         nome,
         km,
@@ -222,135 +228,157 @@ const upload = multer({
     },
 });
 
-router.post("/upload-imagens", upload.array("imagens"), async (req, res) => {
-    try {
-        const arquivos = req.files as Express.Multer.File[];
+const limiteUpload = rateLimit({
+    windowMs: 15 * 60 * 1000,
 
-        if (!arquivos || arquivos.length === 0) {
-            return res.status(400).json({
-                ok: false,
-                error: "Nenhuma imagem enviada.",
-            });
-        }
+    limit: 20,
 
-        const urls: string[] = [];
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
 
-        for (const arquivo of arquivos) {
-            const imagemOtimizada = await sharp(arquivo.buffer)
-                .rotate()
-                .resize({
-                    width: 1920,
-                    height: 1920,
-                    fit: "inside",
-                    withoutEnlargement: true,
-                })
-                .webp({
-                    quality: 82,
-                    effort: 4,
-                })
-                .toBuffer();
+    message: {
+        ok: false,
+        error: "Muitos uploads. Aguarde alguns minutos.",
+    },
+});
 
-            const nomeArquivo = `${crypto.randomUUID()}.webp`;
+router.post(
+    "/upload-imagens",
+    exigirAdmin,
+    limiteUpload,
+    upload.array("imagens"), 
+    async (req, res) => {
+        try {
+            const arquivos = req.files as Express.Multer.File[];
 
-            const caminho = `veiculos/${nomeArquivo}`;
-
-            const { error } = await supabase.storage
-                .from("Imagens")
-                .upload(
-                    caminho,
-                    imagemOtimizada,
-                    {
-                        cacheControl: "31536000",
-                        upsert: false,
-                        contentType: "image/webp",
-                    }
-                );
-
-            if (error) {
-                throw error;
+            if (!arquivos || arquivos.length === 0) {
+                return res.status(400).json({
+                    ok: false,
+                    error: "Nenhuma imagem enviada.",
+                });
             }
 
-            const { data } = supabase.storage
-                .from("Imagens")
-                .getPublicUrl(caminho);
+            const urls: string[] = [];
 
-            urls.push(data.publicUrl);
+            for (const arquivo of arquivos) {
+                const imagemOtimizada = await sharp(arquivo.buffer)
+                    .rotate()
+                    .resize({
+                        width: 1920,
+                        height: 1920,
+                        fit: "inside",
+                        withoutEnlargement: true,
+                    })
+                    .webp({
+                        quality: 82,
+                        effort: 4,
+                    })
+                    .toBuffer();
+
+                const nomeArquivo = `${crypto.randomUUID()}.webp`;
+
+                const caminho = `veiculos/${nomeArquivo}`;
+
+                const { error } = await supabase.storage
+                    .from("Imagens")
+                    .upload(
+                        caminho,
+                        imagemOtimizada,
+                        {
+                            cacheControl: "31536000",
+                            upsert: false,
+                            contentType: "image/webp",
+                        }
+                    );
+
+                if (error) {
+                    throw error;
+                }
+
+                const { data } = supabase.storage
+                    .from("Imagens")
+                    .getPublicUrl(caminho);
+
+                urls.push(data.publicUrl);
+            }
+
+            return res.json({
+                ok: true,
+                urls,
+            });
         }
+        catch (error) {
+            console.error("Erro ao enviar imagens:", error);
 
-        return res.json({
-            ok: true,
-            urls,
-        });
-    }
-    catch (error) {
-        console.error("Erro ao enviar imagens:", error);
-
-        return res.status(500).json({
-            ok: false,
-            error: "Erro ao enviar imagens.",
-        });
-    }
+            return res.status(500).json({
+                ok: false,
+                error: "Erro ao enviar imagens.",
+            });
+        }
 });
 
 /* Rota para atualizar a tabela de vendas do dia */
-router.get("/vendas/ultimos-5-dias", async (req, res) => {
-    try {
-        const hoje = new Date();
+router.get(
+    "/vendas/ultimos-5-dias", 
+    exigirAdmin,
+    async (req, res) => {
+        try {
+            const hoje = new Date();
 
-        const datas = Array.from({ length: 5 }, (_, index) => {
-            const data = new Date(hoje);
-            data.setDate(hoje.getDate() - (4 - index));
+            const datas = Array.from({ length: 5 }, (_, index) => {
+                const data = new Date(hoje);
+                data.setDate(hoje.getDate() - (4 - index));
 
-            return new Intl.DateTimeFormat("en-CA", {
-                timeZone: "America/Sao_Paulo",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-            }).format(data);
-        });
+                return new Intl.DateTimeFormat("en-CA", {
+                    timeZone: "America/Sao_Paulo",
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                }).format(data);
+            });
 
-        const { data: vendas, error } = await supabase
-            .from("VendaDia")
-            .select("data, quantidade")
-            .in("data", datas);
+            const { data: vendas, error } = await supabase
+                .from("VendaDia")
+                .select("data, quantidade")
+                .in("data", datas);
 
-        if (error) {
-            return res.status(500).json({
-                ok: false,
-                erro: error.message,
+            if (error) {
+                return res.status(500).json({
+                    ok: false,
+                    erro: error.message,
+                });
+            }
+
+            const mapaVendas = new Map(
+                (vendas ?? []).map((venda) => [
+                    venda.data,
+                    venda.quantidade,
+                ])
+            );
+
+            const resultado = datas.map((data) => {
+                const [, mes, dia] = data.split("-");
+
+                return {
+                    data,
+                    dia: `${Number(dia)}/${Number(mes)}`,
+                    vendidos: mapaVendas.get(data) ?? 0,
+                };
+            });
+
+            return res.json({
+                ok: true,
+                vendas: resultado,
             });
         }
+        catch (error) {
+            console.error("Erro ao buscar vendas dos últimos 5 dias:", error);
 
-        const mapaVendas = new Map(
-            (vendas ?? []).map((venda) => [
-                venda.data,
-                venda.quantidade,
-            ])
-        );
-
-        const resultado = datas.map((data) => {
-            const [, mes, dia] = data.split("-");
-
-            return {
-                data,
-                dia: `${Number(dia)}/${Number(mes)}`,
-                vendidos: mapaVendas.get(data) ?? 0,
-            };
-        });
-
-        return res.json({
-            ok: true,
-            vendas: resultado,
-        });
-    }
-    catch (error) {
-        console.error("Erro ao buscar vendas dos últimos 5 dias:", error);
-
-        return res.status(500).json({
-            ok: false,
-            erro: "Erro ao buscar vendas dos últimos 5 dias.",
-        });
-    }
+            return res.status(500).json({
+                ok: false,
+                erro: "Erro ao buscar vendas dos últimos 5 dias.",
+            });
+        }
 });
 
 /* Rota para pegar dados do veículo específico */
@@ -416,150 +444,156 @@ router.get("/:id", async (req, res) => {
 });
 
 /* Rota para editar informações de um veículo */
-router.patch("/:id", async (req, res) => {
-    const id = Number(req.params.id);
+router.patch(
+    "/:id",
+    exigirAdmin,
+    async (req, res) => {
+        const id = Number(req.params.id);
 
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            ok: false,
-            erro: "ID inválido.",
-        });
-    }
+        if (Number.isNaN(id)) {
+            return res.status(400).json({
+                ok: false,
+                erro: "ID inválido.",
+            });
+        }
 
-    const {
-        nome,
-        km,
-        cor,
-        final_placa,
-        estado_ipva,
-        preco,
-        ano,
-        cambio,
-        motor,
-        combustivel,
-        descricao,
-        outras_infos,
-    } = req.body;
+        const {
+            nome,
+            km,
+            cor,
+            final_placa,
+            estado_ipva,
+            preco,
+            ano,
+            cambio,
+            motor,
+            combustivel,
+            descricao,
+            outras_infos,
+        } = req.body;
 
-    const ipvaPago =
-        estado_ipva === true ||
-        estado_ipva === "true" ||
-        estado_ipva === "on";
+        const ipvaPago =
+            estado_ipva === true ||
+            estado_ipva === "true" ||
+            estado_ipva === "on";
 
-    try {
-        const { data: veiculoAtualizado, error } = await supabase
-            .from("Veiculo")
-            .update({
-                nome,
-                km: Number(km),
-                cor,
-                final_placa: Number(final_placa),
-                estado_ipva: ipvaPago,
-                preco: Number(preco),
-                ano: Number(ano),
-                cambio,
-                motor,
-                combustivel,
-                descricao,
-                outras_infos: outras_infos ?? [],
-            })
-            .eq("id", id)
-            .select()
-            .maybeSingle();
+        try {
+            const { data: veiculoAtualizado, error } = await supabase
+                .from("Veiculo")
+                .update({
+                    nome,
+                    km: Number(km),
+                    cor,
+                    final_placa: Number(final_placa),
+                    estado_ipva: ipvaPago,
+                    preco: Number(preco),
+                    ano: Number(ano),
+                    cambio,
+                    motor,
+                    combustivel,
+                    descricao,
+                    outras_infos: outras_infos ?? [],
+                })
+                .eq("id", id)
+                .select()
+                .maybeSingle();
 
-        if (error) {
-            console.error("Erro ao editar veículo:", error);
+            if (error) {
+                console.error("Erro ao editar veículo:", error);
+
+                return res.status(500).json({
+                    ok: false,
+                    erro: error.message,
+                });
+            }
+
+            if (!veiculoAtualizado) {
+                return res.status(404).json({
+                    ok: false,
+                    erro: "Veículo não encontrado.",
+                });
+            }
+
+            return res.json({
+                ok: true,
+                mensagem: "Veículo atualizado com sucesso.",
+                veiculo: veiculoAtualizado,
+            });
+        }
+        catch (error) {
+            console.error("Erro inesperado ao editar veículo:", error);
 
             return res.status(500).json({
                 ok: false,
-                erro: error.message,
+                erro: "Erro inesperado ao editar veículo.",
             });
         }
-
-        if (!veiculoAtualizado) {
-            return res.status(404).json({
-                ok: false,
-                erro: "Veículo não encontrado.",
-            });
-        }
-
-        return res.json({
-            ok: true,
-            mensagem: "Veículo atualizado com sucesso.",
-            veiculo: veiculoAtualizado,
-        });
-    }
-    catch (error) {
-        console.error("Erro inesperado ao editar veículo:", error);
-
-        return res.status(500).json({
-            ok: false,
-            erro: "Erro inesperado ao editar veículo.",
-        });
-    }
 });
 
 /* Rota para indicar veículos como vendidos */
-router.patch("/:id/vendido", async (req, res) => {
-    const id = Number(req.params.id);
+router.patch(
+    "/:id/vendido",
+    exigirAdmin, 
+    async (req, res) => {
+        const id = Number(req.params.id);
 
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            ok: false,
-            erro: "ID inválido",
-        });
-    }
+        if (Number.isNaN(id)) {
+            return res.status(400).json({
+                ok: false,
+                erro: "ID inválido",
+            });
+        }
 
-    try {
-        const { error: erroImagens } = await supabase
-            .from("ImagemVeiculo")
-            .delete()
-            .eq("veiculoId", id);
+        try {
+            const { error: erroImagens } = await supabase
+                .from("ImagemVeiculo")
+                .delete()
+                .eq("veiculoId", id);
 
-        if (erroImagens) {
+            if (erroImagens) {
+                return res.status(500).json({
+                    ok: false,
+                    erro: erroImagens.message,
+                });
+            }
+
+            // Depois apaga o veículo
+            const { data: veiculoRemovido, error: erroVeiculo } = await supabase
+                .from("Veiculo")
+                .delete()
+                .eq("id", id)
+                .select("id")
+                .maybeSingle();
+
+            if (erroVeiculo) {
+                return res.status(500).json({
+                    ok: false,
+                    erro: erroVeiculo.message,
+                });
+            }
+
+            if (!veiculoRemovido) {
+                return res.status(404).json({
+                    ok: false,
+                    erro: "Veículo não encontrado.",
+                });
+            }
+
+            await incrementarVendaDoDia();
+
+            return res.json({
+                ok: true,
+                mensagem: "Veículo vendido e removido com sucesso.",
+            });
+        }
+        catch (error) {
+            console.error("Erro ao remover veículo vendido:", error);
+
             return res.status(500).json({
                 ok: false,
-                erro: erroImagens.message,
+                erro: "Erro ao remover o veículo vendido.",
             });
         }
-
-        // Depois apaga o veículo
-        const { data: veiculoRemovido, error: erroVeiculo } = await supabase
-            .from("Veiculo")
-            .delete()
-            .eq("id", id)
-            .select("id")
-            .maybeSingle();
-
-        if (erroVeiculo) {
-            return res.status(500).json({
-                ok: false,
-                erro: erroVeiculo.message,
-            });
-        }
-
-        if (!veiculoRemovido) {
-            return res.status(404).json({
-                ok: false,
-                erro: "Veículo não encontrado.",
-            });
-        }
-
-        await incrementarVendaDoDia();
-
-        return res.json({
-            ok: true,
-            mensagem: "Veículo vendido e removido com sucesso.",
-        });
-    }
-    catch (error) {
-        console.error("Erro ao remover veículo vendido:", error);
-
-        return res.status(500).json({
-            ok: false,
-            erro: "Erro ao remover o veículo vendido.",
-        });
-    }
 });
 
 export default router;

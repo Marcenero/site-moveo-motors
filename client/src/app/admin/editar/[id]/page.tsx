@@ -7,6 +7,8 @@ import { ArrowLeft } from "lucide-react";
 
 import type { Veiculo } from "../../../../types/veiculo";
 
+import { adminFetch } from "../../../lib/adminFetch";
+
 export default function EditarVeiculoPage() {
     const router = useRouter();
     const params = useParams();
@@ -79,13 +81,23 @@ export default function EditarVeiculoPage() {
                     .filter(Boolean),
             };
 
-            const resposta = await fetch(`http://localhost:3001/veiculos/${id}`, {
+            const resposta = await adminFetch(`http://localhost:3001/veiculos/${id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(payload),
             });
+
+            if (resposta.status === 401) {
+                router.push("/admin/login");
+
+                throw new Error("Sua sessão expirou. Faça login novamente.");
+            }
+
+            if (resposta.status === 403) {
+                throw new Error("Você não possui permissão para editar veículos.");
+            }
 
             if (!resposta.ok) {
                 /*const erroBackend = await resposta.json().catch(() => null);

@@ -3,6 +3,8 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
+import { adminFetch } from "../../lib/adminFetch";
+
 async function uploadImagensNoBackend(arquivos: File[]) {
     const formData = new FormData();
 
@@ -10,13 +12,23 @@ async function uploadImagensNoBackend(arquivos: File[]) {
         formData.append("imagens", arquivo);
     });
 
-    const resposta = await fetch("http://localhost:3001/veiculos/upload-imagens", {
+    const resposta = await adminFetch("http://localhost:3001/veiculos/upload-imagens", {
         method: "POST",
         body: formData,
     });
 
     if (!resposta.ok) {
-        throw new Error("Erro ao enviar imagens.");
+        if (resposta.status === 401) {
+            throw new Error(
+                "Sua sessão expirou. Faça login novamente."
+            );
+        }
+
+        if (resposta.status === 403) {
+            throw new Error(
+                "Você não possui permissão para enviar imagens."
+            );
+        }
     }
 
     const dados = await resposta.json();
@@ -82,7 +94,7 @@ export default function CadastrarVeiculoPage() {
                 imagens,
             };
 
-            const resposta = await fetch("http://localhost:3001/veiculos", {
+            const resposta = await adminFetch("http://localhost:3001/veiculos", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -91,11 +103,36 @@ export default function CadastrarVeiculoPage() {
             });
 
             if (!resposta.ok) {
-                setErro("Erro ao cadastrar veículo.");
-                return;
+                if (resposta.status === 401) {
+                    setErro(
+                        "Sua sessão expirou. Faça login novamente."
+                    );
+
+                    router.push("/admin/login");
+                    return;
+                }
+
+                if (resposta.status === 403) {
+                    setErro(
+                        "Você não possui permissão para cadastrar veículos."
+                    );
+
+                    return;
+                }
+
+                const dadosErro =
+                    await resposta
+                        .json()
+                        .catch(() => null);
+
+                setErro(
+                    dadosErro?.erro ||
+                    dadosErro?.error ||
+                    "Erro ao cadastrar veículo."
+                );
             }
 
-            router.push("/admin/disponiveis");
+            return;
         }
         catch (error) {
             console.error(error);
