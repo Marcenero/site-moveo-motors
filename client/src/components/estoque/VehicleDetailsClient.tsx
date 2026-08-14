@@ -528,7 +528,7 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                         h-13
                         flex items-center justify-center gap-2
                         rounded-xl
-                        bg-black
+                        bg-green-500
                         text-white
                         font-black
                         text-sm

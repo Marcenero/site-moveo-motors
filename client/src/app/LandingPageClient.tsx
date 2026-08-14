@@ -19,17 +19,22 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { FaWhatsapp } from "react-icons/fa";
 
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
+const MapaLoja = dynamic(
+  () => import("../components/home/MapaLoja"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] w-full rounded-2xl bg-gray-800 flex items-center justify-center">
+        <p className="text-sm text-gray-400">
+          Carregando mapa...
+        </p>
+      </div>
+    )
+  }
+)
 
 export default function LandingPage() {
   const [veiculosRecentes, setVeiculosRecentes] = useState<Veiculo[]>([]);
@@ -86,8 +91,6 @@ export default function LandingPage() {
     };
   }, []);
 
-  const posicao: [number, number] = [-23.535763, -46.786853]; //Localização da loja
-
   return (
     <div className="min-h-screen bg-white font-sans text-black selection:bg-[#D9A300] selection:text-white">
 
@@ -135,7 +138,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-row md:flex-row justify-between items-end mb-16 gap-6">
             <div>
-              <span className="text[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
+              <span className="text-[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
               <h2 className="text-5xl font-black text-black mt-2 leading-none">Destaques</h2>
             </div>
             <button
@@ -261,29 +264,7 @@ export default function LandingPage() {
           </div>
 
           <div className="relative z-0">
-            <MapContainer
-              center={posicao}
-              zoom={15}
-              dragging={false}
-              touchZoom={false}
-              doubleClickZoom={false}
-              scrollWheelZoom={false}
-              boxZoom={false}
-              keyboard={false}
-              zoomControl={false}
-              className="h-[400px] w-full rounded-2xl"
-            >
-              <TileLayer
-                attribution='&copy; OpenStreetMap contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-
-              <Marker position={posicao}>
-                <Popup>
-                  Estamos aqui.
-                </Popup>
-              </Marker>
-            </MapContainer>
+            <MapaLoja />
           </div>
 
         </div>
