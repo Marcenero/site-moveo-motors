@@ -2,21 +2,74 @@ import "dotenv/config";
 
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 
 import veiculosRoutes from "./routes/veiculos.js";
 
 const app = express();
 
-app.use(cors({
-  origin: "http://localhost:3000",
-}));
+//Configurações gerais
+app.disable("x-powered-by");
 
-app.use(express.json());
+app.use(
+  helmet()
+);
 
+//CORS
+const origensPermitidas = [
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+app.use(
+  cors({
+    origin: origensPermitidas,
+
+    methods: [
+      "GET",
+      "POST",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+  })
+);
+
+//Rate limit geral
+const limiteGeral = rateLimit({
+  windowMs: 15 * 60 * 1000,
+
+  limit: 300,
+
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+
+  message: {
+    ok: false,
+    error: "Muitas requisições. Tente novamente em alguns minutos.",
+  },
+});
+
+app.use(limiteGeral);
+
+//Body parser
+app.use(
+  express.json({
+    limit: "1mb",
+  })
+);
+
+//Rotas
 app.use("/veiculos", veiculosRoutes);
 
-const PORT = process.env.PORT || 3001;
+//Servidor
+const PORT = Number(process.env.PORT) || 3001;
 
-app.listen(3001, () => {
+app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });

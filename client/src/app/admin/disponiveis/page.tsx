@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { 
     ArrowLeft,
@@ -9,14 +10,23 @@ import {
 import type { Veiculo } from "../../../types/veiculo";
 
 import Acoes from "../../../components/admin/disponiveis/Acoes";
+import { adminFetch } from "../../lib/adminFetch";
 
 export default function DisponiveisPage() {
+    const router = useRouter();
+
     const [disponiveis, setDisponiveis] = useState<Veiculo[]>([]);
     const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState("");
 
     async function buscarDisponiveis() {
         try {
             const resposta = await fetch("http://localhost:3001/veiculos");
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao buscar veículos disponíveis.");
+            }
+
             const dados = await resposta.json();
 
             const lista = Array.isArray(dados)
@@ -29,6 +39,8 @@ export default function DisponiveisPage() {
         }
         catch (error) {
             console.error("Erro ao buscar veículos disponíveis:", error);
+
+            setErro("Não foi possível carregar os veículos.");
         }
         finally {
             setCarregando(false);
@@ -40,17 +52,59 @@ export default function DisponiveisPage() {
     }, []);
 
     async function marcarComoVendido(id: number) {
+        const confirmou = window.confirm(
+            "Tem certeza que deseja marcar este veículo como vendido?"
+        );
+
+        if (!confirmou) {
+            return;
+        }
+
+        setErro("");
+
         try {
-            await fetch(`http://localhost:3001/veiculos/${id}/vendido`, {
-                method: "PATCH",
-            });
+            const resposta = await adminFetch(`http://localhost:3001/veiculos/${id}/vendido`,
+                {
+                    method: "PATCH",
+                }
+            );
+
+            if (resposta.status === 401) {
+                router.push("/admin/login");
+
+                throw new Error("Sua sessão expirou. Faça login novamente.");
+            }
+
+            if (resposta.status === 403) {
+                throw new Error("Você não possui permissão para marcar veículos como vendidos.");
+            }
+
+            if (!resposta.ok) {
+                const dadosErro = await resposta
+                    .json()
+                    .catch(() => null);
+
+                throw new Error(
+                    dadosErro?.erro ||
+                    dadosErro?.error ||
+                    "Não foi possível marcar o veículo como vendido."
+                );
+            }
 
             setDisponiveis((atual) =>
-                atual.filter((veiculo) => veiculo.id !== id)
+                atual.filter(
+                    (veiculo) => veiculo.id !== id
+                )
             );
         }
         catch (error) {
             console.error("Erro ao marcar como vendido:", error);
+
+            setErro(
+                error instanceof Error
+                    ? error.message
+                    : "Erro ao marcar veículo como vendido."
+            );
         }
     }
 

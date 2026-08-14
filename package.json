@@ -27,8 +27,14 @@
   },
   "homepage": "https://github.com/Marcenero/site-moveo-motors#readme",
   "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
     "axios": "^1.14.0",
+    "express-rate-limit": "^8.6.2",
     "leaflet": "^1.9.4",
     "react": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0"
   }
 }
