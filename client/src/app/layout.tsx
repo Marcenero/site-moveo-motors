@@ -22,6 +22,20 @@ export const metadata: Metadata = {
 
   description: "Encontre carros seminovos com procedência e garantia na Moveo Motors. Confira nosso estoque e visite o showroom em Osasco, SP.",
 
+  robots: {
+    index: true,
+    follow: true,
+
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+
   openGraph: {
     title: "Moveo Motors - Seminovos em Osasco",
     description: "Seminovos premium com procedência e garantia. Confira o estoque da Moveo Motors em Osasco, SP.",

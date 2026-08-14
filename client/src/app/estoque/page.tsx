@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useEffect, useState } from "react";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
@@ -498,11 +499,13 @@ function EstadoVazio({
                                 href={`/estoque/${gerarSlug(veiculo.nome)}-${veiculo.id}`}
                                 className="text-left rounded-xl border border-gray-200 overflow-hidden bg-white hover:shadow-md transition"
                             >
-                                <div className="aspect-[4/3] bg-gray-100">
-                                    <img 
+                                <div className="relative aspect-[4/3] bg-gray-100">
+                                    <Image
                                         src={imagem}
-                                        alt={veiculo.nome}
-                                        className="w-full h-full object-cover"
+                                        alt={`${veiculo.nome} à venda na Moveo Motors`}
+                                        fill
+                                        sizes="(max-width: 640px) 100vw, 33vw"
+                                        className="object-cover"
                                     />
                                 </div>
 

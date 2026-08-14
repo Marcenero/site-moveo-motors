@@ -7,6 +7,10 @@ export const metadata: Metadata = {
     },
 
     description: "Confira o estoque de carros seminovos da Moveo Motors em Osasco. Encontre veículos selecionados com procedência e fale com nossa equipe.",
+
+    alternates: {
+        canonical: "/estoque",
+    },
 };
 
 export default function EstoqueLayout({

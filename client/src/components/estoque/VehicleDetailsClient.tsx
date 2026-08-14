@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import {
     CalendarDays,
@@ -70,10 +71,15 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                     {/* Galeria */}
                     <div className="min-w-0">
                         <div className="relative overflow-hidden rounded-3xl bg-[#e9e9e5] aspect-[4/3] group">
-                            <img
+                            <Image
                                 src={imagens[imagemAtiva]?.url}
-                                alt={`${veiculo.nome} - foto ${imagemAtiva + 1}`}
-                                className="w-full h-full object-cover"
+                                alt={`${veiculo.nome} ${veiculo.cor} à venda na Moveo Motors`}
+                                fill
+                                sizes="
+                                    (max-width: 1024px) 100vw,
+                                    62vw
+                                "
+                                className="object-cover"
                             />
 
                             {imagens.length > 1 && (
@@ -142,6 +148,7 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                         key={`${imagem.url}-${index}`}
                                         onClick={() => setImagemAtiva(index)}
                                         className={`
+                                            relative
                                             shrink-0
                                             w-24 h-20
                                             rounded-xl
@@ -155,10 +162,12 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                             }
                                         `}
                                     >
-                                        <img
+                                        <Image
                                             src={imagem.url}
-                                            alt={`${veiculo.nome} - miniatura ${index + 1}`}
-                                            className="w-full h-full object-cover"
+                                            alt={`${veiculo.nome} ${veiculo.cor} - vista ${index + 1}`}
+                                            fill
+                                            sizes="96px"
+                                            className="object-cover"
                                         />
                                     </button>
                                 ))}
