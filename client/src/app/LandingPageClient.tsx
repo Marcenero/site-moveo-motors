@@ -22,17 +22,58 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { FaWhatsapp } from "react-icons/fa";
 
+function VehicleCardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-white shadow-lg animate-pulse">
+      {/* Imagem */}
+      <div className="aspect-[16/10] w-full bg-gray-200" />
+
+      {/* Informações */}
+      <div className="space-y-4 p-5">
+
+        {/* Nome */}
+        <div className="h-6 w-3/4 rounded-md bg-gray-200" />
+
+        {/* Preço */}
+        <div className="h-8 w-1/2 rounded-md bg-gray-200" />
+
+        {/* Ano / km / Combustível */}
+        <div className="flex items-center gap-3">
+          <div className="h-4 w-14 rounded bg-gray-200" />
+          <div className="h-2 w-2 rounded-full bg-gray-200" />
+          <div className="h-4 w-20 rounded bg-gray-200" />
+          <div className="h-2 w-2 rounded-full bg-gray-200" />
+          <div className="h-4 w-24 rounded bg-gray-200" />
+        </div>
+
+        {/* Botão */}
+        <div className="pt-2">
+          <div className="h-12 w-full rounded-xl bg-gray-200" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MapaSkeleton() {
+  return (
+    <div className="h-[400px] w-full overflow-hidden rounded-2xl bg-gray-800 animate-pulse">
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="space-y-3 text-center">
+          <div className="mx-auto h-10 w-10 rounded-full bg-gray-700" />
+
+          <div className="mx-auto h-3 w-28 rounded bg-gray-700" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const MapaLoja = dynamic(
   () => import("../components/home/MapaLoja"),
   {
     ssr: false,
-    loading: () => (
-      <div className="h-[400px] w-full rounded-2xl bg-gray-800 flex items-center justify-center">
-        <p className="text-sm text-gray-400">
-          Carregando mapa...
-        </p>
-      </div>
-    )
+    loading: () => <MapaSkeleton />,
   }
 )
 
@@ -151,10 +192,14 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {carregandoRecentes ? (
-              <p className="text-sm text-gray-500">Carregando destaques...</p>
+              <>
+                <VehicleCardSkeleton />
+                <VehicleCardSkeleton />
+                <VehicleCardSkeleton />
+              </>
             ) : veiculosRecentes.length === 0 ? (
               <p className="text-sm text-gray-500">
-                Nenhum veículo cadastrado no momento.
+                Não foi possível carregar os veículos.
               </p>
             ) : (
               veiculosRecentes.map((veiculo) => (

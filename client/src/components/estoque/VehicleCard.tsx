@@ -51,7 +51,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
             }}
         >
         
-            <div className="relative w-full h-48 overflow-hidden bg-gray-100">
+            <div className="relative w-full aspect-[16/10] overflow-hidden bg-gray-100">
                 <Image
                     src={imagens[imagemAtual]}
                     alt={`${veiculo.nome} ${veiculo.ano} à venda na Moveo Motors`}
