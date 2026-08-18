@@ -10,6 +10,10 @@ type VendaGrafico = {
     vendidos: number;
 }
 
+const API_URL =
+    process.env.API_URL ??
+    "http://localhost:3001";
+
 export default async function AdminPage() {
     const supabase = await createClient();
 
@@ -19,14 +23,26 @@ export default async function AdminPage() {
 
     const {
         data: { user },
+        error: erroUsuario,
     } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (erroUsuario || !user) {
         redirect("/admin/login");
     }
 
+    const {
+        data: { session },
+        error: erroSessao,
+    } = await supabase.auth.getSession();
+
+    if (erroSessao || !session?.access_token) {
+        redirect("/admin/login");
+    }
+
+    const accessToken = session.access_token;
+
     try {
-        const response = await fetch("http://localhost:3001/veiculos", {
+        const response = await fetch(`${API_URL}/veiculos`, {
             cache: "no-store",
         });
 
@@ -36,7 +52,10 @@ export default async function AdminPage() {
 
         const resultado = await response.json();
 
-        const listaVeiculos = resultado.veiculos ?? [];
+        const listaVeiculos = 
+            Array.isArray(resultado.veiculos)
+                ? resultado.veiculos
+                : [];
 
         quantidade_disponiveis = listaVeiculos.length;
     }
@@ -47,12 +66,40 @@ export default async function AdminPage() {
     }
 
     try {
-        const response = await fetch("http:localhost:3001/veiculos/vendas/ultimos-5-dias", {
+        const response = await fetch(`${API_URL}/veiculos/vendas/ultimos-5-dias`, {
             cache: "no-store",
+
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
         });
 
+        if (response.status === 401) {
+            redirect(
+                "/admin/login?error=session"
+            );
+        }
+
+        if (response.status === 403) {
+            redirect(
+                "/admin/login?error=forbidden"
+            );
+        }
+
         if (!response.ok) {
-            throw new Error("Erro ao buscar vendas dos últimos 5 dias");
+            const dadosErro =
+                await response
+                    .json()
+                    .catch(() => null);
+
+            console.error(
+                "Erro da API ao buscar vendas:",
+                dadosErro
+            );
+
+            throw new Error(
+                "Erro ao buscar vendas nos últimos 5 dias."
+            );
         }
 
         const resultado = await response.json();

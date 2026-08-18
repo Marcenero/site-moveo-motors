@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "../../../../client";
+import { createClient } from "../../../../../supabase/client";
+
+const MENSAGEM_GENERICA = "Se este email estiver autorizado, você receberá um link de acesso.";
 
 export default function AdminLoginPage() {
     const [email, setEmail] = useState("");
@@ -16,59 +18,68 @@ export default function AdminLoginPage() {
         setMensagem("");
         setCarregando(true);
 
-        const supabase = createClient();
+        const emailNormalizado = email.trim().toLowerCase();
 
-        const { error } = await supabase.auth.signInWithOtp({
-            email: email.trim().toLowerCase(),
-            options: {
-                emailRedirectTo: `${window.location.origin}/auth/confirm?next=/admin`,
-                shouldCreateUser: false,
-            },
-        });
+        try {
+            const supabase = createClient();
 
-        setCarregando(false);
+            const siteUrl = 
+                process.env.NEXT_PUBLIC_SITE_URL ||
+                window.location.origin;
 
-        if (error) {
-            console.error("Erro Supabase:", error);
+            const { error } = 
+                await supabase.auth.signInWithOtp({
+                    email: emailNormalizado,
 
-            const mensagemErro = error.message.toLowerCase();
+                    options: {
+                        emailRedirectTo:
+                            `${siteUrl}/auth/confirm?next=/admin`,
 
-            if (mensagemErro.includes("rate limit")) {
-                setErro("Você tentou enviar muitos links em pouco tempo. Aguarde alguns minutos e tente novamente.");
+                        shouldCreateUser: false,
+                    },
+                });
+            
+            if (!error) {
+                setMensagem(MENSAGEM_GENERICA);
                 return;
             }
 
-            if (
-                mensagemErro.includes("signup") ||
-                mensagemErro.includes("signups not allowed") ||
-                mensagemErro.includes("user not found") ||
-                mensagemErro.includes("not found")
-            ) {
-                setErro("Este email não está autorizado para acessar o painel.");
-                return;
+            console.error("Erro ao solicitar Magic Link:"),
+            {
+                code: error.code,
+                name: error.name,
+                message: error.message,
             }
 
-            if (
-                mensagemErro.includes("redirect") ||
-                mensagemErro.includes("not allowed")
-            ) {
-                setErro("A URL de redirecionamento não está autorizada no Supabase. Verifique as Redirect URLs.");
-                return;
-            }
+            switch (error.code) {
+                case "user_not_found":
+                case "signup_disabled":
+                    setMensagem(MENSAGEM_GENERICA);
+                    return;
 
-            if (
-                mensagemErro.includes("invalid email") ||
-                mensagemErro.includes("email address")
-            ) {
-                setErro("Digite um email válido.");
-                return;
-            }
+                case "over_email_send_rate_limit":
+                case "over_request_rate_limit":
+                    setErro("Muitas tentativas foram realizadas. Aguarde alguns minutos e tente novamente.");
+                    return;
 
-            setErro("Não foi possível enviar o link de acesso. Tente novamente em alguns instantes.");
-            return;
+                case "email_address_invalid":
+                case "validation_failed":
+                    setErro("Digite um email válido.");
+                    return;
+
+                default:
+                    setErro("Não foi possível solicitar o link de acesso. Tente novamente mais tarde.");
+                    return;
+            }
         }
+        catch (error) {
+            console.error("Erro inesperado no login:", error);
 
-        setMensagem("Enviamos um link de acesso para o seu email.");
+            setErro("Não foi possível solicitar o link de acesso. Tente novamente em alguns instantes.");
+        }
+        finally {
+            setCarregando(false);
+        }
     }
 
     return (
@@ -85,27 +96,42 @@ export default function AdminLoginPage() {
                     Digite o seu email para receber o link de acesso.
                 </p>
 
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                    htmlFor="email"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                >
                     Email
                 </label>
 
                 <input 
+                    id="email"
+                    name="email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) =>
+                        setEmail(e.target.value)
+                    }
                     required
+                    autoComplete="email"
+                    disabled={carregando}
                     placeholder="admin@email.com"
-                    className="mb-4 w-full rounded-xl border border-gray-300 px-4 py-4 outline-none focus:border-yellow-500"
+                    className="mb-4 w-full rounded-xl border brder-gray-300 px-4 py-4 outline-none focus:border-yellow-500 disabled:cursor-not-allowed disabled:opacity-70"
                 />
 
                 {erro && (
-                    <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                    <p
+                        role="alert"
+                        className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+                    >
                         {erro}
                     </p>
                 )}
 
                 {mensagem && (
-                    <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+                    <p
+                        aria-live="polite"
+                        className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700"
+                    >
                         {mensagem}
                     </p>
                 )}
@@ -115,7 +141,9 @@ export default function AdminLoginPage() {
                     disabled={carregando}
                     className="w-full rounded-xl bg-yellow-500 px-4 py-3 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                    {carregando ? "Enviando..." : "Enviar link de acesso"}
+                    {carregando
+                        ? "Enviando..."
+                        : "Envair link de acesso"}
                 </button>
             </form>
         </main>

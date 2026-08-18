@@ -81,7 +81,7 @@ export default function EditarVeiculoPage() {
                     .filter(Boolean),
             };
 
-            const resposta = await adminFetch(`http://localhost:3001/veiculos/${id}`, {
+            const resposta = await adminFetch(`/veiculos/${id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",

@@ -12,7 +12,7 @@ async function uploadImagensNoBackend(arquivos: File[]) {
         formData.append("imagens", arquivo);
     });
 
-    const resposta = await adminFetch("http://localhost:3001/veiculos/upload-imagens", {
+    const resposta = await adminFetch("/veiculos/upload-imagens", {
         method: "POST",
         body: formData,
     });
@@ -94,7 +94,7 @@ export default function CadastrarVeiculoPage() {
                 imagens,
             };
 
-            const resposta = await adminFetch("http://localhost:3001/veiculos", {
+            const resposta = await adminFetch("/veiculos", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
