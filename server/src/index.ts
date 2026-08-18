@@ -21,6 +21,8 @@ const origensPermitidas = [
   process.env.FRONTEND_URL,
 ].filter(Boolean) as string[];
 
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   cors({
     origin: origensPermitidas,
@@ -37,6 +39,25 @@ app.use(
       "Content-Type",
       "Authorization",
     ],
+  }),
+
+  helmet({
+    strictTransportSecurity: isProduction
+      ? {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: false,
+      }
+      : false,
+
+    contentSecurityPolicy: {
+      directives: {
+        "upgrade-insecure-requests":
+          isProduction
+            ? []
+            : null,
+      },
+    },
   })
 );
 
