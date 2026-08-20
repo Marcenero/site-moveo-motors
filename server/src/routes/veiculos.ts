@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { supabase } from "../services/supabase.js";
+import type { Prisma } from "../generated/prisma/index.js";
 import { prisma } from "../services/prisma.js";
 
 import multer from "multer";
@@ -68,22 +69,20 @@ function pegarDataLimiteBrasil() {
     }).format(hoje);
 }
 
-async function limparVendasAntigas() {
-    const dataLimite = dataStringParaDate(pegarDataLimiteBrasil());
+async function incrementarVendaDoDia(
+    tx: Prisma.TransactionClient
+) {
+    const dataHoje =
+        dataStringParaDate(
+            pegarDataHojeBrasil()
+        );
 
-    await prisma.vendaDia.deleteMany({
-        where: {
-            data: {
-                lt: dataLimite,
-            },
-        },
-    });
-}
+    const dataLimite =
+        dataStringParaDate(
+            pegarDataLimiteBrasil()
+        );
 
-async function incrementarVendaDoDia() {
-    const dataHoje = dataStringParaDate(pegarDataHojeBrasil());
-
-    await prisma.vendaDia.upsert({
+    await tx.vendaDia.upsert({
         where: {
             data: dataHoje,
         },
@@ -100,7 +99,13 @@ async function incrementarVendaDoDia() {
         },
     });
 
-    await limparVendasAntigas();
+    await tx.vendaDia.deleteMany({
+        where: {
+            data: {
+                lt: dataLimite,
+            },
+        },
+    });
 }
 
 /* Rotas */
@@ -697,7 +702,28 @@ router.patch(
     }
 );
 
-/* Rota para indicar veículos como vendidos */
+/* Função auxiliar e rota para indicar veículos como vendidos */
+function extrairCaminhoStorageDaUrl(
+    url: string
+) {
+    const marcador =
+        "/storage/v1/object/public/Imagens/";
+
+    const indice =
+        url.indexOf(marcador);
+
+    if (indice === -1) {
+        return null;
+    }
+
+    return decodeURIComponent(
+        url.slice(
+            indice +
+            marcador.length
+        )
+    );
+}
+
 router.patch(
     "/:id/vendido",
     exigirAdmin,
@@ -705,7 +731,10 @@ router.patch(
         const id =
             Number(req.params.id);
 
-        if (Number.isNaN(id)) {
+        if (
+            !Number.isInteger(id) ||
+            id <= 0
+        ) {
             return res.status(400).json({
                 ok: false,
                 erro: "ID inválido.",
@@ -713,91 +742,119 @@ router.patch(
         }
 
         try {
-            const veiculoExistente =
-                await prisma.veiculo.findUnique({
-                    where: {
-                        id,
-                    },
+            const veiculo =
+                await prisma.veiculo
+                    .findUnique({
+                        where: {
+                            id,
+                        },
 
-                    select: {
-                        id: true,
-                    },
-                });
+                        select: {
+                            id: true,
 
-            if (!veiculoExistente) {
-                return res.status(404).json({
-                    ok: false,
-                    erro:
-                        "Veículo não encontrado.",
-                });
+                            imagens: {
+                                select: {
+                                    url: true,
+                                },
+                            },
+                        },
+                    });
+
+            if (!veiculo) {
+                return res
+                    .status(404)
+                    .json({
+                        ok: false,
+                        erro:
+                            "Veículo não encontrado.",
+                    });
             }
 
-            const dataHoje =
-                dataStringParaDate(
-                    pegarDataHojeBrasil()
-                );
-
-            const dataLimite =
-                dataStringParaDate(
-                    pegarDataLimiteBrasil()
-                );
+            const caminhosImagens =
+                veiculo.imagens
+                    .map((imagem) =>
+                        extrairCaminhoStorageDaUrl(
+                            imagem.url
+                        )
+                    )
+                    .filter(
+                        (
+                            caminho
+                        ): caminho is string =>
+                            caminho !==
+                            null
+                    );
 
             await prisma.$transaction(
                 async (tx) => {
-                    /*
-                     * ImagemVeiculo será
-                     * removido pelo CASCADE.
-                     */
                     await tx.veiculo.delete({
                         where: {
                             id,
                         },
                     });
 
-                    await tx.vendaDia.upsert({
-                        where: {
-                            data: dataHoje,
-                        },
-
-                        update: {
-                            quantidade: {
-                                increment: 1,
-                            },
-                        },
-
-                        create: {
-                            data: dataHoje,
-                            quantidade: 1,
-                        },
-                    });
-
-                    await tx.vendaDia.deleteMany({
-                        where: {
-                            data: {
-                                lt: dataLimite,
-                            },
-                        },
-                    });
+                    await incrementarVendaDoDia(tx);
                 }
             );
+
+            /*
+             * 4. Depois que o banco confirmou,
+             * remove os arquivos físicos.
+             */
+            let avisoStorage:
+                string | undefined;
+
+            if (
+                caminhosImagens.length >
+                0
+            ) {
+                const {
+                    error:
+                        erroStorage,
+                } =
+                    await supabase.storage
+                        .from("Imagens")
+                        .remove(
+                            caminhosImagens
+                        );
+
+                if (erroStorage) {
+                    console.error(
+                        "Erro ao remover imagens do Storage:",
+                        erroStorage
+                    );
+
+                    avisoStorage =
+                        "O veículo foi removido, mas algumas imagens não puderam ser apagadas do armazenamento.";
+                }
+            }
 
             return res.json({
                 ok: true,
                 mensagem:
                     "Veículo vendido e removido com sucesso.",
+
+                ...(avisoStorage
+                    ? {
+                        aviso:
+                            avisoStorage,
+                    }
+                    : {}),
             });
         }
         catch (error) {
             console.error(
-                "Erro ao remover veículo vendido:",
+                "Erro ao marcar veículo como vendido:",
                 error
             );
 
-            return res.status(500).json({
-                ok: false,
-                erro:
-                    "Erro ao remover o veículo vendido.",
-            });
+            return res
+                .status(500)
+                .json({
+                    ok: false,
+                    erro:
+                        "Erro ao remover o veículo vendido.",
+                });
         }
     }
 );
