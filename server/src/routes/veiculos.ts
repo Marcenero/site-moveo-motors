@@ -294,6 +294,8 @@ const upload = multer({
     limits: {
         fileSize: 8 * 1024 * 1024,
         files: 20,
+        fields: 0,
+        parts: 20,
     },
 
     fileFilter: (req, file, callback) => {
@@ -333,7 +335,7 @@ router.post(
     "/upload-imagens",
     exigirAdmin,
     limiteUpload,
-    upload.array("imagens"), 
+    upload.array("imagens", 20), 
     async (req, res) => {
         try {
             const arquivos = req.files as Express.Multer.File[];
