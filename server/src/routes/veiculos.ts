@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { supabase } from "../services/supabase.js";
+import { prisma } from "../services/prisma.js";
+
 import multer from "multer";
 import sharp from "sharp";
 
@@ -10,6 +12,39 @@ const router = Router();
 
 /* Funções */
 /* Funções auxiliares para a rota de informações da tabela */
+function dataStringParaDate(data: string) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+        throw new Error(
+            `Data inválida: ${data}`
+        );
+    }
+
+    const ano =
+        Number(data.slice(0, 4));
+
+    const mes =
+        Number(data.slice(5, 7));
+
+    const dia =
+        Number(data.slice(8, 10));
+
+    return new Date(
+        Date.UTC(
+            ano,
+            mes - 1,
+            dia
+        )
+    );
+}
+
+function dateParaDataString(
+    data: Date
+) {
+    return data
+        .toISOString()
+        .slice(0, 10);
+}
+
 function pegarDataHojeBrasil() {
     return new Intl.DateTimeFormat("en-CA", {
         timeZone: "America/Sao_Paulo",
@@ -34,171 +69,218 @@ function pegarDataLimiteBrasil() {
 }
 
 async function limparVendasAntigas() {
-    const dataLimite = pegarDataLimiteBrasil();
+    const dataLimite = dataStringParaDate(pegarDataLimiteBrasil());
 
-    const { error } = await supabase
-        .from("VendaDia")
-        .delete()
-        .lt("data", dataLimite);
-
-    if (error) {
-        throw error;
-    }
+    await prisma.vendaDia.deleteMany({
+        where: {
+            data: {
+                lt: dataLimite,
+            },
+        },
+    });
 }
 
 async function incrementarVendaDoDia() {
-    const dataHoje = pegarDataHojeBrasil();
+    const dataHoje = dataStringParaDate(pegarDataHojeBrasil());
 
-    const { data: vendaExistente, error: erroConsulta } = await supabase
-        .from("VendaDia")
-        .select("id, quantidade")
-        .eq("data", dataHoje)
-        .maybeSingle();
+    await prisma.vendaDia.upsert({
+        where: {
+            data: dataHoje,
+        },
 
-    if (erroConsulta) {
-        throw erroConsulta;
-    }
+        update: {
+            quantidade: {
+                increment: 1,
+            },
+        },
 
-    if (vendaExistente) {
-        const { error: erroUpdate } = await supabase
-            .from("VendaDia")
-            .update({
-                quantidade: vendaExistente.quantidade + 1,
-            })
-            .eq("id", vendaExistente.id);
-
-        if (erroUpdate) {
-            throw erroUpdate;
-        }
-    }
-    else {
-        const { error: erroInsert } = await supabase
-            .from("VendaDia")
-            .insert({
-                data: dataHoje,
-                quantidade: 1,
-            });
-
-        if (erroInsert) {
-            throw erroInsert;
-        }
-    }
+        create: {
+            data: dataHoje,
+            quantidade: 1,
+        },
+    });
 
     await limparVendasAntigas();
 }
 
 /* Rotas */
 /* Rota para pegar todos os veículos do banco de dados */
-router.get("/", async (req, res) => {
-    console.log("GET /veiculos chamado");
+router.get(
+    "/",
+    async (req, res) => {
+        try {
+            const veiculos =
+                await prisma.veiculo.findMany({
+                    include: {
+                        imagens: {
+                            select: {
+                                id: true,
+                                url: true,
+                                veiculoId: true,
+                            },
+                        },
+                    },
+                });
 
-    const { data: veiculos, error } = await supabase
-        .from("Veiculo")
-        .select(`
-                *,
-                imagens:ImagemVeiculo (
-                    id,
-                    url,
-                    veiculoId
-                )
-            `);
+            return res.json({
+                ok: true,
+                total: veiculos.length,
+                veiculos,
+            });
+        }
+        catch (error) {
+            console.error(
+                "Erro ao buscar veículos:",
+                error
+            );
 
-    if (error) {
-        console.error("Erro supabase:", error);
-
-        return res.status(500).json({
-            ok: false,
-            error: error.message,
-            details: error,
-        });
+            return res.status(500).json({
+                ok: false,
+                error:
+                    "Erro ao buscar veículos.",
+            });
+        }
     }
-
-    //console.log("Veículos encontrados:", veiculos?.length ?? 0);
-    //console.log("Primeiro veículo:", veiculos?.[0]);
-
-    return res.json({
-        ok: true,
-        total: veiculos?.length ?? 0,
-        veiculos: veiculos ?? [],
-    });
-});
+);
 
 /* Rota para cadastro de veículo */
 router.post(
     "/",
     exigirAdmin,
     async (req, res) => {
-    const {
-        nome,
-        km,
-        cor,
-        final_placa,
-        estado_ipva,
-        preco,
-        ano,
-        cambio,
-        motor,
-        combustivel,
-        descricao,
-        outras_infos,
-        imagens,
-    } = req.body;
-
-    const ipvaPago =
-        estado_ipva === true ||
-        estado_ipva === "true" ||
-        estado_ipva === "on";
-
-    const { data: veiculo, error: erroVeiculo } = await supabase
-        .from("Veiculo")
-        .insert({
+        const {
             nome,
-            km: Number(km),
+            km,
             cor,
-            final_placa: Number(final_placa),
-            estado_ipva: ipvaPago,
-            preco: Number(preco),
-            ano: Number(ano),
+            final_placa,
+            estado_ipva,
+            preco,
+            ano,
             cambio,
             motor,
             combustivel,
             descricao,
-            outras_infos: outras_infos ?? [],
-        })
-        .select()
-        .single();
+            outras_infos,
+            imagens,
+        } = req.body;
 
-    if (erroVeiculo) {
-        console.error("Erro ao inserir veículo:", erroVeiculo);
+        const ipvaPago =
+            estado_ipva === true ||
+            estado_ipva === "true" ||
+            estado_ipva === "on";
 
-        return res.status(500).json({
-            ok: false,
-            etapa: "cadastro_veiculo",
-            erro: erroVeiculo.message,
-            detalhes: erroVeiculo,
-        });
-    }
+        try {
+            const outrasInfosNormalizadas:
+                string[] =
+                Array.isArray(outras_infos)
+                    ? outras_infos
+                        .filter(
+                            (
+                                item
+                            ): item is string =>
+                                typeof item ===
+                                "string"
+                        )
+                        .map((item) =>
+                            item.trim()
+                        )
+                        .filter(Boolean)
+                    : [];
 
-    if (imagens?.length > 0) {
-        const imagensFormatadas = imagens.map((url: string) => ({
-            url,
-            veiculoId: veiculo.id,
-        }));
+            const imagensNormalizadas:
+                string[] =
+                Array.isArray(imagens)
+                    ? imagens.filter(
+                        (
+                            item
+                        ): item is string =>
+                            typeof item ===
+                            "string"
+                    )
+                    : [];
 
-        const { error: erroImagens } = await supabase
-            .from("ImagemVeiculo")
-            .insert(imagensFormatadas);
+            const veiculo =
+                await prisma.veiculo.create({
+                    data: {
+                        nome:
+                            String(nome).trim(),
 
-        if (erroImagens) {
-            return res.status(500).json({ error: erroImagens.message });
+                        km:
+                            Number(km),
+
+                        cor:
+                            String(cor).trim(),
+
+                        final_placa:
+                            Number(final_placa),
+
+                        estado_ipva:
+                            ipvaPago,
+
+                        preco:
+                            Number(preco),
+
+                        ano:
+                            Number(ano),
+
+                        cambio:
+                            String(cambio).trim(),
+
+                        motor:
+                            String(motor).trim(),
+
+                        combustivel:
+                            String(
+                                combustivel
+                            ).trim(),
+
+                        descricao:
+                            String(
+                                descricao
+                            ).trim(),
+
+                        outras_infos:
+                            outrasInfosNormalizadas,
+
+                        ...(imagensNormalizadas.length >
+                        0
+                            ? {
+                                imagens: {
+                                    create:
+                                        imagensNormalizadas.map(
+                                            (url) => ({
+                                                url,
+                                            })
+                                        ),
+                                },
+                            }
+                            : {}),
+                    },
+
+                    include: {
+                        imagens: true,
+                    },
+                });
+
+            return res.status(201).json({
+                ok: true,
+                veiculo,
+            });
+        }
+        catch (error) {
+            console.error(
+                "Erro ao cadastrar veículo:",
+                error
+            );
+
+            return res.status(500).json({
+                ok: false,
+                erro:
+                    "Erro ao cadastrar veículo.",
+            });
         }
     }
-
-    return res.status(201).json({
-        ok: true,
-        veiculo,
-    });
-});
+);
 
 /* Rota para upload de imagens no cadastro */
 const upload = multer({
@@ -319,52 +401,89 @@ router.post(
 
 /* Rota para atualizar a tabela de vendas do dia */
 router.get(
-    "/vendas/ultimos-5-dias", 
+    "/vendas/ultimos-5-dias",
     exigirAdmin,
     async (req, res) => {
         try {
-            const hoje = new Date();
+            const hoje =
+                new Date();
 
-            const datas = Array.from({ length: 5 }, (_, index) => {
-                const data = new Date(hoje);
-                data.setDate(hoje.getDate() - (4 - index));
+            const datas =
+                Array.from(
+                    { length: 5 },
+                    (_, index) => {
+                        const data =
+                            new Date(hoje);
 
-                return new Intl.DateTimeFormat("en-CA", {
-                    timeZone: "America/Sao_Paulo",
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                }).format(data);
-            });
+                        data.setDate(
+                            hoje.getDate() -
+                                (4 - index)
+                        );
 
-            const { data: vendas, error } = await supabase
-                .from("VendaDia")
-                .select("data, quantidade")
-                .in("data", datas);
+                        return new Intl.DateTimeFormat(
+                            "en-CA",
+                            {
+                                timeZone:
+                                    "America/Sao_Paulo",
+                                year:
+                                    "numeric",
+                                month:
+                                    "2-digit",
+                                day:
+                                    "2-digit",
+                            }
+                        ).format(data);
+                    }
+                );
 
-            if (error) {
-                return res.status(500).json({
-                    ok: false,
-                    erro: error.message,
+            const datasDate =
+                datas.map(
+                    dataStringParaDate
+                );
+
+            const vendas =
+                await prisma.vendaDia.findMany({
+                    where: {
+                        data: {
+                            in: datasDate,
+                        },
+                    },
+
+                    select: {
+                        data: true,
+                        quantidade: true,
+                    },
                 });
-            }
 
-            const mapaVendas = new Map(
-                (vendas ?? []).map((venda) => [
-                    venda.data,
-                    venda.quantidade,
-                ])
-            );
+            const mapaVendas =
+                new Map(
+                    vendas.map(
+                        (venda) => [
+                            dateParaDataString(
+                                venda.data
+                            ),
+                            venda.quantidade,
+                        ]
+                    )
+                );
 
-            const resultado = datas.map((data) => {
-                const [, mes, dia] = data.split("-");
+            const resultado =
+                datas.map((data) => {
+                    const [, mes, dia] =
+                        data.split("-");
 
-                return {
-                    data,
-                    dia: `${Number(dia)}/${Number(mes)}`,
-                    vendidos: mapaVendas.get(data) ?? 0,
-                };
-            });
+                    return {
+                        data,
+
+                        dia:
+                            `${Number(dia)}/${Number(mes)}`,
+
+                        vendidos:
+                            mapaVendas.get(
+                                data
+                            ) ?? 0,
+                    };
+                });
 
             return res.json({
                 ok: true,
@@ -372,83 +491,86 @@ router.get(
             });
         }
         catch (error) {
-            console.error("Erro ao buscar vendas dos últimos 5 dias:", error);
+            console.error(
+                "Erro ao buscar vendas dos últimos 5 dias:",
+                error
+            );
 
             return res.status(500).json({
                 ok: false,
-                erro: "Erro ao buscar vendas dos últimos 5 dias.",
+                erro:
+                    "Erro ao buscar vendas dos últimos 5 dias.",
             });
         }
-});
+    }
+);
 
 /* Rota para pegar dados do veículo específico */
-router.get("/:id", async (req, res) => {
-    const id = Number(req.params.id);
+router.get(
+    "/:id",
+    async (req, res) => {
+        const id =
+            Number(req.params.id);
 
-    if (Number.isNaN(id)) {
-        return res.status(400).json({
-            ok: false,
-            erro: "ID inválido",
-        });
-    }
+        if (Number.isNaN(id)) {
+            return res.status(400).json({
+                ok: false,
+                erro: "ID inválido.",
+            });
+        }
 
-    try {
-        const { data: veiculo, error: erroVeiculo } = await supabase
-            .from("Veiculo")
-            .select("*")
-            .eq("id", id)
-            .maybeSingle();
+        try {
+            const veiculo =
+                await prisma.veiculo.findUnique({
+                    where: {
+                        id,
+                    },
 
-        if (erroVeiculo) {
+                    include: {
+                        imagens: {
+                            select: {
+                                id: true,
+                                url: true,
+                            },
+                        },
+                    },
+                });
+
+            if (!veiculo) {
+                return res.status(404).json({
+                    ok: false,
+                    erro:
+                        "Veículo não encontrado.",
+                });
+            }
+
+            return res.json({
+                ok: true,
+                veiculo,
+            });
+        }
+        catch (error) {
+            console.error(
+                "Erro ao buscar veículo por ID:",
+                error
+            );
+
             return res.status(500).json({
                 ok: false,
-                erro: erroVeiculo.message,
+                erro:
+                    "Erro ao buscar veículo.",
             });
         }
-
-        if (!veiculo) {
-            return res.status(404).json({
-                ok: false,
-                erro: "Veículo não encontrado.",
-            });
-        }
-
-        const { data: imagens, error: erroImagens } = await supabase
-            .from("ImagemVeiculo")
-            .select("id, url")
-            .eq("veiculoId", id);
-
-        if (erroImagens) {
-            return res.status(500).json({
-                ok: false,
-                erro: erroImagens.message,
-            });
-        }
-
-        return res.json({
-            ok: true,
-            veiculo: {
-                ...veiculo,
-                imagens: imagens ?? [],
-            },
-        });
     }
-    catch (error) {
-        console.error("Erro ao buscar veículo por ID:", error);
-
-        return res.status(500).json({
-            ok: false,
-            erro: "Erro ao buscar veículo.",
-        });
-    }
-});
+);
 
 /* Rota para editar informações de um veículo */
 router.patch(
     "/:id",
     exigirAdmin,
     async (req, res) => {
-        const id = Number(req.params.id);
+        const id =
+            Number(req.params.id);
 
         if (Number.isNaN(id)) {
             return res.status(400).json({
@@ -478,122 +600,206 @@ router.patch(
             estado_ipva === "on";
 
         try {
-            const { data: veiculoAtualizado, error } = await supabase
-                .from("Veiculo")
-                .update({
-                    nome,
-                    km: Number(km),
-                    cor,
-                    final_placa: Number(final_placa),
-                    estado_ipva: ipvaPago,
-                    preco: Number(preco),
-                    ano: Number(ano),
-                    cambio,
-                    motor,
-                    combustivel,
-                    descricao,
-                    outras_infos: outras_infos ?? [],
-                })
-                .eq("id", id)
-                .select()
-                .maybeSingle();
+            const existente =
+                await prisma.veiculo.findUnique({
+                    where: {
+                        id,
+                    },
 
-            if (error) {
-                console.error("Erro ao editar veículo:", error);
-
-                return res.status(500).json({
-                    ok: false,
-                    erro: error.message,
+                    select: {
+                        id: true,
+                    },
                 });
-            }
 
-            if (!veiculoAtualizado) {
+            if (!existente) {
                 return res.status(404).json({
                     ok: false,
-                    erro: "Veículo não encontrado.",
+                    erro:
+                        "Veículo não encontrado.",
                 });
             }
+
+            const veiculoAtualizado =
+                await prisma.veiculo.update({
+                    where: {
+                        id,
+                    },
+
+                    data: {
+                        nome:
+                            String(nome).trim(),
+
+                        km:
+                            Number(km),
+
+                        cor:
+                            String(cor).trim(),
+
+                        final_placa:
+                            Number(
+                                final_placa
+                            ),
+
+                        estado_ipva:
+                            ipvaPago,
+
+                        preco:
+                            Number(preco),
+
+                        ano:
+                            Number(ano),
+
+                        cambio:
+                            String(cambio).trim(),
+
+                        motor:
+                            String(motor).trim(),
+
+                        combustivel:
+                            String(
+                                combustivel
+                            ).trim(),
+
+                        descricao:
+                            String(
+                                descricao
+                            ).trim(),
+
+                        outras_infos:
+                            Array.isArray(
+                                outras_infos
+                            )
+                                ? outras_infos
+                                : [],
+                    },
+                });
 
             return res.json({
                 ok: true,
-                mensagem: "Veículo atualizado com sucesso.",
-                veiculo: veiculoAtualizado,
+                mensagem:
+                    "Veículo atualizado com sucesso.",
+                veiculo:
+                    veiculoAtualizado,
             });
         }
         catch (error) {
-            console.error("Erro inesperado ao editar veículo:", error);
+            console.error(
+                "Erro ao editar veículo:",
+                error
+            );
 
             return res.status(500).json({
                 ok: false,
-                erro: "Erro inesperado ao editar veículo.",
+                erro:
+                    "Erro inesperado ao editar veículo.",
             });
         }
-});
+    }
+);
 
 /* Rota para indicar veículos como vendidos */
 router.patch(
     "/:id/vendido",
-    exigirAdmin, 
+    exigirAdmin,
     async (req, res) => {
-        const id = Number(req.params.id);
+        const id =
+            Number(req.params.id);
 
         if (Number.isNaN(id)) {
             return res.status(400).json({
                 ok: false,
-                erro: "ID inválido",
+                erro: "ID inválido.",
             });
         }
 
         try {
-            const { error: erroImagens } = await supabase
-                .from("ImagemVeiculo")
-                .delete()
-                .eq("veiculoId", id);
+            const veiculoExistente =
+                await prisma.veiculo.findUnique({
+                    where: {
+                        id,
+                    },
 
-            if (erroImagens) {
-                return res.status(500).json({
-                    ok: false,
-                    erro: erroImagens.message,
+                    select: {
+                        id: true,
+                    },
                 });
-            }
 
-            // Depois apaga o veículo
-            const { data: veiculoRemovido, error: erroVeiculo } = await supabase
-                .from("Veiculo")
-                .delete()
-                .eq("id", id)
-                .select("id")
-                .maybeSingle();
-
-            if (erroVeiculo) {
-                return res.status(500).json({
-                    ok: false,
-                    erro: erroVeiculo.message,
-                });
-            }
-
-            if (!veiculoRemovido) {
+            if (!veiculoExistente) {
                 return res.status(404).json({
                     ok: false,
-                    erro: "Veículo não encontrado.",
+                    erro:
+                        "Veículo não encontrado.",
                 });
             }
 
-            await incrementarVendaDoDia();
+            const dataHoje =
+                dataStringParaDate(
+                    pegarDataHojeBrasil()
+                );
+
+            const dataLimite =
+                dataStringParaDate(
+                    pegarDataLimiteBrasil()
+                );
+
+            await prisma.$transaction(
+                async (tx) => {
+                    /*
+                     * ImagemVeiculo será
+                     * removido pelo CASCADE.
+                     */
+                    await tx.veiculo.delete({
+                        where: {
+                            id,
+                        },
+                    });
+
+                    await tx.vendaDia.upsert({
+                        where: {
+                            data: dataHoje,
+                        },
+
+                        update: {
+                            quantidade: {
+                                increment: 1,
+                            },
+                        },
+
+                        create: {
+                            data: dataHoje,
+                            quantidade: 1,
+                        },
+                    });
+
+                    await tx.vendaDia.deleteMany({
+                        where: {
+                            data: {
+                                lt: dataLimite,
+                            },
+                        },
+                    });
+                }
+            );
 
             return res.json({
                 ok: true,
-                mensagem: "Veículo vendido e removido com sucesso.",
+                mensagem:
+                    "Veículo vendido e removido com sucesso.",
             });
         }
         catch (error) {
-            console.error("Erro ao remover veículo vendido:", error);
+            console.error(
+                "Erro ao remover veículo vendido:",
+                error
+            );
 
             return res.status(500).json({
                 ok: false,
-                erro: "Erro ao remover o veículo vendido.",
+                erro:
+                    "Erro ao remover o veículo vendido.",
             });
         }
-});
+    }
+);
 
 export default router;
