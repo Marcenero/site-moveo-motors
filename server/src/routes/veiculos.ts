@@ -12,6 +12,90 @@ import { rateLimit } from "express-rate-limit";
 const router = Router();
 
 /* Funções */
+function extrairCaminhoStorageDaUrl(
+    url: string
+) {
+    try {
+        const marcador = "/storage/v1/object/public/Imagens/";
+
+        const indice = url.indexOf(marcador);
+
+        if (indice === -1) {
+            return null;
+        }
+
+        const caminho =
+            decodeURIComponent(
+                url.slice(
+                    indice + marcador.length
+                )
+            );
+
+        if (!caminho.startsWith("veiculos/")) {
+            return null;
+        }
+
+        return caminho;
+    }
+    catch {
+        return null;
+    }
+}
+
+async function removerImagensOrfas(urls: string[]) {
+    if (urls.length === 0) {
+        return;
+    }
+
+    const urlsUnicas = [
+        ...new Set(urls),
+    ];
+
+    const imagensReferenciadas = 
+        await prisma.imagemVeiculo.findMany({
+            where: {
+                url: {
+                    in: urlsUnicas,
+                },
+            },
+
+            select: {
+                url: true,
+            },
+        });
+
+    const urlsReferenciadas =
+        new Set(
+            imagensReferenciadas.map(
+                (imagem) => imagem.url
+            )
+        );
+
+    const caminhosOrfaos =
+        urlsUnicas
+            .filter(
+                (url) =>
+                    !urlsReferenciadas.has(url)
+            )
+            .map(extrairCaminhoStorageDaUrl)
+            .filter(
+                (caminho) : caminho is string => caminho !== null
+            );
+
+    if (caminhosOrfaos.length === 0) {
+        return;
+    }
+
+    const { error } =
+        await supabase.storage
+            .from("Imagens")
+            .remove(caminhosOrfaos);
+        
+    if (error) {
+        throw error;
+    }
+}
+
 /* Funções auxiliares para a rota de informações da tabela */
 function dataStringParaDate(data: string) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
@@ -141,7 +225,7 @@ router.get(
 
             return res.status(500).json({
                 ok: false,
-                error:
+                erro:
                     "Erro ao buscar veículos.",
             });
         }
@@ -174,36 +258,36 @@ router.post(
             estado_ipva === "true" ||
             estado_ipva === "on";
 
-        try {
-            const outrasInfosNormalizadas:
-                string[] =
-                Array.isArray(outras_infos)
-                    ? outras_infos
-                        .filter(
-                            (
-                                item
-                            ): item is string =>
-                                typeof item ===
-                                "string"
-                        )
-                        .map((item) =>
-                            item.trim()
-                        )
-                        .filter(Boolean)
-                    : [];
-
-            const imagensNormalizadas:
-                string[] =
-                Array.isArray(imagens)
-                    ? imagens.filter(
+        const outrasInfosNormalizadas:
+            string[] =
+            Array.isArray(outras_infos)
+                ? outras_infos
+                    .filter(
                         (
                             item
                         ): item is string =>
                             typeof item ===
                             "string"
                     )
-                    : [];
+                    .map((item) =>
+                        item.trim()
+                    )
+                    .filter(Boolean)
+                : [];
 
+        const imagensNormalizadas:
+            string[] =
+            Array.isArray(imagens)
+                ? imagens.filter(
+                    (
+                        item
+                    ): item is string =>
+                        typeof item ===
+                        "string"
+                )
+                : [];
+
+        try {
             const veiculo =
                 await prisma.veiculo.create({
                     data: {
@@ -278,10 +362,19 @@ router.post(
                 error
             );
 
+            try {
+                await removerImagensOrfas(imagensNormalizadas);
+            }
+            catch (erroLimpeza) {
+                console.error(
+                    "Erro ao remover imagens órfãs após falha no cadastro:",
+                    erroLimpeza
+                );
+            }
+
             return res.status(500).json({
                 ok: false,
-                erro:
-                    "Erro ao cadastrar veículo.",
+                erro: "Erro ao cadastrar veículo.",
             });
         }
     }
@@ -327,7 +420,7 @@ const limiteUpload = rateLimit({
 
     message: {
         ok: false,
-        error: "Muitos uploads. Aguarde alguns minutos.",
+        erro: "Muitos uploads. Aguarde alguns minutos.",
     },
 });
 
@@ -337,13 +430,15 @@ router.post(
     limiteUpload,
     upload.array("imagens", 20), 
     async (req, res) => {
+        const caminhosEnviados: string[] = [];
+
         try {
             const arquivos = req.files as Express.Multer.File[];
 
             if (!arquivos || arquivos.length === 0) {
                 return res.status(400).json({
                     ok: false,
-                    error: "Nenhuma imagem enviada.",
+                    erro: "Nenhuma imagem enviada.",
                 });
             }
 
@@ -384,6 +479,8 @@ router.post(
                     throw error;
                 }
 
+                caminhosEnviados.push(caminho);
+
                 const { data } = supabase.storage
                     .from("Imagens")
                     .getPublicUrl(caminho);
@@ -399,10 +496,26 @@ router.post(
         catch (error) {
             console.error("Erro ao enviar imagens:", error);
 
-            return res.status(500).json({
-                ok: false,
-                error: "Erro ao enviar imagens.",
-            });
+            if (caminhosEnviados.length > 0) {
+                const {error: erroLimpeza,} =
+                    await supabase.storage
+                        .from("Imagens")
+                        .remove(caminhosEnviados);
+
+                if (erroLimpeza) {
+                    console.error(
+                        "Erro ao limpar imagens após falha no upload:", 
+                        erroLimpeza
+                    );
+                }
+            }
+
+            return res
+                .status(500)
+                .json({
+                    ok: false,
+                    erro: "Erro ao enviar imagens.",
+                });
         }
 });
 
@@ -704,34 +817,12 @@ router.patch(
     }
 );
 
-/* Função auxiliar e rota para indicar veículos como vendidos */
-function extrairCaminhoStorageDaUrl(
-    url: string
-) {
-    const marcador =
-        "/storage/v1/object/public/Imagens/";
-
-    const indice =
-        url.indexOf(marcador);
-
-    if (indice === -1) {
-        return null;
-    }
-
-    return decodeURIComponent(
-        url.slice(
-            indice +
-            marcador.length
-        )
-    );
-}
-
+/* Rota para indicar veículos como vendidos */
 router.patch(
     "/:id/vendido",
     exigirAdmin,
     async (req, res) => {
-        const id =
-            Number(req.params.id);
+        const id = Number(req.params.id);
 
         if (
             !Number.isInteger(id) ||
