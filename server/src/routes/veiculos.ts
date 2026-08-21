@@ -225,7 +225,7 @@ router.get(
 
             return res.status(500).json({
                 ok: false,
-                error:
+                erro:
                     "Erro ao buscar veículos.",
             });
         }
@@ -420,7 +420,7 @@ const limiteUpload = rateLimit({
 
     message: {
         ok: false,
-        error: "Muitos uploads. Aguarde alguns minutos.",
+        erro: "Muitos uploads. Aguarde alguns minutos.",
     },
 });
 
@@ -438,7 +438,7 @@ router.post(
             if (!arquivos || arquivos.length === 0) {
                 return res.status(400).json({
                     ok: false,
-                    error: "Nenhuma imagem enviada.",
+                    erro: "Nenhuma imagem enviada.",
                 });
             }
 
@@ -514,7 +514,7 @@ router.post(
                 .status(500)
                 .json({
                     ok: false,
-                    error: "Erro ao enviar imagens.",
+                    erro: "Erro ao enviar imagens.",
                 });
         }
 });

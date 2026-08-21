@@ -45,10 +45,10 @@ export async function exigirAdmin(
 
         const {
             data: { user },
-            error,
+            error: erroAutenticacao,
         } = await supabase.auth.getUser(token);
 
-        if (error || !user) {
+        if (erroAutenticacao || !user) {
             return res.status(401).json({
                 ok: false,
                 erro: "Sessão inválida ou expirada.",
