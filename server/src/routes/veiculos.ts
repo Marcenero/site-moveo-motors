@@ -362,10 +362,19 @@ router.post(
                 error
             );
 
+            try {
+                await removerImagensOrfas(imagensNormalizadas);
+            }
+            catch (erroLimpeza) {
+                console.error(
+                    "Erro ao remover imagens órfãs após falha no cadastro:",
+                    erroLimpeza
+                );
+            }
+
             return res.status(500).json({
                 ok: false,
-                erro:
-                    "Erro ao cadastrar veículo.",
+                erro: "Erro ao cadastrar veículo.",
             });
         }
     }
