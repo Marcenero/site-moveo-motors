@@ -83,28 +83,53 @@ export default function SobrePage() {
                     .
                 </div>
 
-                <div className="max-w-7xl mx-auto px-6 mt-10 relative z-10">
-                    <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12 border-l-8 border-[#D9A300]">
+                <div className="relative z-10 mx-auto mt-20 max-2-7xl px-6">
+                    <div className="relative overflow-hidden rounded-3xl bg-[#f7f4ee] shadow-xl border border-[#d9a300]/20">
+                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#D9A300]/10 blur-3xl" />
 
-                        <span className="text-[#D9A300] font-black uppercase tracking-widest text-sm">
-                            Sobre a Moveo Motors
-                        </span>
+                        <div className="relative grid gap-10 p-8 md:p-12 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:p-16">
+                            {/* Texto principal */}
+                            <div>
+                                <span className="inline-flex rounded-full border border-[#d9a300]/30 bg-[#d9a300]/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-[#b88900]">
+                                    Sobre a Moveo Motors
+                                </span>
 
-                        <p className="mt-4 text-lg md:text-xl font-semibold text-black leading-relaxed">
-                            Na Moveo Motors, acreditamos que a compra de um veículo é um marco 
-                            na vida de nossos clientes. Fundada com o objetivo de oferecer 
-                            transparência e segurança, selecionamos cada item do nosso estoque 
-                            criteriosamente, garantindo que você leve para casa a tranquilidade 
-                            de um excelente negócio.
-                        </p>
+                                <h2 className="mt-6 max-w-2xl text-3xl font-black leading-tight text-[#171717] md:text-4xl lg:text-5xl">
+                                    Mais do que vender carros,
 
-                        <div className="w-16 h-1 bg-[#D9A300] my-6 rounded-full" />
+                                    <span className="text-[#d9a300]">
+                                        {" "}criamos relações de confiança.
+                                    </span>
+                                </h2>
 
-                        <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                            Nossa missão é simples: unir qualidade, procedência e um atendimento 
-                            humano que entende as suas necessidades.
-                        </p>
+                                <p className="mt-6 max-w-3xl text-base leading-relaxed text-[#5f5f5f] md:text-lg">
+                                    Na Moveo Motors, acreditamos que a compra de um veículo é um
+                                    marco na vida de nossos clientes. Por isso, cada veículo do
+                                    nosso estoque é selecionado criteriosamente, priorizando
+                                    qualidade, procedência e segurança em cada negociação.
+                                </p>
 
+                                <div className="mt-8 h-1 w-20 rounded-full bg-[#d9a300]" />
+                            </div>
+
+                            {/* Missão */}
+                            <div className="rounded-2xl border border-[#d9a300]/20 bg-[#fffdf8] p-6 shadow-sm md:p-8">
+                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d9a300]">
+                                    Nossa missão
+                                </p>
+
+                                <p className="mt-4 text-xl font-semibold leading-relaxed text-[#171717] md:text-2xl">
+                                    Tornar a compra do seu próximo veículo uma experiência
+                                    simples, segura e transparente.
+                                </p>
+
+                                <p className="mt-4 text-sm leading-relaxed text-[#6b6b6b] md:text-base">
+                                    Nosso atendimento é próximo e humano, buscando entender
+                                    suas necessidades para ajudar você a fazer uma escolha com
+                                    confiança e tranquilidade.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
