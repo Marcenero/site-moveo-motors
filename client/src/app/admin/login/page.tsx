@@ -44,12 +44,13 @@ export default function AdminLoginPage() {
                 return;
             }
 
-            console.error("Erro ao solicitar Magic Link:"),
-            {
-                code: error.code,
-                name: error.name,
-                message: error.message,
-            }
+            console.error("Erro ao solicitar Magic Link:",
+                {
+                    code: error.code,
+                    name: error.name,
+                    message: error.message,
+                }
+            );
 
             switch (error.code) {
                 case "user_not_found":
@@ -73,7 +74,19 @@ export default function AdminLoginPage() {
             }
         }
         catch (error) {
-            console.error("Erro inesperado no login:", error);
+            console.error("Erro inesperado no login:",
+                {
+                    name:
+                        error instanceof Error
+                            ? error.name
+                            : "UnknownError",
+
+                    message:
+                        error instanceof Error
+                            ? error.message
+                            : "Erro desconhecido",
+                }
+            );
 
             setErro("Não foi possível solicitar o link de acesso. Tente novamente em alguns instantes.");
         }

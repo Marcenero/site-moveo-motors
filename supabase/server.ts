@@ -13,14 +13,15 @@ export async function createClient() {
                     return cookieStore.getAll();
                 },
 
-                setAll(cookiesToSet) {
+                setAll(cookiesToSet, _headers) {
                     try {
                         cookiesToSet.forEach(({ name, value, options }) => {
                             cookieStore.set(name, value, options);
                         });
                     }
                     catch {
-                        //Pode acontecer em server components
+                        //Pode acontecer quando createClient() é usado em server components.
+                        //proxy.ts é responsável por atualizar/renovar os cookies da sessão.
                     }
                 },
             },

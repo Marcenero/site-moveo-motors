@@ -75,9 +75,18 @@ export async function exigirAdmin(
         return next();
     }
     catch (error) {
-        console.error(
-            "Erro ao validar administrador:",
-            error
+        console.error("Erro ao validar administrador:",
+            {
+                name:
+                    error instanceof Error
+                        ? error.name
+                        : "UnknownError",
+
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "Erro desconhecido",
+            }
         );
 
         return res.status(500).json({

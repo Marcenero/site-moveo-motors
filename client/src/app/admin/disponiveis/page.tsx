@@ -63,7 +63,7 @@ export default function DisponiveisPage() {
         setErro("");
 
         try {
-            const resposta = await adminFetch(`http://localhost:3001/veiculos/${id}/vendido`,
+            const resposta = await adminFetch(`/veiculos/${id}/vendido`,
                 {
                     method: "PATCH",
                 }

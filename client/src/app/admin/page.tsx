@@ -94,7 +94,10 @@ export default async function AdminPage() {
 
             console.error(
                 "Erro da API ao buscar vendas:",
-                dadosErro
+                {
+                    status: response.status,
+                    statusText: response.statusText,
+                }
             );
 
             throw new Error(
