@@ -11,7 +11,7 @@ import helmet from "helmet";
 import multer from "multer";
 import { rateLimit } from "express-rate-limit";
 
-import veiculosRoutes from "./routes/veiculos.js";
+import veiculosRoutes from "./routes/rotas.js";
 
 const app = express();
 
