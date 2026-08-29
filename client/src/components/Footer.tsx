@@ -52,7 +52,7 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="text-gray-400 text-[10px] font-bold text-center md:text-left leading-relaxed max-w-2xl uppercase tracking-tighter">
                         As especificações dos veículos estão sujeitas a confirmação. Preços anunciados válidos para venda direta sem troca, salvo erro ortográfico.
                     </div>
