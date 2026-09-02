@@ -326,6 +326,23 @@ router.post(
         } = resultado.data;
 
         try {
+            const usuarioBanco =
+                await prisma.$queryRaw<
+                    Array<{
+                        current_user: string;
+                        session_user: string;
+                    }>
+                >`
+                    SELECT
+                        current_user,
+                        session_user
+                `;
+
+            console.log(
+                "Usuário do banco:",
+                usuarioBanco
+            );
+
             const veiculo =
                 await prisma.veiculo.create({
                     data: {
