@@ -51,15 +51,7 @@ export default function DisponiveisPage() {
         buscarDisponiveis();
     }, []);
 
-    async function marcarComoVendido(id: number) {
-        const confirmou = window.confirm(
-            "Tem certeza que deseja marcar este veículo como vendido?"
-        );
-
-        if (!confirmou) {
-            return;
-        }
-
+    async function marcarComoVendido(id: number): Promise<boolean> {
         setErro("");
 
         try {
@@ -96,6 +88,8 @@ export default function DisponiveisPage() {
                     (veiculo) => veiculo.id !== id
                 )
             );
+
+            return true;
         }
         catch (error) {
             console.error("Erro ao marcar como vendido:", error);
@@ -105,6 +99,8 @@ export default function DisponiveisPage() {
                     ? error.message
                     : "Erro ao marcar veículo como vendido."
             );
+
+            return false;
         }
     }
 
