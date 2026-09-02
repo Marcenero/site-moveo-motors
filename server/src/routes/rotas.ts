@@ -4,7 +4,7 @@ import type { Prisma } from "../generated/prisma/index.js";
 import { prisma } from "../services/prisma.js";
 
 import multer from "multer";
-import sharp from "sharp";
+import sharp, { type Metadata } from "sharp";
 
 import { exigirAdmin } from "../middlewares/exigirAdmin.js";
 import { rateLimit } from "express-rate-limit";
@@ -17,6 +17,16 @@ import {
 } from "../schemas/veiculo.js";
 
 const router = Router();
+
+const MAX_IMAGE_WIDTH = 8000;
+const MAX_IMAGE_HEIGHT = 8000;
+const MAX_IMAGE_PIXELS = 40_000_000;
+
+const FORMATOS_IMAGEM = new Set([
+    "jpeg",
+    "png",
+    "webp",
+]);
 
 /* Funções */
 function extrairCaminhoStorageDaUrl(
@@ -197,6 +207,56 @@ async function incrementarVendaDoDia(
             },
         },
     });
+}
+
+async function validarImagem(arquivo: Express.Multer.File) {
+    let metadata: Metadata;
+
+    try {
+        metadata = await sharp(
+            arquivo.buffer,
+            {
+                limitInputPixels: MAX_IMAGE_PIXELS,
+            }
+        ).metadata();
+    }
+    catch {
+        throw new Error(
+            "A imagem está corrompida ou posssui dimensões inválidas."
+        );
+    }
+
+    const {
+        width,
+        height,
+        format,
+    } = metadata;
+
+    if (!width || !height || !format) {
+        throw new Error(
+            "Não foi possível identificar as dimensões da imagem."
+        );
+    }
+
+    if (!FORMATOS_IMAGEM.has(format)) {
+        throw new Error(
+            "Formato real da imagem não permitido."
+        );
+    }
+
+    if (width > MAX_IMAGE_WIDTH || height > MAX_IMAGE_HEIGHT) {
+        throw new Error(
+            `À imagem excede a resolução máxima de ${MAX_IMAGE_WIDTH}x${MAX_IMAGE_HEIGHT}px.`
+        )
+    }
+
+    const totalPixels = width * height;
+
+    if (totalPixels > MAX_IMAGE_PIXELS) {
+        throw new Error(
+            "A imagem possui resolução total muito alta."
+        );
+    }
 }
 
 /* Rotas */
@@ -386,6 +446,10 @@ router.post(
                     ok: false,
                     erro: "Nenhuma imagem enviada.",
                 });
+            }
+
+            for (const arquivo of arquivos) {
+                await validarImagem(arquivo);
             }
 
             const urls: string[] = [];
