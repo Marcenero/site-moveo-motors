@@ -7,28 +7,62 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { 
+      data,
+      error, 
+    } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
+    if (!error && data.session) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      if (apiUrl) {
+        try {
+          const respostaAuditoria =
+            await fetch(`${apiUrl}/audit/login`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${data.session.access_token}`
+              }
+            }
+          );
+
+          if (!respostaAuditoria.ok) {
+            console.error(
+              "Falha ao registrar login administrativo:",
+              respostaAuditoria.status
+            );
+          }
+        }
+        catch (erroAuditoria) {
+          console.error(
+            "Erro ao registrar login administrativo:",
+            erroAuditoria
+          );
+        }
+      }
+      else {
+        console.error("NEXT_PUBLIC_API_URL não está configurada.");
+      }
+
       const redirectUrl = request.nextUrl.clone();
 
       redirectUrl.pathname = "/admin";
-
       redirectUrl.search = "";
 
-      return NextResponse.redirect(
-        redirectUrl
-      );
+      return NextResponse.redirect(redirectUrl);
     }
 
-    console.error(
-      "Erro ao confirmar login:",
-      {
-        code: error.code,
-        name: error.name,
-        message: error.message,
-      }
-    );
+    if (error) {
+      console.error(
+        "Erro ao confirmar login:",
+        {
+          code: error.code,
+          name: error.name,
+          message: error.message,
+        }
+      );
+    }
   }
 
   const loginUrl = request.nextUrl.clone();

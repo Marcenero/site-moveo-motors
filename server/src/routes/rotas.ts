@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { supabase } from "../services/supabase.js";
+import {
+    AcaoAuditoria,
+    ResultadoAuditoria,
+} from "../generated/prisma/index.js";
 import type { Prisma } from "../generated/prisma/index.js";
 import { prisma } from "../services/prisma.js";
+import { registrarAuditoria } from "../services/audit.js";
 
 import multer from "multer";
 import sharp, { type Metadata } from "sharp";
@@ -455,10 +460,21 @@ router.post(
     async (req, res) => {
         const caminhosEnviados: string[] = [];
 
+        const usuario = res.locals.usuario;
+
         try {
             const arquivos = req.files as Express.Multer.File[];
 
             if (!arquivos || arquivos.length === 0) {
+                await registrarAuditoria({
+                    acao: AcaoAuditoria.IMAGENS_UPLOAD,
+                    resultado: ResultadoAuditoria.FALHA,
+                    adminId: usuario.id,
+                    detalhes: {
+                        motivo: "NENHUMA_IMAGEM_ENVIADA",
+                    },
+                });
+
                 return res.status(400).json({
                     ok: false,
                     erro: "Nenhuma imagem enviada.",
@@ -515,6 +531,15 @@ router.post(
                 urls.push(data.publicUrl);
             }
 
+            await registrarAuditoria({
+                acao: AcaoAuditoria.IMAGENS_UPLOAD,
+                resultado: ResultadoAuditoria.SUCESSO,
+                adminId: usuario.id,
+                detalhes: {
+                    quantidadeImagens: urls.length,
+                },
+            });
+
             return res.json({
                 ok: true,
                 urls,
@@ -535,6 +560,23 @@ router.post(
                         erroLimpeza
                     );
                 }
+            }
+
+            try {
+                await registrarAuditoria({
+                    acao: AcaoAuditoria.IMAGENS_UPLOAD,
+                    resultado: ResultadoAuditoria.FALHA,
+                    adminId: usuario.id,
+                    detalhes: {
+                        motivo: "ERRO_UPLOAD",
+                    },
+                });
+            }
+            catch (erroAuditoria) {
+                console.error(
+                    "Erro ao registrar aduitoria da falha no upload:",
+                    erroAuditoria
+                );
             }
 
             return res
@@ -716,8 +758,7 @@ router.patch(
     "/:id",
     exigirAdmin,
     async (req, res) => {
-        const resultadoParams =
-            idVeiculoSchema.safeParse(req.params);
+        const resultadoParams = idVeiculoSchema.safeParse(req.params);
 
         if (!resultadoParams.success) {
             return res
@@ -746,70 +787,147 @@ router.patch(
 
         const dados = resultadoBody.data;
 
-        const dadosAtualizacao:
-            Prisma.VeiculoUpdateInput = {
-                ...(dados.nome !== undefined
-                    ? { nome: dados.nome }
-                    : {}),
-
-                ...(dados.km !== undefined
-                    ? { km: dados.km }
-                    : {}),
-                    
-                ...(dados.cor !== undefined
-                    ? { cor: dados.cor }
-                    : {}),
-                
-                ...(dados.final_placa !== undefined
-                    ? { final_placa: dados.final_placa }
-                    : {}),
-                
-                ...(dados.estado_ipva !== undefined
-                    ? { estado_ipva: dados.estado_ipva }
-                    : {}),
-
-                ...(dados.preco !== undefined
-                    ? { preco: dados.preco }
-                    : {}),
-
-                ...(dados.ano !== undefined
-                    ? { ano: dados.ano }
-                    : {}),
-
-                ...(dados.cambio !== undefined
-                    ? { cambio: dados.cambio }
-                    : {}),
-
-                ...(dados.motor !== undefined
-                    ? { motor: dados.motor }
-                    : {}),
-
-                ...(dados.combustivel !== undefined
-                    ? { combustivel: dados.combustivel }
-                    : {}),
-
-                ...(dados.descricao !== undefined
-                    ? { descricao: dados.descricao }
-                    : {}),
-
-                ...(dados.outras_infos !== undefined
-                    ? { outras_infos: dados.outras_infos }
-                    : {}),
-            };
+        const usuario = res.locals.usuario;
 
         try {
-            const existente =
-                await prisma.veiculo.findUnique({
-                    where: {
-                        id,
-                    },
+            const resultadoAtualizacao =
+                await prisma.$transaction(
+                    async (tx) => {
+                        const existente =
+                            await tx.veiculo.findUnique({
+                                where: {
+                                    id,
+                                },
+                            });
+                        
+                        if (!existente) {
+                            return null;
+                        }
 
-                    select: {
-                        id: true,
-                    },
-                });
-            
-            if (!existente) {
+                        const dadosAtualizacao: Prisma.VeiculoUpdateInput = {};
+
+                        const camposAlterados: string[] = [];
+
+                        // Nome
+                        if (dados.nome !== undefined && dados.nome !== existente.nome) {
+                            dadosAtualizacao.nome = dados.nome;
+
+                            camposAlterados.push("nome");
+                        }
+
+                        // Quilometragem
+                        if (dados.km !== undefined && dados.km !== existente.km) {
+                            dadosAtualizacao.km = dados.km;
+
+                            camposAlterados.push("km");
+                        }
+
+                        // Cor
+                        if (dados.cor !== undefined && dados.cor !== existente.cor) {
+                            dadosAtualizacao.cor = dados.cor;
+
+                            camposAlterados.push("cor");
+                        }
+
+                        // Final da placa
+                        if (dados.final_placa !== undefined && dados.final_placa !== existente.final_placa) {
+                            dadosAtualizacao.final_placa = dados.final_placa;
+
+                            camposAlterados.push("final_placa");
+                        }
+
+                        // Estado do IPVA
+                        if (dados.estado_ipva !== undefined && dados.estado_ipva !== existente.estado_ipva) {
+                            dadosAtualizacao.estado_ipva = dados.estado_ipva;
+
+                            camposAlterados.push("estado_ipva");
+                        }
+
+                        // Preço
+                        if (dados.preco !== undefined && dados.preco !== existente.preco) {
+                            dadosAtualizacao.preco = dados.preco;
+
+                            camposAlterados.push("preco");
+                        }
+
+                        // Ano
+                        if (dados.ano !== undefined && dados.ano !== existente.ano) {
+                            dadosAtualizacao.ano = dados.ano;
+
+                            camposAlterados.push("ano");
+                        }
+
+                        // Câmbio
+                        if (dados.cambio !== undefined && dados.cambio !== existente.cambio) {
+                            dadosAtualizacao.cambio = dados.cambio;
+
+                            camposAlterados.push("cambio");
+                        }
+
+                        // Motor
+                        if (dados.motor !== undefined && dados.motor !== existente.motor) {
+                            dadosAtualizacao.motor = dados.motor;
+
+                            camposAlterados.push("motor");
+                        }
+
+                        // Combustível
+                        if (dados.combustivel !== undefined && dados.combustivel !== existente.combustivel) {
+                            dadosAtualizacao.combustivel = dados.combustivel;
+
+                            camposAlterados.push("combustivel");
+                        }
+
+                        // Descrição
+                        if (dados.descricao !== undefined && dados.descricao !== existente.descricao) {
+                            dadosAtualizacao.descricao = dados.descricao;
+
+                            camposAlterados.push("descricao");
+                        }
+
+                        // Outras informações
+                        if (dados.outras_infos !== undefined && JSON.stringify(dados.outras_infos) !== JSON.stringify(existente.outras_infos)) {
+                            dadosAtualizacao.outras_infos = dados.outras_infos;
+
+                            camposAlterados.push("outras_infos");
+                        }
+
+                        // Sem mudanças
+                        if (camposAlterados.length === 0) {
+                            return {
+                                veiculo: existente,
+                                alterado: false,
+                            };
+                        }
+
+                        // Atualiza os campos que mudaram
+                        const atualizado =
+                            await tx.veiculo.update({
+                                where: {
+                                    id,
+                                },
+                                data: dadosAtualizacao,
+                            });
+
+                        await registrarAuditoria(
+                            {
+                                acao: AcaoAuditoria.VEICULO_ATUALIZADO,
+                                resultado: ResultadoAuditoria.SUCESSO,
+                                adminId: usuario.id,
+                                veiculoId: id,
+                                detalhes: {camposAlterados},
+                            },
+                            tx
+                        );
+
+                        return {
+                            veiculo: atualizado,
+                            alterado: true,
+                        };
+                    }
+                );
+
+            if (!resultadoAtualizacao) {
                 return res
                     .status(404)
                     .json({
@@ -818,21 +936,18 @@ router.patch(
                     });
             }
 
-            const veiculoAtualizado =
-                await prisma.veiculo.update({
-                    where: {
-                        id,
-                    },
-
-                    data: dadosAtualizacao,
-                })
+            if (!resultadoAtualizacao.alterado) {
+                return res.json({
+                    ok: true,
+                    mensagem: "Nenhuma alteração foi realizada.",
+                    veiculo: resultadoAtualizacao.veiculo,
+                });
+            }
 
             return res.json({
                 ok: true,
-
-                mensagem: "Veículo atualizado com sucesso.",
-
-                veiculo: veiculoAtualizado,
+                mensagem: "Veículo atualizado com sucesso",
+                veiculo: resultadoAtualizacao.veiculo,
             });
         }
         catch (error) {
@@ -840,6 +955,21 @@ router.patch(
                 "Erro ao editar veículo:",
                 error
             );
+
+            try {
+                await registrarAuditoria({
+                    acao: AcaoAuditoria.VEICULO_ATUALIZADO,
+                    resultado: ResultadoAuditoria.FALHA,
+                    adminId: usuario.id,
+                    veiculoId: id,
+                });
+            }
+            catch (erroAuditoria) {
+                console.error(
+                    "Erro ao registrar auditoria da falha na edição:",
+                    erroAuditoria
+                );
+            }
 
             return res
                 .status(500)
@@ -867,6 +997,8 @@ router.patch(
                 erro: "ID inválido.",
             });
         }
+
+        const usuario = res.locals.usuario;
 
         try {
             const veiculo =
@@ -921,13 +1053,18 @@ router.patch(
                     });
 
                     await incrementarVendaDoDia(tx);
+
+                    await registrarAuditoria({
+                            acao: AcaoAuditoria.VEICULO_VENDIDO,
+                            resultado: ResultadoAuditoria.SUCESSO,
+                            adminId: usuario.id,
+                            veiculoId: id,
+                        },
+                        tx
+                    );
                 }
             );
 
-            /*
-             * 4. Depois que o banco confirmou,
-             * remove os arquivos físicos.
-             */
             let avisoStorage:
                 string | undefined;
 
@@ -974,6 +1111,21 @@ router.patch(
                 "Erro ao marcar veículo como vendido:",
                 error
             );
+
+            try {
+                await registrarAuditoria({
+                    acao: AcaoAuditoria.VEICULO_VENDIDO,
+                    resultado: ResultadoAuditoria.FALHA,
+                    adminId: usuario.id,
+                    veiculoId: id,
+                });
+            }
+            catch (erroAuditoria) {
+                console.error(
+                    "Erro ao registrar auditoria da falha na venda:",
+                    erroAuditoria
+                );
+            }
 
             return res
                 .status(500)
