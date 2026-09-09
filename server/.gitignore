@@ -42,6 +42,7 @@ temp/
 
 # Coverage de testes
 coverage/
+scripts/
 
 # Sistema operacional / editor
 .DS_Store
