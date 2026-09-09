@@ -173,6 +173,10 @@ export default function CadastrarVeiculoPage() {
     const [arquivos, setArquivos] =
         useState<File[]>([]);
 
+    const [outrasInfos, setOutrasInfos] = useState<string[]>([]);
+
+    const [novaInfo, setNovaInfo] = useState("");
+
     const [modalAberto, setModalAberto] =
         useState(false);
 
@@ -252,20 +256,35 @@ export default function CadastrarVeiculoPage() {
                 ) ?? ""
             ).trim(),
 
-            outras_infos: String(
-                formData.get(
-                    "outras_infos"
-                ) ?? ""
-            )
-                .split("\n")
-                .map((item) =>
-                    item.trim()
-                )
-                .filter(Boolean),
+            outras_infos: outrasInfos,
         };
 
         setDadosRevisao(dados);
         setModalAberto(true);
+    }
+
+    function adicionarOutraInfo() {
+        const info = novaInfo.trim();
+
+        if (!info) {
+            return;
+        }
+
+        const jaExiste = outrasInfos.some(
+            (item) => 
+                item.toLowerCase() === info.toLowerCase()
+        );
+
+        if (jaExiste) {
+            return;
+        }
+
+        setOutrasInfos((atuais) => [
+            ...atuais,
+            info,
+        ]);
+
+        setNovaInfo("");
     }
 
     /*
@@ -536,15 +555,77 @@ export default function CadastrarVeiculoPage() {
                                 />
                             </label>
 
-                            <label className="grid gap-1 text-sm font-medium text-gray-700">
+                            <label
+                                htmlFor="nova-info"
+                                className="text-sm font-medium text-gray-700"
+                            >
                                 Outras informações
-
-                                <textarea
-                                    name="outras_infos"
-                                    placeholder="Outras informações (uma por linha)"
-                                    className="min-h-24 rounded-lg border p-3"
-                                />
                             </label>
+
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <input 
+                                    id="nova-info"
+                                    type="text"
+                                    value={novaInfo}
+                                    onChange={(event) =>
+                                        setNovaInfo(event.target.value)
+                                    }
+                                    onKeyDown={(event) => {
+                                        if (event.key === "Enter") {
+                                            event.preventDefault();
+                                            adicionarOutraInfo();
+                                        }
+                                    }}
+                                    placeholder="Ex.: Chave reserva"
+                                    className="flex-1 rounded-lg border p-3"
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={adicionarOutraInfo}
+                                    className="rounded-lg bg-gray-900 px-5 py-3 font-medium text-white transition hover:bg-gray-700 hover:scale-105"
+                                >
+                                    Adicionar
+                                </button>
+                            </div>
+
+                            <p className="text-xs text-gray-500">
+                                Digite uma informação e pressione Enter
+                                ou clique em "Adicionar".
+                            </p>
+
+                            {outrasInfos.length > 0 && (
+                                <ul className="mt-1 grid-gap-2">
+                                    {outrasInfos.map(
+                                        (info, index) => (
+                                            <li
+                                                key={`${info}-${index}`}
+                                                className="flex items-center justify-between gap-3 rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-700"
+                                            >
+                                                <span>
+                                                    {info}
+                                                </span>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setOutrasInfos(
+                                                            (atuais) =>
+                                                                atuais.filter(
+                                                                    (_, i) =>
+                                                                        i !== index
+                                                                )
+                                                        )
+                                                    }
+                                                    className="shrink-0 text-red-600 hover:text-red-800 hover:scale-110"
+                                                >
+                                                    Remover
+                                                </button>
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            )}
                         </div>
                     </div>
 

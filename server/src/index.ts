@@ -12,6 +12,7 @@ import multer from "multer";
 import { rateLimit } from "express-rate-limit";
 
 import veiculosRoutes from "./routes/rotas.js";
+import auditRoutes from "./routes/audit.js";
 
 const app = express();
 
@@ -93,6 +94,7 @@ app.use(
 
 //Rotas
 app.use("/veiculos", veiculosRoutes);
+app.use("/audit", auditRoutes);
 
 //Rota inexistente
 app.use(

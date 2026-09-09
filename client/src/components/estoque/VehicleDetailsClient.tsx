@@ -12,6 +12,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Check,
+    Share2,
 } from "lucide-react";
 
 import Header from "../Header";
@@ -26,6 +27,7 @@ type Props = {
 
 export default function VehicleDetailsClient({ veiculo }: Props) {
     const [imagemAtiva, setImagemAtiva] = useState(0);
+    const [linkCopiado, setLinkCopiado] = useState(false);
 
     const imagens =
         veiculo.imagens?.length > 0
@@ -48,6 +50,26 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
         //Colocar também o link da página do veículo
         `Olá! Tenho interesse no ${veiculo.nome}. Gostaria de mais informações.`
     );
+
+    async function copiarLink() {
+        try {
+            await navigator.clipboard.writeText(
+                window.location.href
+            );
+
+            setLinkCopiado(true);
+
+            setTimeout(() => {
+                setLinkCopiado(false);
+            }, 2000);
+        }
+        catch (error) {
+            console.error(
+                "Erro ao copiar link:",
+                error
+            );
+        }
+    }
 
     return (
         <div className="min-h-screen bg-[#f5f5f2] text-black pt-20">
@@ -287,13 +309,13 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                             )}
 
                             {/* CTA */}
-                            <div className="space-y-3">
+                            <div className="flex gap-3">
                                 <a
                                     href={`https://wa.me/55NUMERO?text=${mensagemWhatsApp}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="
-                                        w-full h-14
+                                        flex-1 h-14
                                         flex items-center justify-center gap-2
                                         rounded-xl
                                         border-2 border-black
@@ -309,6 +331,73 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                     <MessageCircle size={19} />
                                     Tenho interesse
                                 </a>
+
+                                <div className="relative group">
+                                    <button
+                                        type="button"
+                                        onClick={copiarLink}
+                                        aria-label="Copair link do veículo"
+                                        className="
+                                            w-14 h-14
+                                            flex items-center justify-center
+                                            rounded-xl
+                                            border-2 border-black
+                                            bg-white text-black
+                                            hover:bg-black
+                                            hover:text-white
+                                            transition-colors
+                                        "
+                                    >
+                                        {linkCopiado?(
+                                            <Check size={20} />
+                                        ) : (
+                                            <Share2 size={20} />
+                                        )}
+                                    </button>
+
+                                    {/* Tooltip */}
+                                    <div
+                                        role="tooltip"
+                                        className={`
+                                            absolute
+                                            bottom-full
+                                            right-0
+                                            mb-2
+                                            whitespace-nowrap
+                                            rounded-lg
+                                            bg-black
+                                            px-3 py-2
+                                            text-xs
+                                            font-medium
+                                            text-white
+                                            shadow-lg
+                                            pointer-events-none
+                                            transition-all
+
+                                            ${
+                                                linkCopiado
+                                                    ? "opacity-0 translate-y-0 group-hover:opacity-100"
+                                                    : "opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0"
+                                            }
+                                        `}
+                                    >
+                                        {linkCopiado
+                                            ? "Link copiado!"
+                                            : "Copiar link do veículo"
+                                        }
+
+                                        <span 
+                                            className="
+                                                absolute
+                                                right-5
+                                                top-full
+                                                border-4
+                                                border-transparent
+                                                border-t-black
+                                            "
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <p className="

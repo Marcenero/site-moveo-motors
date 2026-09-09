@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "../../../../supabase/server";
 import LogoutButton from "../../components/admin/logout-button";
 import GraficoVendas from "../../components/admin/grafico-vendas";
-import { Car, TrendingUp, Plus } from "lucide-react";
+import { Car, TrendingUp, Plus, History } from "lucide-react";
 
 type VendaGrafico = {
     dia: string;
@@ -140,7 +140,7 @@ export default async function AdminPage() {
                     <LogoutButton />
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-3">
                     <Link 
                         href="/admin/disponiveis"
                         className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:bg-gray-200"
@@ -182,6 +182,28 @@ export default async function AdminPage() {
 
                         <p className="text-sm text-gray-500">
                             Clique para cadastrar um novo veículo no estoque
+                        </p>
+                    </Link>
+
+                    <Link
+                        href="/admin/auditoria"
+                        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:bg-gray-200"
+                    >
+                        <div className="mb-6 flex items-center justify-between">
+                            <strong className="text-2xl font-bold text-black">
+                                Auditoria
+                            </strong>
+
+                            <div className="rounded-full bg-gray-100 p-4">
+                                <History 
+                                    className="text-gray-800"
+                                    size={26}
+                                />
+                            </div>
+                        </div>
+
+                        <p className="text-sm text-gray-500">
+                            Consulte o histórico de ações realizadas no painel administrativo
                         </p>
                     </Link>
                 </div>
