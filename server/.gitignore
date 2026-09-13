@@ -54,3 +54,5 @@ Thumbs.db
 
 # Vercel, se usar deploy
 .vercel/
+# Sentry Config File
+.sentryclirc

@@ -1,12 +1,17 @@
 import { Router } from "express";
+import * as Sentry from "@sentry/node";
+
 import { supabase } from "../services/supabase.js";
+
 import {
     AcaoAuditoria,
     ResultadoAuditoria,
-} from "../generated/prisma/index.js";
-import type { Prisma } from "../generated/prisma/index.js";
+} from "../generated/prisma/enums.js";
+import type { Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../services/prisma.js";
+
 import { registrarAuditoria } from "../services/audit.js";
+import { capturarErro } from "../services/monitoring.js";
 
 import multer from "multer";
 import sharp, { type Metadata } from "sharp";
@@ -290,6 +295,12 @@ router.get(
             });
         }
         catch (error) {
+            capturarErro(
+                error,
+                "database",
+                "buscar_veiculos"
+            );
+
             console.error(
                 "Erro ao buscar veículos:",
                 error
@@ -297,8 +308,7 @@ router.get(
 
             return res.status(500).json({
                 ok: false,
-                erro:
-                    "Erro ao buscar veículos.",
+                erro: "Erro ao buscar veículos.",
             });
         }
     }
@@ -381,6 +391,12 @@ router.post(
                 });
         }
         catch (error) {
+            capturarErro(
+                error,
+                "database",
+                "cadastrar_veiculo"
+            );
+
             console.error(
                 "Erro ao cadastrar veículo:",
                 error
@@ -392,6 +408,12 @@ router.post(
                 );
             }
             catch (erroLimpeza) {
+                capturarErro(
+                    erroLimpeza,
+                    "storage",
+                    "limpar_imagens_orfas"
+                );
+
                 console.error(
                     "Erro remover imagens órfãs após falha no cadastro:",
                     erroLimpeza
@@ -446,9 +468,18 @@ const limiteUpload = rateLimit({
     standardHeaders: "draft-8",
     legacyHeaders: false,
 
-    message: {
-        ok: false,
-        erro: "Muitos uploads. Aguarde alguns minutos.",
+    handler: (_req, res) => {
+        Sentry.metrics.count(
+            "upload.rate_limited",
+            1
+        );
+
+        return res
+            .status(429)
+            .json({
+                ok: false,
+                erro: "Muitos uploads. Aguarde alguns minutos.",
+            });
     },
 });
 
@@ -540,12 +571,38 @@ router.post(
                 },
             });
 
+            Sentry.metrics.count(
+                "upload.success",
+                1,
+                {
+                    attributes: {
+                        component: "upload",
+                    },
+                }
+            );
+
             return res.json({
                 ok: true,
                 urls,
             });
         }
         catch (error) {
+            capturarErro(
+                error,
+                "upload",
+                "upload_imagens"
+            );
+
+            Sentry.metrics.count(
+                "upload.failure",
+                1,
+                {
+                    attributes: {
+                        compnent: "upload",
+                    },
+                }
+            );
+
             console.error("Erro ao enviar imagens:", error);
 
             if (caminhosEnviados.length > 0) {
@@ -555,6 +612,12 @@ router.post(
                         .remove(caminhosEnviados);
 
                 if (erroLimpeza) {
+                    capturarErro(
+                        erroLimpeza,
+                        "storage",
+                        "limpar_upload_parcial"
+                    );
+
                     console.error(
                         "Erro ao limpar imagens após falha no upload:", 
                         erroLimpeza
@@ -573,8 +636,14 @@ router.post(
                 });
             }
             catch (erroAuditoria) {
+                capturarErro(
+                    erroAuditoria,
+                    "audit",
+                    "registrar_falha_upload"
+                );
+
                 console.error(
-                    "Erro ao registrar aduitoria da falha no upload:",
+                    "Erro ao registrar auditoria da falha no upload:",
                     erroAuditoria
                 );
             }
@@ -680,6 +749,12 @@ router.get(
             });
         }
         catch (error) {
+            capturarErro(
+                error,
+                "database",
+                "buscar_vendas_ultimos_5_dias"
+            );
+
             console.error(
                 "Erro ao buscar vendas dos últimos 5 dias:",
                 error
@@ -687,8 +762,7 @@ router.get(
 
             return res.status(500).json({
                 ok: false,
-                erro:
-                    "Erro ao buscar vendas dos últimos 5 dias.",
+                erro: "Erro ao buscar vendas dos últimos 5 dias.",
             });
         }
     }
@@ -739,6 +813,12 @@ router.get(
             });
         }
         catch (error) {
+            capturarErro(
+                error,
+                "database",
+                "buscar_veiculo_por_id"
+            );
+
             console.error(
                 "Erro ao buscar veículo por ID:",
                 error
@@ -951,6 +1031,12 @@ router.patch(
             });
         }
         catch (error) {
+            capturarErro(
+                error,
+                "database",
+                "atualizar_veiculo"
+            );
+
             console.error(
                 "Erro ao editar veículo:",
                 error
@@ -965,6 +1051,12 @@ router.patch(
                 });
             }
             catch (erroAuditoria) {
+                capturarErro(
+                    erroAuditoria,
+                    "audit",
+                    "registrar_falha_atualizacao"
+                );
+
                 console.error(
                     "Erro ao registrar auditoria da falha na edição:",
                     erroAuditoria
@@ -1083,6 +1175,12 @@ router.patch(
                         );
 
                 if (erroStorage) {
+                    capturarErro(
+                        erroStorage,
+                        "storage",
+                        "remover_imagens_veiculo_vendido"
+                    );
+
                     console.error(
                         "Erro ao remover imagens do Storage:",
                         erroStorage
@@ -1107,6 +1205,12 @@ router.patch(
             });
         }
         catch (error) {
+            capturarErro(
+                error,
+                "database",
+                "marcar_veiculo_vendido"
+            );
+
             console.error(
                 "Erro ao marcar veículo como vendido:",
                 error
@@ -1121,6 +1225,12 @@ router.patch(
                 });
             }
             catch (erroAuditoria) {
+                capturarErro(
+                    erroAuditoria,
+                    "audit",
+                    "registrar_falha_venda"
+                );
+
                 console.error(
                     "Erro ao registrar auditoria da falha na venda:",
                     erroAuditoria
