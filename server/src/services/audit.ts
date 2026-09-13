@@ -1,11 +1,11 @@
 import {
     AcaoAuditoria,
     ResultadoAuditoria,
-} from "../generated/prisma/index.js";
+} from "../generated/prisma/enums.js";
 
 import type {
     Prisma,
-} from "../generated/prisma/index.js";
+} from "../generated/prisma/client.js";
 
 import { prisma } from "./prisma.js";
 

@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/node";
+
 import type {
     Request,
     Response,
@@ -5,6 +7,7 @@ import type {
 } from "express";
 
 import { supabase } from "../services/supabase.js";
+import { capturarErro } from "../services/monitoring.js";
 
 const emailsAdministradores = new Set(
     (process.env.ADMIN_EMAILS ?? "")
@@ -49,6 +52,16 @@ export async function exigirAdmin(
         } = await supabase.auth.getUser(token);
 
         if (erroAutenticacao || !user) {
+            Sentry.metrics.count(
+                "auth_failure",
+                1,
+                {
+                    attributes: {
+                        reason: "invalid_session",
+                    },
+                }
+            );
+
             return res.status(401).json({
                 ok: false,
                 erro: "Sessão inválida ou expirada.",
@@ -75,6 +88,12 @@ export async function exigirAdmin(
         return next();
     }
     catch (error) {
+        capturarErro(
+            error,
+            "auth",
+            "exigir_admin"
+        );
+
         console.error("Erro ao validar administrador:",
             {
                 name:

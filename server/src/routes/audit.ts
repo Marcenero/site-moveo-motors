@@ -3,7 +3,7 @@ import { Router } from "express";
 import {
     AcaoAuditoria,
     ResultadoAuditoria,
-} from "../generated/prisma/index.js";
+} from "../generated/prisma/client.js";
 
 import {
     exigirAdmin,

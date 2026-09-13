@@ -1,4 +1,5 @@
-import "dotenv/config";
+import "./instrument.js";
+import * as Sentry from "@sentry/node";
 
 import express, {
   type Request,
@@ -11,8 +12,9 @@ import helmet from "helmet";
 import multer from "multer";
 import { rateLimit } from "express-rate-limit";
 
-import veiculosRoutes from "./routes/rotas.js";
+import servicosRoutes from "./routes/rotas.js";
 import auditRoutes from "./routes/audit.js";
+import healthRoutes from "./routes/health.js";
 
 const app = express();
 
@@ -77,9 +79,18 @@ const limiteGeral = rateLimit({
   standardHeaders: "draft-8",
   legacyHeaders: false,
 
-  message: {
-    ok: false,
-    erro: "Muitas requisições. Tente novamente em alguns minutos.",
+  handler: (_req, res) => {
+    Sentry.metrics.count(
+      "http.rate_limited",
+      1
+    );
+
+    return res
+      .status(429)
+      .json({
+        ok: false,
+        erro: "Muitas requisições. Tente novamente em alguns minutos.",
+      });
   },
 });
 
@@ -92,9 +103,33 @@ app.use(
   })
 );
 
+//Monitorar HTTP 500
+app.use(
+  (req, res, next) => {
+    res.on("finish", () => {
+        if (res.statusCode >= 500) {
+          Sentry.metrics.count(
+            "http.server_error",
+            1,
+            {
+              attributes: {
+                method: req.method,
+                status: res.statusCode,
+              },
+            }
+          );
+        }
+      }
+    );
+
+    next();
+  }
+);
+
 //Rotas
-app.use("/veiculos", veiculosRoutes);
+app.use("/veiculos", servicosRoutes);
 app.use("/audit", auditRoutes);
+app.use("/health", healthRoutes);
 
 //Rota inexistente
 app.use(
@@ -110,6 +145,9 @@ app.use(
       });
   }
 );
+
+//Monitoramento de erros do Sentry
+Sentry.setupExpressErrorHandler(app);
 
 //Tratamento global de erros
 app.use(
