@@ -1,17 +1,15 @@
-import { createClient } from "../../../../supabase/client";
+import { createClient } from "../../../supabase/client";
+
+import { getPublicApiUrl } from "../lib/env.client";
 
 const supabase = createClient();
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = getPublicApiUrl();
 
 export async function adminFetch(
     caminho: string,
     options: RequestInit = {}
 ) {
-    if (!API_URL) {
-        throw new Error("NEXT_PUBLIC_API_URL não está configurada.");
-    }
-
     const {
         data: { session },
         error,
@@ -28,7 +26,7 @@ export async function adminFetch(
         `Bearer ${session.access_token}`
     );
 
-    return fetch(`${API_URL}${caminho}`, {
+    return fetch(`${apiUrl}${caminho}`, {
         ...options,
         headers,
     });

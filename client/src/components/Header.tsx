@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -9,12 +10,13 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-end sm:justify-between">
         {/* Logo Section - Moveo Motors */}
         <div className="flex scale-45 items-center gap-3 group cursor-pointer">
-          <img
-            src="/Moveo-motors3.png"
-            alt="Moveo Motors Logo"
-            className="h-30 w-auto sm:-translate-x-80"
-            onClick={() => window.location.href = '/'}
-          />
+          <Link href="/s">
+            <img
+              src="/Moveo-motors3.png"
+              alt="Moveo Motors Logo"
+              className="h-30 w-auto sm:-translate-x-80"
+            />
+          </Link>
         </div>
 
         {/* Desktop Links */}

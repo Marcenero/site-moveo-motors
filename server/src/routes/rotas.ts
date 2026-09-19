@@ -12,6 +12,7 @@ import { prisma } from "../services/prisma.js";
 
 import { registrarAuditoria } from "../services/audit.js";
 import { capturarErro } from "../services/monitoring.js";
+import { logError } from "../services/logger.js";
 
 import multer from "multer";
 import sharp, { type Metadata } from "sharp";
@@ -301,9 +302,14 @@ router.get(
                 "buscar_veiculos"
             );
 
-            console.error(
-                "Erro ao buscar veículos:",
-                error
+            logError(
+                "vehicle_list_failed",
+                error,
+                {
+                    component: "database",
+                    operation: "buscar_veiculos",
+                    status: 500,
+                }
             );
 
             return res.status(500).json({
@@ -341,23 +347,6 @@ router.post(
         } = resultado.data;
 
         try {
-            const usuarioBanco =
-                await prisma.$queryRaw<
-                    Array<{
-                        current_user: string;
-                        session_user: string;
-                    }>
-                >`
-                    SELECT
-                        current_user,
-                        session_user
-                `;
-
-            console.log(
-                "Usuário do banco:",
-                usuarioBanco
-            );
-
             const veiculo =
                 await prisma.veiculo.create({
                     data: {
@@ -397,9 +386,14 @@ router.post(
                 "cadastrar_veiculo"
             );
 
-            console.error(
-                "Erro ao cadastrar veículo:",
-                error
+            logError(
+                "vehicle_create_failed",
+                error,
+                {
+                    component: "database",
+                    operation: "cadastrar_veiculo",
+                    status: 500,
+                }
             );
 
             try {
@@ -414,9 +408,13 @@ router.post(
                     "limpar_imagens_orfas"
                 );
 
-                console.error(
-                    "Erro remover imagens órfãs após falha no cadastro:",
-                    erroLimpeza
+                logError(
+                    "orphan_image_cleanup_failed",
+                    error,
+                    {
+                        component: "storage",
+                        operation: "limpar_imagens_orfas",
+                    }
                 );
             }
 
@@ -603,7 +601,15 @@ router.post(
                 }
             );
 
-            console.error("Erro ao enviar imagens:", error);
+            logError(
+                "image_upload_failed",
+                error,
+                {
+                    component: "upload",
+                    operation: "upload_imagens",
+                    status: 500,
+                }
+            );
 
             if (caminhosEnviados.length > 0) {
                 const {error: erroLimpeza,} =
@@ -618,9 +624,13 @@ router.post(
                         "limpar_upload_parcial"
                     );
 
-                    console.error(
-                        "Erro ao limpar imagens após falha no upload:", 
-                        erroLimpeza
+                    logError(
+                        "partial_upload_cleanup_failed",
+                        erroLimpeza,
+                        {
+                            component: "storage",
+                            operation: "limpar_upload_parcial",
+                        }
                     );
                 }
             }
@@ -642,9 +652,13 @@ router.post(
                     "registrar_falha_upload"
                 );
 
-                console.error(
-                    "Erro ao registrar auditoria da falha no upload:",
-                    erroAuditoria
+                logError(
+                    "upload_failure_audit_failed",
+                    erroAuditoria,
+                    {
+                        component: "audit",
+                        operation: "registrar_falha_upload",
+                    }
                 );
             }
 
@@ -755,9 +769,14 @@ router.get(
                 "buscar_vendas_ultimos_5_dias"
             );
 
-            console.error(
-                "Erro ao buscar vendas dos últimos 5 dias:",
-                error
+            logError(
+                "sales_history_fetch_failed",
+                error,
+                {
+                    component: "database",
+                    operation: "buscar_vendas_ultimos_5_dias",
+                    status: 500,
+                }
             );
 
             return res.status(500).json({
@@ -819,9 +838,14 @@ router.get(
                 "buscar_veiculo_por_id"
             );
 
-            console.error(
-                "Erro ao buscar veículo por ID:",
-                error
+            logError(
+                "vehicle_fetch_failed",
+                error,
+                {
+                    component: "database",
+                    operation: "buscar_veiculo_por_id",
+                    status: 500,
+                }
             );
 
             return res.status(500).json({
@@ -1037,9 +1061,14 @@ router.patch(
                 "atualizar_veiculo"
             );
 
-            console.error(
-                "Erro ao editar veículo:",
-                error
+            logError(
+                "vehicle_update_failed",
+                error,
+                {
+                    component: "database",
+                    operation: "editar_veiculo",
+                    status: 500,
+                }
             );
 
             try {
@@ -1057,9 +1086,13 @@ router.patch(
                     "registrar_falha_atualizacao"
                 );
 
-                console.error(
-                    "Erro ao registrar auditoria da falha na edição:",
-                    erroAuditoria
+                logError(
+                    "vehicle_update_failure_audit_failed",
+                    error,
+                    {
+                        component: "audit",
+                        operation: "registrar_falha_atualizacao",
+                    }
                 );
             }
 
@@ -1181,13 +1214,16 @@ router.patch(
                         "remover_imagens_veiculo_vendido"
                     );
 
-                    console.error(
-                        "Erro ao remover imagens do Storage:",
-                        erroStorage
+                    logError(
+                        "sold_vehicle_image_cleanup_failed",
+                        erroStorage,
+                        {
+                            component: "storage",
+                            operation: "remover_imagens_veiculo_vendido",
+                        }
                     );
 
-                    avisoStorage =
-                        "O veículo foi removido, mas algumas imagens não puderam ser apagadas do armazenamento.";
+                    avisoStorage = "O veículo foi removido, mas algumas imagens não puderam ser apagadas do armazenamento.";
                 }
             }
 
@@ -1211,9 +1247,14 @@ router.patch(
                 "marcar_veiculo_vendido"
             );
 
-            console.error(
-                "Erro ao marcar veículo como vendido:",
-                error
+            logError(
+                "vehicle_mark_sold_failed",
+                error,
+                {
+                    component: "database",
+                    operation: "marcar_veiculo_vendido",
+                    status: 500,
+                }
             );
 
             try {
@@ -1231,9 +1272,13 @@ router.patch(
                     "registrar_falha_venda"
                 );
 
-                console.error(
-                    "Erro ao registrar auditoria da falha na venda:",
-                    erroAuditoria
+                logError(
+                    "vehicle_sale_failure_audit_failed",
+                    erroAuditoria,
+                    {
+                        component: "audit",
+                        operation: "registrar_falha_venda",
+                    }
                 );
             }
 

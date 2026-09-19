@@ -1,5 +1,7 @@
 import * as Sentry from "@sentry/node";
 
+import { logError } from "../services/logger.js";
+
 import type {
     Request,
     Response,
@@ -94,17 +96,13 @@ export async function exigirAdmin(
             "exigir_admin"
         );
 
-        console.error("Erro ao validar administrador:",
+        logError(
+            "admin_auth_validation_failed",
+            error,
             {
-                name:
-                    error instanceof Error
-                        ? error.name
-                        : "UnknownError",
-
-                message:
-                    error instanceof Error
-                        ? error.message
-                        : "Erro desconhecido",
+                component: "auth",
+                operation: "exigir_admin",
+                status: 500,
             }
         );
 

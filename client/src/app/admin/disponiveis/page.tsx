@@ -10,7 +10,9 @@ import {
 import type { Veiculo } from "../../../types/veiculo";
 
 import Acoes from "../../../components/admin/disponiveis/Acoes";
-import { adminFetch } from "../../lib/adminFetch";
+import { adminFetch } from "../../../lib/adminFetch";
+import { logError } from "../../../lib/logger";
+import { getPublicApiUrl } from "../../../lib/env.client";
 
 export default function DisponiveisPage() {
     const router = useRouter();
@@ -21,7 +23,9 @@ export default function DisponiveisPage() {
 
     async function buscarDisponiveis() {
         try {
-            const resposta = await fetch("http://localhost:3001/veiculos");
+            const apiUrl = getPublicApiUrl();
+
+            const resposta = await fetch(`${apiUrl}/veiculos`);
 
             if (!resposta.ok) {
                 throw new Error("Erro ao buscar veículos disponíveis.");
@@ -38,7 +42,14 @@ export default function DisponiveisPage() {
             setDisponiveis(lista.filter((veiculo: Veiculo) => !veiculo.vendido));
         }
         catch (error) {
-            console.error("Erro ao buscar veículos disponíveis:", error);
+            logError(
+                "available_vehicles_fetch_failed",
+                error,
+                {
+                    component: "admin",
+                    operation: "buscar_veiculos_disponiveis",
+                }
+            );
 
             setErro("Não foi possível carregar os veículos.");
         }
@@ -92,7 +103,14 @@ export default function DisponiveisPage() {
             return true;
         }
         catch (error) {
-            console.error("Erro ao marcar como vendido:", error);
+            logError(
+                "vehicle_mark_sold_failed",
+                error,
+                {
+                    component: "admin",
+                    operation: "marcar_veiculo_vendido",
+                }
+            );
 
             setErro(
                 error instanceof Error

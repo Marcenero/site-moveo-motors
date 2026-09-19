@@ -15,6 +15,9 @@ import Filters, {
 } from "../../components/estoque/Filters";
 import { Veiculo } from "../../types/veiculo";
 
+import { logError } from "../../lib/logger";
+import { getPublicApiUrl } from "../../lib/env.client";
+
 type Ordenacao = "recentes" | "preco-asc" | "preco-desc" | "km-asc" | "ano-desc";
 
 const OPCOES_ORDENACAO: Record<Ordenacao, string> = {
@@ -64,8 +67,10 @@ export default function EstoquePage() {
     useEffect(() => {
         async function buscarVeiculos() {
             try {
+                const apiUrl = getPublicApiUrl();
+
                 //Em produção, trocar por `${process.env.NEXT_PUBLIC_API_URL}/veiculos`
-                const resposta = await fetch("http://localhost:3001/veiculos");
+                const resposta = await fetch(`${apiUrl}/veiculos`);
                 const dados = await resposta.json();
 
                 const lista = Array.isArray(dados)
@@ -77,7 +82,14 @@ export default function EstoquePage() {
                 setVeiculos(lista);
             }
             catch (error) {
-                console.error("Erro ao buscar veículos:", error);
+                logError(
+                    "inventory_fetch_failed",
+                    error,
+                    {
+                        component: "inventory",
+                        operation: "buscar_veiculos",
+                    }
+                );
             }
             finally {
                 setCarregando(false);

@@ -14,6 +14,14 @@ import {
 } from "../services/audit.js";
 
 import {
+    capturarErro,
+} from "../services/monitoring.js";
+
+import {
+    logError,
+} from "../services/logger.js";
+
+import {
     prisma,
 } from "../services/prisma.js";
 
@@ -79,9 +87,20 @@ router.get(
             });
         }
         catch (error) {
-            console.error(
-                "Erro ao buscar logs de auditoria:",
-                error
+            capturarErro(
+                error,
+                "audit",
+                "buscar_logs"
+            );
+
+            logError(
+                "audit_log_fetch_failed",
+                error,
+                {
+                    component: "audit",
+                    operation: "buscar_logs",
+                    status: 500,
+                }
             );
 
             return res
@@ -111,9 +130,20 @@ router.post(
             });
         }
         catch (error) {
-            console.error(
-                "Erro ao registrar login administrativo:",
-                error
+            capturarErro(
+                error,
+                "audit",
+                "registrar_login_admin"
+            );
+
+            logError(
+                "admin_login_audit_failed",
+                error,
+                {
+                    component: "audit",
+                    operation: "registrar_login_admin",
+                    status: 500,
+                }
             );
 
             return res

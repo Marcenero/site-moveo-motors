@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import VehicleDetailsClient from "../../../components/estoque/VehicleDetailsClient";
 import type { Veiculo } from "../../../types/veiculo";
 
+import { getPublicApiUrl } from "../../../lib/env.client";
+
 type Props = {
     params: Promise<{ slug: string }>;
 }
@@ -18,7 +20,9 @@ function gerarSlug(texto: string) {
 }
 
 async function buscarVeiculoPorId(id: number): Promise<Veiculo | null> {
-    const resposta = await fetch(`${process.env.API_URL ?? "http://localhost:3001"}/veiculos/${id}`, {
+    const apiUrl = getPublicApiUrl();
+
+    const resposta = await fetch(`${apiUrl}/veiculos/${id}`, {
         cache: "no-store",
     });
 

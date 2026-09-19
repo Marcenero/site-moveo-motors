@@ -1,6 +1,10 @@
 import type { MetadataRoute } from "next";
 import type { Veiculo } from "../types/veiculo";
 
+import { logError } from "../lib/logger";
+
+import { getApiUrl, getSiteUrl } from "../lib/env.server";
+
 function gerarSlug(texto: string) {
     return texto
         .toLowerCase()
@@ -11,14 +15,14 @@ function gerarSlug(texto: string) {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    const siteUrl = getSiteUrl();
+    const apiUrl = getApiUrl();
 
     let veiculos: Veiculo[] = [];
 
     try {
         const resposta = await fetch(
-            `${process.env.API_URL ?? "http://localhost:3001/veiculos"}`
+           `${apiUrl}/veiculos`
         );
 
         const dados = await resposta.json();
@@ -30,7 +34,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 : [];
     }
     catch (error) {
-        console.error("Erro ao gerar sitemap:", error);
+        logError(
+            "sitemap_generation_failed",
+            error,
+            {
+                component: "seo",
+                operation: "gerar_sitemap",
+            }
+        );
     }
 
     const paginasFixas: MetadataRoute.Sitemap = [

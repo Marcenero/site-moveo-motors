@@ -22,6 +22,9 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { FaWhatsapp } from "react-icons/fa";
 
+import { logError } from "../lib/logger";
+import { getPublicApiUrl } from "../lib/env.client";
+
 function VehicleCardSkeleton() {
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-lg animate-pulse">
@@ -85,8 +88,10 @@ export default function LandingPage() {
   useEffect(() => {
     async function buscarVeiculosRecentes() {
       try {
+        const apiUrl = getPublicApiUrl();
+        
         //Em produção, trocar para: `${process.env.NEXT_PUBLIC_API_URL}/veiculos/recentes`
-        const resposta = await fetch("http://localhost:3001/veiculos");
+        const resposta = await fetch(`${apiUrl}/veiculos`);
 
         if (!resposta.ok) {
           throw new Error("Erro ao buscar veículos");
@@ -107,7 +112,15 @@ export default function LandingPage() {
         setVeiculosRecentes(destaques);
       }
       catch (error) {
-        console.error("Erro ao buscar veículos em destaque:", error);
+        logError(
+          "featured_vehicles_fetch_failed",
+          error,
+          {
+            component: "home",
+            operation: "buscar_veiculos_destaque",
+          }
+        );
+
         setVeiculosRecentes([]);
       }
       finally {

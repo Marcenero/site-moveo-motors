@@ -9,6 +9,12 @@ import {
 } from "lucide-react";
 
 import {
+    logError,
+} from "../../../lib/logger";
+
+import { getPublicApiUrl } from "../../../lib/env.client";
+
+import {
     createClient,
 } from "../../../../../supabase/server";
 
@@ -56,9 +62,7 @@ type AuditoriaPageProps = {
     }>;
 };
 
-const API_URL =
-    process.env.API_URL ??
-    "http://localhost:3001";
+const API_URL = getPublicApiUrl();
 
 const nomesAcoes:
     Record<
@@ -199,9 +203,13 @@ export default async function AuditoriaPage({
             );
     }
     catch (error) {
-        console.error(
-            "Erro ao carregar auditoria:",
-            error
+        logError(
+            "audit_page_load_failed",
+            error,
+            {
+                component: "audit",
+                operation: "carregar_auditoria",
+            }
         );
 
         erro = "Não foi possível carregar os logs de auditoria";
