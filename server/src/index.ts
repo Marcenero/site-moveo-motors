@@ -1,6 +1,11 @@
 import "./instrument.js";
 import * as Sentry from "@sentry/node";
 
+import {
+  logError,
+  logInfo,
+} from "./services/logger.js";
+
 import express, {
   type Request,
   type Response,
@@ -252,7 +257,15 @@ app.use(
         }
     }
 
-    console.error("Erro não tratado:", erro);
+    logError(
+      "unhandled_error",
+      erro,
+      {
+        component: "http",
+        operation: "global_error_handler",
+        status: 500,
+      }
+    );
 
     return res
       .status(500)
@@ -267,5 +280,10 @@ app.use(
 const PORT = Number(process.env.PORT) || 3001;
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  logInfo(
+    "server_started",
+    {
+      component: "server",
+    }
+  );
 });

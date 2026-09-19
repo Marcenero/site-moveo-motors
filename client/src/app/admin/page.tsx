@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { logError } from "../../lib/logger";
 import { createClient } from "../../../../supabase/server";
 import LogoutButton from "../../components/admin/logout-button";
 import GraficoVendas from "../../components/admin/grafico-vendas";
 import { Car, TrendingUp, Plus, History } from "lucide-react";
+import { getPublicApiUrl } from "../../lib/env.client";
 
 type VendaGrafico = {
     dia: string;
     vendidos: number;
 }
 
-const API_URL =
-    process.env.API_URL ??
-    "http://localhost:3001";
+const API_URL = getPublicApiUrl();
 
 export default async function AdminPage() {
     const supabase = await createClient();
@@ -60,7 +60,14 @@ export default async function AdminPage() {
         quantidade_disponiveis = listaVeiculos.length;
     }
     catch (error) {
-        console.error("Erro ao carregar quantidade de veículos:", error);
+        logError(
+            "vehicle_count_fetch_failed",
+            error,
+            {
+                component: "admin",
+                operation: "carregar_quantidade_veiculos",
+            }
+        );
 
         erroQuantidade = "Erro";
     }
@@ -87,16 +94,13 @@ export default async function AdminPage() {
         }
 
         if (!response.ok) {
-            const dadosErro =
-                await response
-                    .json()
-                    .catch(() => null);
-
-            console.error(
-                "Erro da API ao buscar vendas:",
+            logError(
+                "sales_api_request_failed",
+                undefined,
                 {
+                    component: "admin",
+                    operation: "buscar_vendas",
                     status: response.status,
-                    statusText: response.statusText,
                 }
             );
 
@@ -112,7 +116,14 @@ export default async function AdminPage() {
             : [];
     }
     catch (error) {
-        console.error("Erro ao carregar dados do gráfico:", error);
+        logError(
+            "sales_chart_load_failed",
+            error,
+            {
+                component: "admin",
+                operation: "carregar_grafico_vendas",
+            }
+        );
 
         vendasUltimosDias = [
             { dia: "Hoje -4", vendidos: 0 },

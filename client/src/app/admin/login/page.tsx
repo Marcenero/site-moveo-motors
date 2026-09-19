@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createClient } from "../../../../../supabase/client";
 
+import { logError } from "../../../lib/logger";
+
 const MENSAGEM_GENERICA = "Se este email estiver autorizado, você receberá um link de acesso.";
 
 export default function AdminLoginPage() {
@@ -44,11 +46,13 @@ export default function AdminLoginPage() {
                 return;
             }
 
-            console.error("Erro ao solicitar Magic Link:",
+            logError(
+                "magic_link_request_failed",
+                error,
                 {
-                    code: error.code,
-                    name: error.name,
-                    message: error.message,
+                    component: "auth",
+                    operation: "solicitar_magic_link",
+                    code: error.code
                 }
             );
 
@@ -74,17 +78,12 @@ export default function AdminLoginPage() {
             }
         }
         catch (error) {
-            console.error("Erro inesperado no login:",
+            logError(
+                "admin_login_unexpected_error",
+                error,
                 {
-                    name:
-                        error instanceof Error
-                            ? error.name
-                            : "UnknownError",
-
-                    message:
-                        error instanceof Error
-                            ? error.message
-                            : "Erro desconhecido",
+                    component: "auth",
+                    operation: "solicitar_magic_link",
                 }
             );
 

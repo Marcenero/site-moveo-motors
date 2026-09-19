@@ -21,6 +21,8 @@ import Breadcrumbs from "../estoque/Breadcrumbs";
 
 import type { Veiculo } from "../../types/veiculo";
 
+import { logError } from "../../lib/logger";
+
 type Props = {
     veiculo: Veiculo;
 };
@@ -64,9 +66,13 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
             }, 2000);
         }
         catch (error) {
-            console.error(
-                "Erro ao copiar link:",
-                error
+            logError(
+                "vehicle_copy_link_failed",
+                error,
+                {
+                    component: "vehicle_details",
+                    operation: "copiar_link",
+                }
             );
         }
     }

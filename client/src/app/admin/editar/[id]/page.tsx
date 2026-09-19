@@ -7,7 +7,9 @@ import { ArrowLeft } from "lucide-react";
 
 import type { Veiculo } from "../../../../types/veiculo";
 
-import { adminFetch } from "../../../lib/adminFetch";
+import { adminFetch } from "../../../../lib/adminFetch";
+import { logError } from "../../../../lib/logger";
+import { getPublicApiUrl } from "../../../../lib/env.client";
 
 export default function EditarVeiculoPage() {
     const router = useRouter();
@@ -23,7 +25,9 @@ export default function EditarVeiculoPage() {
     useEffect(() => {
         async function buscarVeiculo() {
             try {
-                const resposta = await fetch(`http://localhost:3001/veiculos/${id}`);
+                const apiUrl = getPublicApiUrl();
+
+                const resposta = await fetch(`${apiUrl}/veiculos/${id}`);
 
                 if (!resposta.ok) {
                     throw new Error("Erro ao buscar veículo.");
@@ -34,7 +38,14 @@ export default function EditarVeiculoPage() {
                 setVeiculo(dados.veiculo);
             }
             catch (error) {
-                console.error("Erro ao buscar veículo:", error);
+                logError(
+                    "vehicle_fetch_failed",
+                    error,
+                    {
+                        component: "admin",
+                        operation: "buscar_veiculo_edicao",
+                    }
+                );
             }
             finally {
                 setCarregando(false);
@@ -129,10 +140,14 @@ export default function EditarVeiculoPage() {
             router.push("/admin/disponiveis");
         }
         catch (error) {
-            /*console.error("Erro ao salvar alterações:", error);
-            setErro("Não foi possível salvar as alterações.");*/
-
-            console.error("Erro ao salvar alterações:", error);
+            logError(
+                "vehicle_update_failed",
+                error,
+                {
+                    component: "admin",
+                    operation: "salvar_alteracoes_veiculo",
+                }
+            );
 
             const mensagem =
                 error instanceof Error

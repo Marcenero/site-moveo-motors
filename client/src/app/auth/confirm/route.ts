@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "../../../../../supabase/server";
 
+import { logError } from "../../../lib/logger";
+
+import { getApiUrl } from "../../../lib/env.server";
+
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
 
@@ -13,7 +17,7 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.session) {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = getApiUrl();
 
       if (apiUrl) {
         try {
@@ -28,21 +32,37 @@ export async function GET(request: NextRequest) {
           );
 
           if (!respostaAuditoria.ok) {
-            console.error(
-              "Falha ao registrar login administrativo:",
-              respostaAuditoria.status
+            logError(
+              "admin_login_audit_request_failed",
+              error,
+              {
+                  component: "auth",
+                  operation: "registrar_login_admin",
+                  status: respostaAuditoria.status,
+              }
             );
           }
         }
         catch (erroAuditoria) {
-          console.error(
-            "Erro ao registrar login administrativo:",
-            erroAuditoria
+          logError(
+            "admin_login_audit_failed",
+            error,
+            {
+              component: "auth",
+              operation: "registrar_login_admin",
+            }
           );
         }
       }
       else {
-        console.error("NEXT_PUBLIC_API_URL não está configurada.");
+        logError(
+          "api_url_missing",
+          undefined,
+          {
+            component: "configuration",
+            operation: "confirmar_login",
+          }
+        );
       }
 
       const redirectUrl = request.nextUrl.clone();
@@ -54,12 +74,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (error) {
-      console.error(
-        "Erro ao confirmar login:",
+      logError(
+        "login_confirmation_failed",
+        error,
         {
+          component: "auth",
+          operation: "confirmar_login",
           code: error.code,
-          name: error.name,
-          message: error.message,
         }
       );
     }

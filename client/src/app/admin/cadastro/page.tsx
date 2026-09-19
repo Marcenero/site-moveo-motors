@@ -8,7 +8,8 @@ import {
 
 import { useRouter } from "next/navigation";
 
-import { adminFetch } from "../../lib/adminFetch";
+import { adminFetch } from "../../../lib/adminFetch";
+import { logError } from "../../../lib/logger";
 
 type DadosVeiculoFormulario = {
     nome: string;
@@ -373,9 +374,13 @@ export default function CadastrarVeiculoPage() {
             );
         }
         catch (error) {
-            console.error(
-                "Erro ao cadastrar veículo:",
-                error
+            logError(
+                "vehicle_create_failed",
+                error,
+                {
+                    component: "admin",
+                    operation: "cadastrar_veiculo",
+                }
             );
 
             setErro(

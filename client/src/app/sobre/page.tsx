@@ -5,16 +5,6 @@ import Footer from "../../components/Footer";
 import { FiPhone, FiMail, FiMapPin, FiClock } from "react-icons/fi";
 import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
 
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
-
 const posicao = [-23.535763, -46.786853]; //Localização da loja
 
 const autoDealerJsonLd = {
