@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="./client/public/Moveo-motors3.png" alt="Moveo Motors" width="500">
+</p>
 
 # Moveo Motors
 
