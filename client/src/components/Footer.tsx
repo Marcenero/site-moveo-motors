@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
 export default function Footer() {
@@ -27,7 +28,14 @@ export default function Footer() {
                     <div>
                         <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">Menu</h4>
                         <ul className="space-y-4 font-bold text-gray-500">
-                            <li><a href="/estoque" className="hover:text-[#D9A300] transition-colors">Novos & Usados</a></li>
+                            <li>
+                                <Link 
+                                    href="/estoque" 
+                                    className="hover:text-[#D9A300] transition-colors"
+                                >
+                                    Novos & Usados
+                                </Link>
+                            </li>
                             <li>
                                 <a
                                     href="https://wa.me/5511912345678"
@@ -38,16 +46,23 @@ export default function Footer() {
                                     Avaliação online
                                 </a>
                             </li>
-                            <li><a href="/sobre" className="hover:text-[#D9A300] transition-colors">Localização</a></li>
+                            <li>
+                                <Link 
+                                    href="/sobre" 
+                                    className="hover:text-[#D9A300] transition-colors"
+                                >
+                                    Localização
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">Institucional</h4>
                         <ul className="space-y-4 font-bold text-gray-500">
-                            <li><a href="/sobre" className="hover:text-[#D9A300] transition-colors">Quem Somos</a></li>
-                            <li><a href="/termos" className="hover:text-[#D9A300] transition-colors">Termos & Condições</a></li>
-                            <li><a href="/privacidade" className="hover:text-[#D9A300] transition-colors">Privacidade</a></li>
+                            <li><Link href="/sobre" className="hover:text-[#D9A300] transition-colors">Quem Somos</Link></li>
+                            <li><Link href="/termos" className="hover:text-[#D9A300] transition-colors">Termos & Condições</Link></li>
+                            <li><Link href="/privacidade" className="hover:text-[#D9A300] transition-colors">Privacidade</Link></li>
                         </ul>
                     </div>
                 </div>

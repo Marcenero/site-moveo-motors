@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
             );
           }
         }
-        catch (erroAuditoria) {
+        catch {
           logError(
             "admin_login_audit_failed",
             error,

@@ -79,10 +79,6 @@ export async function generateMetadata({
         `${nomeComAno} com ${detalhes}` +
         "Confira fotos, ficha técnica e condições na Moveo Motors em Osasco, SP.";
 
-    const siteUrl=
-        process.env.NEXT_PUBLIC_SITE_URL ??
-        "https://moveomotors.com.br";
-
     const imagemPrincipal = veiculo.imagens?.[0]?.url ?? "https://moveomotors.com.br/og.png";
 
     const slugCanonico = `${gerarSlug(veiculo.nome)}-${veiculo.id}`

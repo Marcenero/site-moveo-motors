@@ -1,22 +1,18 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import VehicleCard from "../components/estoque/VehicleCard";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Veiculo } from "../types/veiculo";
 import {
   MapPin,
   Phone,
-  Mail,
   ArrowRight,
-  Menu,
-  X,
   MessageCircle,
-  Car,
   ShieldCheck,
   Zap,
-  ChevronRight,
 } from 'lucide-react';
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -81,6 +77,8 @@ const MapaLoja = dynamic(
 )
 
 export default function LandingPage() {
+  const router = useRouter();
+
   const [veiculosRecentes, setVeiculosRecentes] = useState<Veiculo[]>([]);
   const [carregandoRecentes, setCarregandoRecentes] = useState(true);
   const [mostrarWhatsapp, setMostrarWhatsapp] = useState(false);
@@ -90,7 +88,6 @@ export default function LandingPage() {
       try {
         const apiUrl = getPublicApiUrl();
         
-        //Em produção, trocar para: `${process.env.NEXT_PUBLIC_API_URL}/veiculos/recentes`
         const resposta = await fetch(`${apiUrl}/veiculos`);
 
         if (!resposta.ok) {
@@ -175,7 +172,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
-                onClick={() => window.location.href = '/estoque'}
+                onClick={() => router.push("/estoque")}
                 className="group bg-[#D9A300] hover:bg-white text-black px-10 py-5 rounded-xl text-lg font-black uppercase flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-xl">
                 Ver Estoque <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
               </button>
@@ -197,7 +194,7 @@ export default function LandingPage() {
             </div>
             <button
               className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-[#D9A300] pb-1 hover:text-[#C89200] transition-colors"
-              onClick={() => window.location.href = '/estoque'}
+              onClick={() => router.push("/estoque")}
             >
               VER TODOS OS MODELOS <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
             </button>

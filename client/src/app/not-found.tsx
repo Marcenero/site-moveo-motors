@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 export default function NotFound() {
     return (

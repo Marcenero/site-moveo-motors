@@ -14,6 +14,28 @@ import { adminFetch } from "../../../lib/adminFetch";
 import { logError } from "../../../lib/logger";
 import { getPublicApiUrl } from "../../../lib/env.client";
 
+async function buscarDisponiveis(): Promise<Veiculo[]> {
+    const apiUrl = getPublicApiUrl();
+
+    const resposta = await fetch(`${apiUrl}/veiculos`);
+
+    if (!resposta.ok) {
+        throw new Error("Erro ao buscar veículos disponíveis.");
+    }
+
+    const dados = await resposta.json();
+
+    const lista = Array.isArray(dados)
+        ? dados
+        : Array.isArray(dados.veiculos)
+            ? dados.veiculos
+            : [];
+
+    return lista.filter(
+        (veiculo: Veiculo) => !veiculo.vendido
+    );
+}
+
 export default function DisponiveisPage() {
     const router = useRouter();
 
@@ -21,45 +43,38 @@ export default function DisponiveisPage() {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState("");
 
-    async function buscarDisponiveis() {
-        try {
-            const apiUrl = getPublicApiUrl();
-
-            const resposta = await fetch(`${apiUrl}/veiculos`);
-
-            if (!resposta.ok) {
-                throw new Error("Erro ao buscar veículos disponíveis.");
-            }
-
-            const dados = await resposta.json();
-
-            const lista = Array.isArray(dados)
-                ? dados
-                : Array.isArray(dados.veiculos)
-                    ? dados.veiculos
-                    : [];
-
-            setDisponiveis(lista.filter((veiculo: Veiculo) => !veiculo.vendido));
-        }
-        catch (error) {
-            logError(
-                "available_vehicles_fetch_failed",
-                error,
-                {
-                    component: "admin",
-                    operation: "buscar_veiculos_disponiveis",
-                }
-            );
-
-            setErro("Não foi possível carregar os veículos.");
-        }
-        finally {
-            setCarregando(false);
-        }
-    }
-
     useEffect(() => {
-        buscarDisponiveis();
+        let ativo = true;
+
+        buscarDisponiveis()
+            .then((lista) => {
+                if (ativo) {
+                    setDisponiveis(lista);
+                }
+            })
+            .catch((error) => {
+                logError(
+                    "available_vehicles_fetch_failed",
+                    error,
+                    {
+                        component: "admin",
+                        operation: "buscar_veiculos_disponiveis",
+                    }
+                );
+
+                if (ativo) {
+                    setErro("Não foi possível carregar os veículos.");
+                }
+            })
+            .finally(() => {
+                if (ativo) {
+                    setCarregando(false);
+                }
+            });
+
+        return () => {
+            ativo = false;
+        };
     }, []);
 
     async function marcarComoVendido(id: number): Promise<boolean> {
@@ -74,8 +89,7 @@ export default function DisponiveisPage() {
 
             if (resposta.status === 401) {
                 router.push("/admin/login");
-
-                throw new Error("Sua sessão expirou. Faça login novamente.");
+                return false;
             }
 
             if (resposta.status === 403) {
@@ -135,6 +149,15 @@ export default function DisponiveisPage() {
                 <h1 className="mb-6 text-2xl font-bold text-gray-900">
                     Veículos disponíveis
                 </h1>
+
+                {erro && (
+                    <p
+                        role="alert"
+                        className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-600"
+                    >
+                        {erro}
+                    </p>
+                )}
 
                 {carregando ? (
                     <p className="text-sm text-gray-500">Carregando veículos...</p>

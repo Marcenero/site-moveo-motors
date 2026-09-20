@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import {
     ArrowLeft,
     ChevronLeft,
-    ChevronRight,
     History,
 } from "lucide-react";
 

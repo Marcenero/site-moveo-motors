@@ -596,7 +596,7 @@ export default function CadastrarVeiculoPage() {
 
                             <p className="text-xs text-gray-500">
                                 Digite uma informação e pressione Enter
-                                ou clique em "Adicionar".
+                                ou clique em &quot;Adicionar&quot;.
                             </p>
 
                             {outrasInfos.length > 0 && (

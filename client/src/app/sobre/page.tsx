@@ -5,8 +5,6 @@ import Footer from "../../components/Footer";
 import { FiPhone, FiMail, FiMapPin, FiClock } from "react-icons/fi";
 import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
 
-const posicao = [-23.535763, -46.786853]; //Localização da loja
-
 const autoDealerJsonLd = {
     "@context": "https://schema.org",
     "@type": "AutoDealer",

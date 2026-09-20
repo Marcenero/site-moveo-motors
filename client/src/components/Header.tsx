@@ -21,9 +21,9 @@ export default function Header() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10 text-white/80 font-semibold text-sm uppercase tracking-widest">
-          <a href="/estoque" className="hover:text-[#D9A300] transition-colors">Estoque</a>
-          <a href="/servicos" className="hover:text-[#D9A300] transition-colors">Serviços</a>
-          <a href="/sobre" className="hover:text-[#D9A300] transition-colors">Sobre Nós</a>
+          <Link href="/estoque" className="hover:text-[#D9A300] transition-colors">Estoque</Link>
+          <Link href="/servicos" className="hover:text-[#D9A300] transition-colors">Serviços</Link>
+          <Link href="/sobre" className="hover:text-[#D9A300] transition-colors">Sobre Nós</Link>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -35,9 +35,9 @@ export default function Header() {
       {/* Mobile Navigation Dropdown */}
       {isMenuOpen && (
         <div className="md:bg-black border-t border-[#D9A300]/10 p-6 flex flex-col gap-6 animate-in slide-in-from-top fade-in duration-300">
-          <a href="/estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</a>
-          <a href="/servicos" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</a>
-          <a href="/sobre" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Sobre Nós</a>
+          <Link href="/estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</Link>
+          <Link href="/servicos" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</Link>
+          <Link href="/sobre" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Sobre Nós</Link>
         </div>
       )}
     </nav>

@@ -75,8 +75,6 @@ interface FiltersProps {
 export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
     const uid = useId();
 
-    const listaVeiculos = Array.isArray(veiculos) ? veiculos : [];
-
     const marcas = Array.from(
         new Set(veiculos.map((v) => extrairMarca(v.nome)))
     ).sort();
