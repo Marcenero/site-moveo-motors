@@ -1,6 +1,29 @@
 import Link from "next/link";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
+function irParaLocalizacao(
+    event: React.MouseEvent<HTMLAnchorElement>
+) {
+    if (window.location.pathname !== "/sobre") {
+        return;
+    }
+
+    event.preventDefault();
+
+    document
+        .getElementById("localizacao")
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    
+    window.history.replaceState(
+        null,
+        "",
+        "/sobre#localizacao"
+    );
+}
+
 export default function Footer() {
     return (
         <footer id="sobre" className="bg-white pt-24 pb-12 px-6 border-t border-gray-100">
@@ -48,7 +71,8 @@ export default function Footer() {
                             </li>
                             <li>
                                 <Link 
-                                    href="/sobre" 
+                                    href="/sobre#localizacao" 
+                                    onClick={irParaLocalizacao}
                                     className="hover:text-[#D9A300] transition-colors"
                                 >
                                     Localização

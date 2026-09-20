@@ -194,9 +194,28 @@ export default function SobrePage() {
 
                     <a
                         href="https://share.google/hpbbcHh7iOsKFGfOx"
+                        onClick={(event) => {
+                            if (window.location.pathname === "/sobre") {
+                                event.preventDefault();
+
+                                const elemento = document.getElementById("localizacao");
+
+                                elemento?.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                });
+
+                                window.history.replaceState(
+                                    null,
+                                    "",
+                                    "/sobre#localizacao"
+                                );
+                            }
+                        }}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group"
+                        className="group scroll-mt-80  rounded-2xl transition-all duration-500 target:scale-[1.03] target:ring-4 target:ring-[#D9A300]/40 target:shadow-2xl"
+                        id="localizacao"
                     >
                         <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300] group-hover:bg-[#D9A300]">
                             <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 group-hover:bg-gray-300"><FiMapPin size={30} /></div>
