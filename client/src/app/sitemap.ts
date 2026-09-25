@@ -25,13 +25,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
            `${apiUrl}/veiculos`
         );
 
-        const dados = await resposta.json();
+        if (!resposta.ok) {
+            throw new Error(
+                `Falha ao buscar veículos para o sitemap: HTTP ${resposta.status}`
+            )
+        }
 
-        veiculos = Array.isArray(dados)
-            ? dados
-            : Array.isArray(dados.veiculos)
-                ? dados.veiculos
-                : [];
+        const dados: unknown = await resposta.json();
+
+        if (Array.isArray(dados)) {
+            veiculos = dados;
+        }
+        else if (
+            dados &&
+            typeof dados === "object" &&
+            "veiculos" in dados &&
+            Array.isArray(dados.veiculos)
+        ) {
+            veiculos = dados.veiculos;
+        }
     }
     catch (error) {
         logError(

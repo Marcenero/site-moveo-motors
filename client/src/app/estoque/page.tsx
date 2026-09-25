@@ -69,7 +69,6 @@ export default function EstoquePage() {
             try {
                 const apiUrl = getPublicApiUrl();
 
-                //Em produção, trocar por `${process.env.NEXT_PUBLIC_API_URL}/veiculos`
                 const resposta = await fetch(`${apiUrl}/veiculos`);
                 const dados = await resposta.json();
 
