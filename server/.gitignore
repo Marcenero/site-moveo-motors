@@ -56,3 +56,15 @@ Thumbs.db
 .vercel/
 # Sentry Config File
 .sentryclirc
+
+# Artefatos TypeScript gerados acidentalmente dentro de src
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+src/**/*.d.ts.map
+
+# Artefatos gerados do prisma.config.ts
+prisma.config.js
+prisma.config.js.map
+prisma.config.d.ts
+prisma.config.d.ts.map
