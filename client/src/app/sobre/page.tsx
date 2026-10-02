@@ -64,11 +64,7 @@ export default function SobrePage() {
                 <Header />
 
                 <div className="flex bg-gray-300 min-h-width h-[350px]">
-                    Colocar imagem da loja aqui
-                    .
-                    .
-                    .
-                    .
+                    
                 </div>
 
                 <div className="relative z-10 mx-auto mt-20 max-2-7xl px-6">

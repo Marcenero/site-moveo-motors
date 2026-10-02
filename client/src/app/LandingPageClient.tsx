@@ -163,7 +163,7 @@ export default function LandingPage() {
         {/* Hero Content */}
         <div className="relative z-20 container mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
           <div className="text-left">
-            <h1 className="text-white text-6xl md:text-8xl font-black mb-6 leading-[0.9] tracking-tighter">
+            <h1 className="text-white text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-[0.95] tracking-tighter">
               A EMOÇÃO DE <br />
               <span className="text-[#D9A300] italic">DIRIGIR.</span>
             </h1>
@@ -187,20 +187,20 @@ export default function LandingPage() {
       {/* --- SEÇÃO DE DESTAQUES --- */}
       <section id="estoque" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-row md:flex-row justify-between items-end mb-16 gap-6">
-            <div>
+          <div className="flex flex-col md:flex-row md:justify-between items-start md:items-end md:mb-16 gap-6">
+            <div className="w-full md:w-auto">
               <span className="text-[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
-              <h2 className="text-5xl font-black text-black mt-2 leading-none">Destaques</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-black mt-2 leading-none">Destaques Moveo</h2>
             </div>
             <button
-              className="group flex items-center gap-2 text-black font-black text-lg border-b-4 border-[#D9A300] pb-1 hover:text-[#C89200] transition-colors"
+              className="group flex items-center justify-between sm:justify-start w-full md:w-auto max-w-full gap-2 text-black font-black text-sm sm:text-lg border-b-4 border-[#D9A300] pb-1 hover:text-[#C89200] transition-colors"
               onClick={() => router.push("/estoque")}
             >
-              VER TODOS OS MODELOS <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+              VER TODOS OS MODELOS <ArrowRight size={20} className="shrink-0 md:group-hover:translate-x-2 transition-transform" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mt-10">
             {carregandoRecentes ? (
               <>
                 <VehicleCardSkeleton />
@@ -209,7 +209,7 @@ export default function LandingPage() {
               </>
             ) : veiculosRecentes.length === 0 ? (
               <p className="text-sm text-gray-500">
-                Não foi possível carregar os veículos.
+                Estamos atualizando nossos destaques. Veja todos os veículos disponíveis no estoque.
               </p>
             ) : (
               veiculosRecentes.map((veiculo) => (
@@ -333,7 +333,7 @@ export default function LandingPage() {
         href="https://wa.me/5511912345678"
         target="_blank"
         rel="noopener noreferrer"
-        className={`fixed bottom-10 right-10 bg-[#25D366] text-white p-6 rounded-full shadow-[0_15px_40px_rgba(37,211,102,0.4)] hover:scale-110 active:scale-95 z-[60] group animate-bounce transition-all duration-500 ease-out
+        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 md:bottom-10 md:right-10 bg-[#25D366] text-white p-4 sm:p-4 md:p-6 rounded-full shadow-[0_15px_40px_rgba(37,211,102,0.4)] hover:scale-110 active:scale-95 transition-all z-[60] group animate-bounce transition-all duration-500 ease-out
             ${
               mostrarWhatsapp
                 ? "opacity-100 translate-y-0 pointer-events-auto"
@@ -341,8 +341,11 @@ export default function LandingPage() {
             }
           `}
       >
-        <MessageCircle size={36} fill="white" />
-        <span className="absolute right-full mr-6 top-1/2 -translate-y-1/2 bg-black text-white px-5 py-3 rounded-2xl text-sm font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl border border-white/10 uppercase tracking-widest">
+        <MessageCircle 
+          fill="white" 
+          className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9"
+        />
+        <span className="hidden md:block absolute right-full mr-6 top-1/2 -translate-y-1/2 bg-black text-white px-5 py-3 rounded-2xl text-sm font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl border border-white/10 uppercase tracking-widest">
           Falar com Especialista
         </span>
       </a>

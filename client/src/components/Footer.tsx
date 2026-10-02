@@ -32,8 +32,9 @@ export default function Footer() {
                     <div className="col-span-1 md:col-span-1">
                         <div className="flex flex-col mb-8">
                             <img
-                                src="/Moveo-motors2.svg"
+                                src="/Moveo-motors3.svg"
                                 alt="Moveo Motors Logo"
+                                className="w-40 sm:w-48 md:w-56 lg:w-full max-w-[260px] h-auto"
                             />
                         </div>
                         <p className="font-medium leading-relaxed mb-8 italic">

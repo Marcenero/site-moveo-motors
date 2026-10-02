@@ -279,7 +279,7 @@ app.use(
 //Servidor
 const PORT = Number(process.env.PORT) || 3001;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   logInfo(
     "server_started",
     {
