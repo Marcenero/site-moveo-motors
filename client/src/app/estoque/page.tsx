@@ -210,19 +210,21 @@ export default function EstoquePage() {
                             ))}
                         </div>
 
-                        <div className="flex flex-col relative shrink-0">
+                        <div className="flex flex-col relative shrink-0 w-full sm:w-auto">
                             <span className="ml-1 text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">
                                 Ordenar
                             </span>
 
-                            <div className="relative">
+                            <div className="relative w-fit">
                                 <select
                                     value={ordenacao}
                                     onChange={(e) => setOrdenacao(e.target.value as Ordenacao)}
-                                    className="h-10 pl-4 pr-9 rounded-xl border border-gray-200 bg-white text-sm font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-[#D9A300]"
+                                    className="h-10 w-full sm:w-auto pl-4 pr-9 rounded-xl border border-gray-200 bg-white text-sm font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-[#D9A300]"
                                 >
                                     {Object.entries(OPCOES_ORDENACAO).map(([k, v]) => (
-                                        <option key={k} value={k}>{v}</option>
+                                        <option key={k} value={k}>
+                                            {v}
+                                        </option>
                                     ))}
                                 </select>
                                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />

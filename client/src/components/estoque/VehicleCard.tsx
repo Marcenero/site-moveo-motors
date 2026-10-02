@@ -108,7 +108,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
-                    <div className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#D9A300] bg-white py-3 font-medium text-[#D9A300] transition-all duration-300 hover:border-[#C89200] hover:bg-[#C89200] hover:text-black">
+                    <div className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#d9a300] py-3 font-semibold transition-all duration-300 bg-[#c89200] text-black active:scal-[0.98] active:bg-[#c89200] md:bg-white md:text-[#d9a300] md:hover:border-[#c89200] md:hover:bg-[#c89200] md:hover:text-black">
                         Mais detalhes
                         <ChevronsRight size={20} />
                     </div>
