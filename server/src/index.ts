@@ -28,6 +28,11 @@ const isProduction = process.env.NODE_ENV === "production";
 //Configurações gerais
 app.disable("x-powered-by");
 
+//Trust proxy
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
 //CORS
 const origensPermitidas = [
   process.env.FRONTEND_URL,
@@ -79,7 +84,7 @@ app.use(
 const limiteGeral = rateLimit({
   windowMs: 15 * 60 * 1000,
 
-  limit: 300,
+  limit: 100,
 
   standardHeaders: "draft-8",
   legacyHeaders: false,
