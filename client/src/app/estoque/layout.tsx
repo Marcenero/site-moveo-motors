@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: {
-        default: "Carros Seminovos em Osasco",
-        template: "%s | Moveo Motors",
-    },
+  title: {
+    default: "Carros Seminovos em Osasco",
+    template: "%s | Moveo Motors",
+  },
 
-    description: "Confira o estoque de carros seminovos da Moveo Motors em Osasco. Encontre veículos selecionados com procedência e fale com nossa equipe.",
+  description:
+    "Confira o estoque de carros seminovos da Moveo Motors em Osasco. Encontre veículos selecionados com procedência e fale com nossa equipe.",
 
-    alternates: {
-        canonical: "/estoque",
-    },
+  alternates: {
+    canonical: "/estoque",
+  },
 };
 
 export default function EstoqueLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return children;
+  return children;
 }

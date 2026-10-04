@@ -8,46 +8,46 @@
 
 Utilizada apenas para migrations e administração.
 
-* BYPASSRLS: sim
-* CREATEDB: sim
-* usada pela `DIRECT_URL`
+- BYPASSRLS: sim
+- CREATEDB: sim
+- usada pela `DIRECT_URL`
 
 #### moveo_app
 
 Utilizada pela aplicação em runtime.
 
-* LOGIN: sim
-* SUPERUSER: não
-* BYPASSRLS: não
-* CREATEDB: não
-* CREATEROLE: não
+- LOGIN: sim
+- SUPERUSER: não
+- BYPASSRLS: não
+- CREATEDB: não
+- CREATEROLE: não
 
 Permissões:
 
-* SELECT
-* INSERT
-* UPDATE
-* DELETE
+- SELECT
+- INSERT
+- UPDATE
+- DELETE
 
 Tabelas:
 
-* `Veiculo`
-* `ImagemVeiculo`
-* `VendaDia`
+- `Veiculo`
+- `ImagemVeiculo`
+- `VendaDia`
 
 ### Acesso público ao banco
 
 #### anon
 
-* `Veiculo`: nenhum
-* `ImagemVeiculo`: nenhum
-* `VendaDia`: nenhum
+- `Veiculo`: nenhum
+- `ImagemVeiculo`: nenhum
+- `VendaDia`: nenhum
 
 #### authenticated
 
-* `Veiculo`: nenhum
-* `ImagemVeiculo`: nenhum
-* `VendaDia`: nenhum
+- `Veiculo`: nenhum
+- `ImagemVeiculo`: nenhum
+- `VendaDia`: nenhum
 
 O catálogo público acessa os dados dos veículos exclusivamente através do backend.
 
@@ -61,10 +61,10 @@ O bucket `Imagens` é utilizado para armazenar as imagens exibidas no catálogo 
 
 Configuração atual:
 
-* bucket público: sim (`public = true`)
-* prefixo utilizado para imagens de veículos: `veiculos/`
-* leitura pública das imagens: permitida
-* operações de escrita por usuários públicos: não permitidas
+- bucket público: sim (`public = true`)
+- prefixo utilizado para imagens de veículos: `veiculos/`
+- leitura pública das imagens: permitida
+- operações de escrita por usuários públicos: não permitidas
 
 O bucket é público para permitir que as imagens do catálogo sejam acessadas diretamente através de suas URLs públicas.
 
@@ -90,7 +90,7 @@ order by policyname;
 
 Resultado:
 
-* nenhuma policy cadastrada em `storage.objects`
+- nenhuma policy cadastrada em `storage.objects`
 
 Com isso, usuários utilizando a chave pública (`anon`) não possuem permissão para realizar operações de escrita diretamente no Storage.
 
@@ -129,10 +129,10 @@ Foi realizado um teste utilizando apenas a `anon key`, sem passar pelo backend.
 
 Resultados:
 
-* leitura pública da imagem: permitida
-* INSERT anônimo: bloqueado por RLS
-* UPDATE anônimo: bloqueado por RLS
-* DELETE anônimo: nenhum arquivo removido
+- leitura pública da imagem: permitida
+- INSERT anônimo: bloqueado por RLS
+- UPDATE anônimo: bloqueado por RLS
+- DELETE anônimo: nenhum arquivo removido
 
 Na tentativa de DELETE, o Supabase retornou:
 

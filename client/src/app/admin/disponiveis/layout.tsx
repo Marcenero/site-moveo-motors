@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Veículos disponíveis",
+  title: "Veículos disponíveis",
 };
 
 export default function DisponiveisLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return children;
+  return children;
 }

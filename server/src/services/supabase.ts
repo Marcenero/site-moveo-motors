@@ -11,13 +11,9 @@ if (!supabaseServiceRoleKey) {
   throw new Error("SUPABASE_SERVICE_ROLE_KEY não foi definida.");
 }
 
-export const supabase = createClient(
-    supabaseUrl,
-    supabaseServiceRoleKey,
-    {
-        auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-        },
-    }
-);
+export const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+  },
+});

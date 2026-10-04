@@ -4,8 +4,8 @@ import * as Sentry from "@sentry/node";
 import { supabase } from "../services/supabase.js";
 
 import {
-    AcaoAuditoria,
-    ResultadoAuditoria,
+  AcaoAuditoria,
+  ResultadoAuditoria,
 } from "../generated/prisma/enums.js";
 import type { Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../services/prisma.js";
@@ -21,10 +21,10 @@ import { exigirAdmin } from "../middlewares/exigirAdmin.js";
 import { rateLimit } from "express-rate-limit";
 
 import {
-    atualizarVeiculoSchema,
-    criarVeiculoSchema,
-    formatarErrosZod,
-    idVeiculoSchema,
+  atualizarVeiculoSchema,
+  criarVeiculoSchema,
+  formatarErrosZod,
+  idVeiculoSchema,
 } from "../schemas/veiculo.js";
 
 const router = Router();
@@ -33,1264 +33,943 @@ const MAX_IMAGE_WIDTH = 8000;
 const MAX_IMAGE_HEIGHT = 8000;
 const MAX_IMAGE_PIXELS = 40_000_000;
 
-const FORMATOS_IMAGEM = new Set([
-    "jpeg",
-    "png",
-    "webp",
-]);
+const FORMATOS_IMAGEM = new Set(["jpeg", "png", "webp"]);
 
 /* Funções */
-function extrairCaminhoStorageDaUrl(
-    url: string
-) {
-    try {
-        const marcador = "/storage/v1/object/public/Imagens/";
+function extrairCaminhoStorageDaUrl(url: string) {
+  try {
+    const marcador = "/storage/v1/object/public/Imagens/";
 
-        const indice = url.indexOf(marcador);
+    const indice = url.indexOf(marcador);
 
-        if (indice === -1) {
-            return null;
-        }
-
-        const caminho =
-            decodeURIComponent(
-                url.slice(
-                    indice + marcador.length
-                )
-            );
-
-        if (!caminho.startsWith("veiculos/")) {
-            return null;
-        }
-
-        return caminho;
+    if (indice === -1) {
+      return null;
     }
-    catch {
-        return null;
+
+    const caminho = decodeURIComponent(url.slice(indice + marcador.length));
+
+    if (!caminho.startsWith("veiculos/")) {
+      return null;
     }
+
+    return caminho;
+  } catch {
+    return null;
+  }
 }
 
 async function removerImagensOrfas(urls: string[]) {
-    if (urls.length === 0) {
-        return;
-    }
+  if (urls.length === 0) {
+    return;
+  }
 
-    const urlsUnicas = [
-        ...new Set(urls),
-    ];
+  const urlsUnicas = [...new Set(urls)];
 
-    const imagensReferenciadas = 
-        await prisma.imagemVeiculo.findMany({
-            where: {
-                url: {
-                    in: urlsUnicas,
-                },
-            },
+  const imagensReferenciadas = await prisma.imagemVeiculo.findMany({
+    where: {
+      url: {
+        in: urlsUnicas,
+      },
+    },
 
-            select: {
-                url: true,
-            },
-        });
+    select: {
+      url: true,
+    },
+  });
 
-    const urlsReferenciadas =
-        new Set(
-            imagensReferenciadas.map(
-                (imagem) => imagem.url
-            )
-        );
+  const urlsReferenciadas = new Set(
+    imagensReferenciadas.map((imagem) => imagem.url),
+  );
 
-    const caminhosOrfaos =
-        urlsUnicas
-            .filter(
-                (url) =>
-                    !urlsReferenciadas.has(url)
-            )
-            .map(extrairCaminhoStorageDaUrl)
-            .filter(
-                (caminho) : caminho is string => caminho !== null
-            );
+  const caminhosOrfaos = urlsUnicas
+    .filter((url) => !urlsReferenciadas.has(url))
+    .map(extrairCaminhoStorageDaUrl)
+    .filter((caminho): caminho is string => caminho !== null);
 
-    if (caminhosOrfaos.length === 0) {
-        return;
-    }
+  if (caminhosOrfaos.length === 0) {
+    return;
+  }
 
-    const { error } =
-        await supabase.storage
-            .from("Imagens")
-            .remove(caminhosOrfaos);
-        
-    if (error) {
-        throw error;
-    }
+  const { error } = await supabase.storage
+    .from("Imagens")
+    .remove(caminhosOrfaos);
+
+  if (error) {
+    throw error;
+  }
 }
 
 /* Funções auxiliares para a rota de informações da tabela */
 function dataStringParaDate(data: string) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-        throw new Error(
-            `Data inválida: ${data}`
-        );
-    }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+    throw new Error(`Data inválida: ${data}`);
+  }
 
-    const ano =
-        Number(data.slice(0, 4));
+  const ano = Number(data.slice(0, 4));
 
-    const mes =
-        Number(data.slice(5, 7));
+  const mes = Number(data.slice(5, 7));
 
-    const dia =
-        Number(data.slice(8, 10));
+  const dia = Number(data.slice(8, 10));
 
-    return new Date(
-        Date.UTC(
-            ano,
-            mes - 1,
-            dia
-        )
-    );
+  return new Date(Date.UTC(ano, mes - 1, dia));
 }
 
-function dateParaDataString(
-    data: Date
-) {
-    return data
-        .toISOString()
-        .slice(0, 10);
+function dateParaDataString(data: Date) {
+  return data.toISOString().slice(0, 10);
 }
 
 function pegarDataHojeBrasil() {
-    return new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/Sao_Paulo",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    }).format(new Date());
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 function pegarDataLimiteBrasil() {
-    const hoje = new Date();
+  const hoje = new Date();
 
-    // 4 dias antes de hoje, porque hoje conta como um dos 5 dias
-    hoje.setDate(hoje.getDate() - 4);
+  // 4 dias antes de hoje, porque hoje conta como um dos 5 dias
+  hoje.setDate(hoje.getDate() - 4);
 
-    return new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/Sao_Paulo",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    }).format(hoje);
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(hoje);
 }
 
-async function incrementarVendaDoDia(
-    tx: Prisma.TransactionClient
-) {
-    const dataHoje =
-        dataStringParaDate(
-            pegarDataHojeBrasil()
-        );
+async function incrementarVendaDoDia(tx: Prisma.TransactionClient) {
+  const dataHoje = dataStringParaDate(pegarDataHojeBrasil());
 
-    const dataLimite =
-        dataStringParaDate(
-            pegarDataLimiteBrasil()
-        );
+  const dataLimite = dataStringParaDate(pegarDataLimiteBrasil());
 
-    await tx.vendaDia.upsert({
-        where: {
-            data: dataHoje,
-        },
+  await tx.vendaDia.upsert({
+    where: {
+      data: dataHoje,
+    },
 
-        update: {
-            quantidade: {
-                increment: 1,
-            },
-        },
+    update: {
+      quantidade: {
+        increment: 1,
+      },
+    },
 
-        create: {
-            data: dataHoje,
-            quantidade: 1,
-        },
-    });
+    create: {
+      data: dataHoje,
+      quantidade: 1,
+    },
+  });
 
-    await tx.vendaDia.deleteMany({
-        where: {
-            data: {
-                lt: dataLimite,
-            },
-        },
-    });
+  await tx.vendaDia.deleteMany({
+    where: {
+      data: {
+        lt: dataLimite,
+      },
+    },
+  });
 }
 
 async function validarImagem(arquivo: Express.Multer.File) {
-    let metadata: Metadata;
+  let metadata: Metadata;
 
-    try {
-        metadata = await sharp(
-            arquivo.buffer,
-            {
-                limitInputPixels: MAX_IMAGE_PIXELS,
-            }
-        ).metadata();
-    }
-    catch {
-        throw new Error(
-            "A imagem está corrompida ou posssui dimensões inválidas."
-        );
-    }
+  try {
+    metadata = await sharp(arquivo.buffer, {
+      limitInputPixels: MAX_IMAGE_PIXELS,
+    }).metadata();
+  } catch {
+    throw new Error("A imagem está corrompida ou posssui dimensões inválidas.");
+  }
 
-    const {
-        width,
-        height,
-        format,
-    } = metadata;
+  const { width, height, format } = metadata;
 
-    if (!width || !height || !format) {
-        throw new Error(
-            "Não foi possível identificar as dimensões da imagem."
-        );
-    }
+  if (!width || !height || !format) {
+    throw new Error("Não foi possível identificar as dimensões da imagem.");
+  }
 
-    if (!FORMATOS_IMAGEM.has(format)) {
-        throw new Error(
-            "Formato real da imagem não permitido."
-        );
-    }
+  if (!FORMATOS_IMAGEM.has(format)) {
+    throw new Error("Formato real da imagem não permitido.");
+  }
 
-    if (width > MAX_IMAGE_WIDTH || height > MAX_IMAGE_HEIGHT) {
-        throw new Error(
-            `À imagem excede a resolução máxima de ${MAX_IMAGE_WIDTH}x${MAX_IMAGE_HEIGHT}px.`
-        )
-    }
+  if (width > MAX_IMAGE_WIDTH || height > MAX_IMAGE_HEIGHT) {
+    throw new Error(
+      `À imagem excede a resolução máxima de ${MAX_IMAGE_WIDTH}x${MAX_IMAGE_HEIGHT}px.`,
+    );
+  }
 
-    const totalPixels = width * height;
+  const totalPixels = width * height;
 
-    if (totalPixels > MAX_IMAGE_PIXELS) {
-        throw new Error(
-            "A imagem possui resolução total muito alta."
-        );
-    }
+  if (totalPixels > MAX_IMAGE_PIXELS) {
+    throw new Error("A imagem possui resolução total muito alta.");
+  }
 }
 
 /* Rotas */
 /* Rota para pegar todos os veículos do banco de dados */
-router.get(
-    "/",
-    async (req, res) => {
-        try {
-            const veiculos =
-                await prisma.veiculo.findMany({
-                    include: {
-                        imagens: {
-                            select: {
-                                id: true,
-                                url: true,
-                                veiculoId: true,
-                            },
-                        },
-                    },
-                });
+router.get("/", async (req, res) => {
+  try {
+    const veiculos = await prisma.veiculo.findMany({
+      include: {
+        imagens: {
+          select: {
+            id: true,
+            url: true,
+            veiculoId: true,
+          },
+        },
+      },
+    });
 
-            return res.json({
-                ok: true,
-                total: veiculos.length,
-                veiculos,
-            });
-        }
-        catch (error) {
-            capturarErro(
-                error,
-                "database",
-                "buscar_veiculos"
-            );
+    return res.json({
+      ok: true,
+      total: veiculos.length,
+      veiculos,
+    });
+  } catch (error) {
+    capturarErro(error, "database", "buscar_veiculos");
 
-            logError(
-                "vehicle_list_failed",
-                error,
-                {
-                    component: "database",
-                    operation: "buscar_veiculos",
-                    status: 500,
-                }
-            );
+    logError("vehicle_list_failed", error, {
+      component: "database",
+      operation: "buscar_veiculos",
+      status: 500,
+    });
 
-            return res.status(500).json({
-                ok: false,
-                erro: "Erro ao buscar veículos.",
-            });
-        }
-    }
-);
+    return res.status(500).json({
+      ok: false,
+      erro: "Erro ao buscar veículos.",
+    });
+  }
+});
 
 /* Rota para cadastro de veículo */
-router.post(
-    "/",
-    exigirAdmin,
-    async (req, res) => {
-        const resultado =
-            criarVeiculoSchema.safeParse(
-                req.body
-            );
+router.post("/", exigirAdmin, async (req, res) => {
+  const resultado = criarVeiculoSchema.safeParse(req.body);
 
-        if (!resultado.success) {
-            return res
-                .status(400)
-                .json({
-                    ok: false,
-                    erro: "Dados do veículo inválidos.",
-                    campos:
-                        formatarErrosZod(resultado.error),
-                });
-        }
+  if (!resultado.success) {
+    return res.status(400).json({
+      ok: false,
+      erro: "Dados do veículo inválidos.",
+      campos: formatarErrosZod(resultado.error),
+    });
+  }
 
-        const {
-            imagens,
-            ...dadosVeiculo
-        } = resultado.data;
+  const { imagens, ...dadosVeiculo } = resultado.data;
 
-        try {
-            const veiculo =
-                await prisma.veiculo.create({
-                    data: {
-                        ...dadosVeiculo,
+  try {
+    const veiculo = await prisma.veiculo.create({
+      data: {
+        ...dadosVeiculo,
 
-                        ...(imagens.length > 0
-                            ? {
-                                imagens: {
-                                    create:
-                                        imagens.map(
-                                            (
-                                                url
-                                            ) => ({
-                                                url,
-                                            })
-                                        ),
-                                },
-                            }
-                            : {}),
-                    },
-
-                    include: {
-                        imagens: true,
-                    },
-                });
-            return res
-                .status(201)
-                .json({
-                    ok: true,
-                    veiculo,
-                });
-        }
-        catch (error) {
-            capturarErro(
-                error,
-                "database",
-                "cadastrar_veiculo"
-            );
-
-            logError(
-                "vehicle_create_failed",
-                error,
-                {
-                    component: "database",
-                    operation: "cadastrar_veiculo",
-                    status: 500,
-                }
-            );
-
-            try {
-                await removerImagensOrfas(
-                    imagens
-                );
+        ...(imagens.length > 0
+          ? {
+              imagens: {
+                create: imagens.map((url) => ({
+                  url,
+                })),
+              },
             }
-            catch (erroLimpeza) {
-                capturarErro(
-                    erroLimpeza,
-                    "storage",
-                    "limpar_imagens_orfas"
-                );
+          : {}),
+      },
 
-                logError(
-                    "orphan_image_cleanup_failed",
-                    error,
-                    {
-                        component: "storage",
-                        operation: "limpar_imagens_orfas",
-                    }
-                );
-            }
+      include: {
+        imagens: true,
+      },
+    });
+    return res.status(201).json({
+      ok: true,
+      veiculo,
+    });
+  } catch (error) {
+    capturarErro(error, "database", "cadastrar_veiculo");
 
-            return res
-                .status(500)
-                .json({
-                    ok: false,
-                    erro: "Erro ao cadastrar veículo.",
-                });
-        }
+    logError("vehicle_create_failed", error, {
+      component: "database",
+      operation: "cadastrar_veiculo",
+      status: 500,
+    });
+
+    try {
+      await removerImagensOrfas(imagens);
+    } catch (erroLimpeza) {
+      capturarErro(erroLimpeza, "storage", "limpar_imagens_orfas");
+
+      logError("orphan_image_cleanup_failed", error, {
+        component: "storage",
+        operation: "limpar_imagens_orfas",
+      });
     }
-);
+
+    return res.status(500).json({
+      ok: false,
+      erro: "Erro ao cadastrar veículo.",
+    });
+  }
+});
 
 /* Rota para upload de imagens no cadastro */
 const upload = multer({
-    storage: multer.memoryStorage(),
+  storage: multer.memoryStorage(),
 
-    limits: {
-        fileSize: 8 * 1024 * 1024,
-        files: 20,
-        fields: 0,
-        parts: 20,
-    },
+  limits: {
+    fileSize: 8 * 1024 * 1024,
+    files: 20,
+    fields: 0,
+    parts: 20,
+  },
 
-    fileFilter: (req, file, callback) => {
-        const tiposPermitidos = [
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-        ];
+  fileFilter: (req, file, callback) => {
+    const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
 
-        if (!tiposPermitidos.includes(file.mimetype)) {
-            return callback(
-                new Error(
-                    "Formato de imagem não permitido. Utilize JPG, PNG ou WebP."
-                )
-            );
-        }
+    if (!tiposPermitidos.includes(file.mimetype)) {
+      return callback(
+        new Error("Formato de imagem não permitido. Utilize JPG, PNG ou WebP."),
+      );
+    }
 
-        callback(null, true);
-    },
+    callback(null, true);
+  },
 });
 
 const limiteUpload = rateLimit({
-    windowMs: 15 * 60 * 1000,
+  windowMs: 15 * 60 * 1000,
 
-    limit: 20,
+  limit: 20,
 
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
 
-    handler: (_req, res) => {
-        Sentry.metrics.count(
-            "upload.rate_limited",
-            1
-        );
+  handler: (_req, res) => {
+    Sentry.metrics.count("upload.rate_limited", 1);
 
-        return res
-            .status(429)
-            .json({
-                ok: false,
-                erro: "Muitos uploads. Aguarde alguns minutos.",
-            });
-    },
+    return res.status(429).json({
+      ok: false,
+      erro: "Muitos uploads. Aguarde alguns minutos.",
+    });
+  },
 });
 
 router.post(
-    "/upload-imagens",
-    exigirAdmin,
-    limiteUpload,
-    upload.array("imagens", 20), 
-    async (req, res) => {
-        const caminhosEnviados: string[] = [];
+  "/upload-imagens",
+  exigirAdmin,
+  limiteUpload,
+  upload.array("imagens", 20),
+  async (req, res) => {
+    const caminhosEnviados: string[] = [];
 
-        const usuario = res.locals.usuario;
+    const usuario = res.locals.usuario;
 
-        try {
-            const arquivos = req.files as Express.Multer.File[];
+    try {
+      const arquivos = req.files as Express.Multer.File[];
 
-            if (!arquivos || arquivos.length === 0) {
-                await registrarAuditoria({
-                    acao: AcaoAuditoria.IMAGENS_UPLOAD,
-                    resultado: ResultadoAuditoria.FALHA,
-                    adminId: usuario.id,
-                    detalhes: {
-                        motivo: "NENHUMA_IMAGEM_ENVIADA",
-                    },
-                });
+      if (!arquivos || arquivos.length === 0) {
+        await registrarAuditoria({
+          acao: AcaoAuditoria.IMAGENS_UPLOAD,
+          resultado: ResultadoAuditoria.FALHA,
+          adminId: usuario.id,
+          detalhes: {
+            motivo: "NENHUMA_IMAGEM_ENVIADA",
+          },
+        });
 
-                return res.status(400).json({
-                    ok: false,
-                    erro: "Nenhuma imagem enviada.",
-                });
-            }
+        return res.status(400).json({
+          ok: false,
+          erro: "Nenhuma imagem enviada.",
+        });
+      }
 
-            for (const arquivo of arquivos) {
-                await validarImagem(arquivo);
-            }
+      for (const arquivo of arquivos) {
+        await validarImagem(arquivo);
+      }
 
-            const urls: string[] = [];
+      const urls: string[] = [];
 
-            for (const arquivo of arquivos) {
-                const imagemOtimizada = await sharp(arquivo.buffer)
-                    .rotate()
-                    .resize({
-                        width: 1920,
-                        height: 1920,
-                        fit: "inside",
-                        withoutEnlargement: true,
-                    })
-                    .webp({
-                        quality: 82,
-                        effort: 4,
-                    })
-                    .toBuffer();
+      for (const arquivo of arquivos) {
+        const imagemOtimizada = await sharp(arquivo.buffer)
+          .rotate()
+          .resize({
+            width: 1920,
+            height: 1920,
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .webp({
+            quality: 82,
+            effort: 4,
+          })
+          .toBuffer();
 
-                const nomeArquivo = `${crypto.randomUUID()}.webp`;
+        const nomeArquivo = `${crypto.randomUUID()}.webp`;
 
-                const caminho = `veiculos/${nomeArquivo}`;
+        const caminho = `veiculos/${nomeArquivo}`;
 
-                const { error } = await supabase.storage
-                    .from("Imagens")
-                    .upload(
-                        caminho,
-                        imagemOtimizada,
-                        {
-                            cacheControl: "31536000",
-                            upsert: false,
-                            contentType: "image/webp",
-                        }
-                    );
+        const { error } = await supabase.storage
+          .from("Imagens")
+          .upload(caminho, imagemOtimizada, {
+            cacheControl: "31536000",
+            upsert: false,
+            contentType: "image/webp",
+          });
 
-                if (error) {
-                    throw error;
-                }
-
-                caminhosEnviados.push(caminho);
-
-                const { data } = supabase.storage
-                    .from("Imagens")
-                    .getPublicUrl(caminho);
-
-                urls.push(data.publicUrl);
-            }
-
-            await registrarAuditoria({
-                acao: AcaoAuditoria.IMAGENS_UPLOAD,
-                resultado: ResultadoAuditoria.SUCESSO,
-                adminId: usuario.id,
-                detalhes: {
-                    quantidadeImagens: urls.length,
-                },
-            });
-
-            Sentry.metrics.count(
-                "upload.success",
-                1,
-                {
-                    attributes: {
-                        component: "upload",
-                    },
-                }
-            );
-
-            return res.json({
-                ok: true,
-                urls,
-            });
+        if (error) {
+          throw error;
         }
-        catch (error) {
-            capturarErro(
-                error,
-                "upload",
-                "upload_imagens"
-            );
 
-            Sentry.metrics.count(
-                "upload.failure",
-                1,
-                {
-                    attributes: {
-                        compnent: "upload",
-                    },
-                }
-            );
+        caminhosEnviados.push(caminho);
 
-            logError(
-                "image_upload_failed",
-                error,
-                {
-                    component: "upload",
-                    operation: "upload_imagens",
-                    status: 500,
-                }
-            );
+        const { data } = supabase.storage.from("Imagens").getPublicUrl(caminho);
 
-            if (caminhosEnviados.length > 0) {
-                const {error: erroLimpeza,} =
-                    await supabase.storage
-                        .from("Imagens")
-                        .remove(caminhosEnviados);
+        urls.push(data.publicUrl);
+      }
 
-                if (erroLimpeza) {
-                    capturarErro(
-                        erroLimpeza,
-                        "storage",
-                        "limpar_upload_parcial"
-                    );
+      await registrarAuditoria({
+        acao: AcaoAuditoria.IMAGENS_UPLOAD,
+        resultado: ResultadoAuditoria.SUCESSO,
+        adminId: usuario.id,
+        detalhes: {
+          quantidadeImagens: urls.length,
+        },
+      });
 
-                    logError(
-                        "partial_upload_cleanup_failed",
-                        erroLimpeza,
-                        {
-                            component: "storage",
-                            operation: "limpar_upload_parcial",
-                        }
-                    );
-                }
-            }
+      Sentry.metrics.count("upload.success", 1, {
+        attributes: {
+          component: "upload",
+        },
+      });
 
-            try {
-                await registrarAuditoria({
-                    acao: AcaoAuditoria.IMAGENS_UPLOAD,
-                    resultado: ResultadoAuditoria.FALHA,
-                    adminId: usuario.id,
-                    detalhes: {
-                        motivo: "ERRO_UPLOAD",
-                    },
-                });
-            }
-            catch (erroAuditoria) {
-                capturarErro(
-                    erroAuditoria,
-                    "audit",
-                    "registrar_falha_upload"
-                );
+      return res.json({
+        ok: true,
+        urls,
+      });
+    } catch (error) {
+      capturarErro(error, "upload", "upload_imagens");
 
-                logError(
-                    "upload_failure_audit_failed",
-                    erroAuditoria,
-                    {
-                        component: "audit",
-                        operation: "registrar_falha_upload",
-                    }
-                );
-            }
+      Sentry.metrics.count("upload.failure", 1, {
+        attributes: {
+          compnent: "upload",
+        },
+      });
 
-            return res
-                .status(500)
-                .json({
-                    ok: false,
-                    erro: "Erro ao enviar imagens.",
-                });
+      logError("image_upload_failed", error, {
+        component: "upload",
+        operation: "upload_imagens",
+        status: 500,
+      });
+
+      if (caminhosEnviados.length > 0) {
+        const { error: erroLimpeza } = await supabase.storage
+          .from("Imagens")
+          .remove(caminhosEnviados);
+
+        if (erroLimpeza) {
+          capturarErro(erroLimpeza, "storage", "limpar_upload_parcial");
+
+          logError("partial_upload_cleanup_failed", erroLimpeza, {
+            component: "storage",
+            operation: "limpar_upload_parcial",
+          });
         }
-});
+      }
+
+      try {
+        await registrarAuditoria({
+          acao: AcaoAuditoria.IMAGENS_UPLOAD,
+          resultado: ResultadoAuditoria.FALHA,
+          adminId: usuario.id,
+          detalhes: {
+            motivo: "ERRO_UPLOAD",
+          },
+        });
+      } catch (erroAuditoria) {
+        capturarErro(erroAuditoria, "audit", "registrar_falha_upload");
+
+        logError("upload_failure_audit_failed", erroAuditoria, {
+          component: "audit",
+          operation: "registrar_falha_upload",
+        });
+      }
+
+      return res.status(500).json({
+        ok: false,
+        erro: "Erro ao enviar imagens.",
+      });
+    }
+  },
+);
 
 /* Rota para atualizar a tabela de vendas do dia */
-router.get(
-    "/vendas/ultimos-5-dias",
-    exigirAdmin,
-    async (req, res) => {
-        try {
-            const hoje =
-                new Date();
+router.get("/vendas/ultimos-5-dias", exigirAdmin, async (req, res) => {
+  try {
+    const hoje = new Date();
 
-            const datas =
-                Array.from(
-                    { length: 5 },
-                    (_, index) => {
-                        const data =
-                            new Date(hoje);
+    const datas = Array.from({ length: 5 }, (_, index) => {
+      const data = new Date(hoje);
 
-                        data.setDate(
-                            hoje.getDate() -
-                                (4 - index)
-                        );
+      data.setDate(hoje.getDate() - (4 - index));
 
-                        return new Intl.DateTimeFormat(
-                            "en-CA",
-                            {
-                                timeZone:
-                                    "America/Sao_Paulo",
-                                year:
-                                    "numeric",
-                                month:
-                                    "2-digit",
-                                day:
-                                    "2-digit",
-                            }
-                        ).format(data);
-                    }
-                );
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(data);
+    });
 
-            const datasDate =
-                datas.map(
-                    dataStringParaDate
-                );
+    const datasDate = datas.map(dataStringParaDate);
 
-            const vendas =
-                await prisma.vendaDia.findMany({
-                    where: {
-                        data: {
-                            in: datasDate,
-                        },
-                    },
+    const vendas = await prisma.vendaDia.findMany({
+      where: {
+        data: {
+          in: datasDate,
+        },
+      },
 
-                    select: {
-                        data: true,
-                        quantidade: true,
-                    },
-                });
+      select: {
+        data: true,
+        quantidade: true,
+      },
+    });
 
-            const mapaVendas =
-                new Map(
-                    vendas.map(
-                        (venda) => [
-                            dateParaDataString(
-                                venda.data
-                            ),
-                            venda.quantidade,
-                        ]
-                    )
-                );
+    const mapaVendas = new Map(
+      vendas.map((venda) => [dateParaDataString(venda.data), venda.quantidade]),
+    );
 
-            const resultado =
-                datas.map((data) => {
-                    const [, mes, dia] =
-                        data.split("-");
+    const resultado = datas.map((data) => {
+      const [, mes, dia] = data.split("-");
 
-                    return {
-                        data,
+      return {
+        data,
 
-                        dia:
-                            `${Number(dia)}/${Number(mes)}`,
+        dia: `${Number(dia)}/${Number(mes)}`,
 
-                        vendidos:
-                            mapaVendas.get(
-                                data
-                            ) ?? 0,
-                    };
-                });
+        vendidos: mapaVendas.get(data) ?? 0,
+      };
+    });
 
-            return res.json({
-                ok: true,
-                vendas: resultado,
-            });
-        }
-        catch (error) {
-            capturarErro(
-                error,
-                "database",
-                "buscar_vendas_ultimos_5_dias"
-            );
+    return res.json({
+      ok: true,
+      vendas: resultado,
+    });
+  } catch (error) {
+    capturarErro(error, "database", "buscar_vendas_ultimos_5_dias");
 
-            logError(
-                "sales_history_fetch_failed",
-                error,
-                {
-                    component: "database",
-                    operation: "buscar_vendas_ultimos_5_dias",
-                    status: 500,
-                }
-            );
+    logError("sales_history_fetch_failed", error, {
+      component: "database",
+      operation: "buscar_vendas_ultimos_5_dias",
+      status: 500,
+    });
 
-            return res.status(500).json({
-                ok: false,
-                erro: "Erro ao buscar vendas dos últimos 5 dias.",
-            });
-        }
-    }
-);
+    return res.status(500).json({
+      ok: false,
+      erro: "Erro ao buscar vendas dos últimos 5 dias.",
+    });
+  }
+});
 
 /* Rota para pegar dados do veículo específico */
-router.get(
-    "/:id",
-    async (req, res) => {
-        const id =
-            Number(req.params.id);
+router.get("/:id", async (req, res) => {
+  const id = Number(req.params.id);
 
-        if (Number.isNaN(id)) {
-            return res.status(400).json({
-                ok: false,
-                erro: "ID inválido.",
-            });
-        }
+  if (Number.isNaN(id)) {
+    return res.status(400).json({
+      ok: false,
+      erro: "ID inválido.",
+    });
+  }
 
-        try {
-            const veiculo =
-                await prisma.veiculo.findUnique({
-                    where: {
-                        id,
-                    },
+  try {
+    const veiculo = await prisma.veiculo.findUnique({
+      where: {
+        id,
+      },
 
-                    include: {
-                        imagens: {
-                            select: {
-                                id: true,
-                                url: true,
-                            },
-                        },
-                    },
-                });
+      include: {
+        imagens: {
+          select: {
+            id: true,
+            url: true,
+          },
+        },
+      },
+    });
 
-            if (!veiculo) {
-                return res.status(404).json({
-                    ok: false,
-                    erro:
-                        "Veículo não encontrado.",
-                });
-            }
-
-            return res.json({
-                ok: true,
-                veiculo,
-            });
-        }
-        catch (error) {
-            capturarErro(
-                error,
-                "database",
-                "buscar_veiculo_por_id"
-            );
-
-            logError(
-                "vehicle_fetch_failed",
-                error,
-                {
-                    component: "database",
-                    operation: "buscar_veiculo_por_id",
-                    status: 500,
-                }
-            );
-
-            return res.status(500).json({
-                ok: false,
-                erro:
-                    "Erro ao buscar veículo.",
-            });
-        }
+    if (!veiculo) {
+      return res.status(404).json({
+        ok: false,
+        erro: "Veículo não encontrado.",
+      });
     }
-);
+
+    return res.json({
+      ok: true,
+      veiculo,
+    });
+  } catch (error) {
+    capturarErro(error, "database", "buscar_veiculo_por_id");
+
+    logError("vehicle_fetch_failed", error, {
+      component: "database",
+      operation: "buscar_veiculo_por_id",
+      status: 500,
+    });
+
+    return res.status(500).json({
+      ok: false,
+      erro: "Erro ao buscar veículo.",
+    });
+  }
+});
 
 /* Rota para editar informações de um veículo */
-router.patch(
-    "/:id",
-    exigirAdmin,
-    async (req, res) => {
-        const resultadoParams = idVeiculoSchema.safeParse(req.params);
+router.patch("/:id", exigirAdmin, async (req, res) => {
+  const resultadoParams = idVeiculoSchema.safeParse(req.params);
 
-        if (!resultadoParams.success) {
-            return res
-                .status(400)
-                .json({
-                    ok: false,
-                    erro: "ID inválido."
-                });
-        }
+  if (!resultadoParams.success) {
+    return res.status(400).json({
+      ok: false,
+      erro: "ID inválido.",
+    });
+  }
 
-        const resultadoBody =
-            atualizarVeiculoSchema.safeParse(req.body);
+  const resultadoBody = atualizarVeiculoSchema.safeParse(req.body);
 
-        if (!resultadoBody.success) {
-            return res
-                .status(400)
-                .json({
-                    ok: false,
-                    erro: "Dados do veículo inválidos.",
-                    campos:
-                        formatarErrosZod(resultadoBody.error),
-                });
-        }
+  if (!resultadoBody.success) {
+    return res.status(400).json({
+      ok: false,
+      erro: "Dados do veículo inválidos.",
+      campos: formatarErrosZod(resultadoBody.error),
+    });
+  }
 
-        const { id } = resultadoParams.data;
+  const { id } = resultadoParams.data;
 
-        const dados = resultadoBody.data;
+  const dados = resultadoBody.data;
 
-        const usuario = res.locals.usuario;
+  const usuario = res.locals.usuario;
 
-        try {
-            const resultadoAtualizacao =
-                await prisma.$transaction(
-                    async (tx) => {
-                        const existente =
-                            await tx.veiculo.findUnique({
-                                where: {
-                                    id,
-                                },
-                            });
-                        
-                        if (!existente) {
-                            return null;
-                        }
+  try {
+    const resultadoAtualizacao = await prisma.$transaction(async (tx) => {
+      const existente = await tx.veiculo.findUnique({
+        where: {
+          id,
+        },
+      });
 
-                        const dadosAtualizacao: Prisma.VeiculoUpdateInput = {};
+      if (!existente) {
+        return null;
+      }
 
-                        const camposAlterados: string[] = [];
+      const dadosAtualizacao: Prisma.VeiculoUpdateInput = {};
 
-                        // Nome
-                        if (dados.nome !== undefined && dados.nome !== existente.nome) {
-                            dadosAtualizacao.nome = dados.nome;
+      const camposAlterados: string[] = [];
 
-                            camposAlterados.push("nome");
-                        }
+      // Nome
+      if (dados.nome !== undefined && dados.nome !== existente.nome) {
+        dadosAtualizacao.nome = dados.nome;
 
-                        // Quilometragem
-                        if (dados.km !== undefined && dados.km !== existente.km) {
-                            dadosAtualizacao.km = dados.km;
+        camposAlterados.push("nome");
+      }
 
-                            camposAlterados.push("km");
-                        }
+      // Quilometragem
+      if (dados.km !== undefined && dados.km !== existente.km) {
+        dadosAtualizacao.km = dados.km;
 
-                        // Cor
-                        if (dados.cor !== undefined && dados.cor !== existente.cor) {
-                            dadosAtualizacao.cor = dados.cor;
+        camposAlterados.push("km");
+      }
 
-                            camposAlterados.push("cor");
-                        }
+      // Cor
+      if (dados.cor !== undefined && dados.cor !== existente.cor) {
+        dadosAtualizacao.cor = dados.cor;
 
-                        // Final da placa
-                        if (dados.final_placa !== undefined && dados.final_placa !== existente.final_placa) {
-                            dadosAtualizacao.final_placa = dados.final_placa;
+        camposAlterados.push("cor");
+      }
 
-                            camposAlterados.push("final_placa");
-                        }
+      // Final da placa
+      if (
+        dados.final_placa !== undefined &&
+        dados.final_placa !== existente.final_placa
+      ) {
+        dadosAtualizacao.final_placa = dados.final_placa;
 
-                        // Estado do IPVA
-                        if (dados.estado_ipva !== undefined && dados.estado_ipva !== existente.estado_ipva) {
-                            dadosAtualizacao.estado_ipva = dados.estado_ipva;
+        camposAlterados.push("final_placa");
+      }
 
-                            camposAlterados.push("estado_ipva");
-                        }
+      // Estado do IPVA
+      if (
+        dados.estado_ipva !== undefined &&
+        dados.estado_ipva !== existente.estado_ipva
+      ) {
+        dadosAtualizacao.estado_ipva = dados.estado_ipva;
 
-                        // Preço
-                        if (dados.preco !== undefined && dados.preco !== existente.preco) {
-                            dadosAtualizacao.preco = dados.preco;
+        camposAlterados.push("estado_ipva");
+      }
 
-                            camposAlterados.push("preco");
-                        }
+      // Preço
+      if (dados.preco !== undefined && dados.preco !== existente.preco) {
+        dadosAtualizacao.preco = dados.preco;
 
-                        // Ano
-                        if (dados.ano !== undefined && dados.ano !== existente.ano) {
-                            dadosAtualizacao.ano = dados.ano;
+        camposAlterados.push("preco");
+      }
 
-                            camposAlterados.push("ano");
-                        }
+      // Ano
+      if (dados.ano !== undefined && dados.ano !== existente.ano) {
+        dadosAtualizacao.ano = dados.ano;
 
-                        // Câmbio
-                        if (dados.cambio !== undefined && dados.cambio !== existente.cambio) {
-                            dadosAtualizacao.cambio = dados.cambio;
+        camposAlterados.push("ano");
+      }
 
-                            camposAlterados.push("cambio");
-                        }
+      // Câmbio
+      if (dados.cambio !== undefined && dados.cambio !== existente.cambio) {
+        dadosAtualizacao.cambio = dados.cambio;
 
-                        // Motor
-                        if (dados.motor !== undefined && dados.motor !== existente.motor) {
-                            dadosAtualizacao.motor = dados.motor;
+        camposAlterados.push("cambio");
+      }
 
-                            camposAlterados.push("motor");
-                        }
+      // Motor
+      if (dados.motor !== undefined && dados.motor !== existente.motor) {
+        dadosAtualizacao.motor = dados.motor;
 
-                        // Combustível
-                        if (dados.combustivel !== undefined && dados.combustivel !== existente.combustivel) {
-                            dadosAtualizacao.combustivel = dados.combustivel;
+        camposAlterados.push("motor");
+      }
 
-                            camposAlterados.push("combustivel");
-                        }
+      // Combustível
+      if (
+        dados.combustivel !== undefined &&
+        dados.combustivel !== existente.combustivel
+      ) {
+        dadosAtualizacao.combustivel = dados.combustivel;
 
-                        // Descrição
-                        if (dados.descricao !== undefined && dados.descricao !== existente.descricao) {
-                            dadosAtualizacao.descricao = dados.descricao;
+        camposAlterados.push("combustivel");
+      }
 
-                            camposAlterados.push("descricao");
-                        }
+      // Descrição
+      if (
+        dados.descricao !== undefined &&
+        dados.descricao !== existente.descricao
+      ) {
+        dadosAtualizacao.descricao = dados.descricao;
 
-                        // Outras informações
-                        if (dados.outras_infos !== undefined && JSON.stringify(dados.outras_infos) !== JSON.stringify(existente.outras_infos)) {
-                            dadosAtualizacao.outras_infos = dados.outras_infos;
+        camposAlterados.push("descricao");
+      }
 
-                            camposAlterados.push("outras_infos");
-                        }
+      // Outras informações
+      if (
+        dados.outras_infos !== undefined &&
+        JSON.stringify(dados.outras_infos) !==
+          JSON.stringify(existente.outras_infos)
+      ) {
+        dadosAtualizacao.outras_infos = dados.outras_infos;
 
-                        // Sem mudanças
-                        if (camposAlterados.length === 0) {
-                            return {
-                                veiculo: existente,
-                                alterado: false,
-                            };
-                        }
+        camposAlterados.push("outras_infos");
+      }
 
-                        // Atualiza os campos que mudaram
-                        const atualizado =
-                            await tx.veiculo.update({
-                                where: {
-                                    id,
-                                },
-                                data: dadosAtualizacao,
-                            });
+      // Sem mudanças
+      if (camposAlterados.length === 0) {
+        return {
+          veiculo: existente,
+          alterado: false,
+        };
+      }
 
-                        await registrarAuditoria(
-                            {
-                                acao: AcaoAuditoria.VEICULO_ATUALIZADO,
-                                resultado: ResultadoAuditoria.SUCESSO,
-                                adminId: usuario.id,
-                                veiculoId: id,
-                                detalhes: {camposAlterados},
-                            },
-                            tx
-                        );
+      // Atualiza os campos que mudaram
+      const atualizado = await tx.veiculo.update({
+        where: {
+          id,
+        },
+        data: dadosAtualizacao,
+      });
 
-                        return {
-                            veiculo: atualizado,
-                            alterado: true,
-                        };
-                    }
-                );
+      await registrarAuditoria(
+        {
+          acao: AcaoAuditoria.VEICULO_ATUALIZADO,
+          resultado: ResultadoAuditoria.SUCESSO,
+          adminId: usuario.id,
+          veiculoId: id,
+          detalhes: { camposAlterados },
+        },
+        tx,
+      );
 
-            if (!resultadoAtualizacao) {
-                return res
-                    .status(404)
-                    .json({
-                        ok: false,
-                        erro: "Veículo não encontrado.",
-                    });
-            }
+      return {
+        veiculo: atualizado,
+        alterado: true,
+      };
+    });
 
-            if (!resultadoAtualizacao.alterado) {
-                return res.json({
-                    ok: true,
-                    mensagem: "Nenhuma alteração foi realizada.",
-                    veiculo: resultadoAtualizacao.veiculo,
-                });
-            }
-
-            return res.json({
-                ok: true,
-                mensagem: "Veículo atualizado com sucesso",
-                veiculo: resultadoAtualizacao.veiculo,
-            });
-        }
-        catch (error) {
-            capturarErro(
-                error,
-                "database",
-                "atualizar_veiculo"
-            );
-
-            logError(
-                "vehicle_update_failed",
-                error,
-                {
-                    component: "database",
-                    operation: "editar_veiculo",
-                    status: 500,
-                }
-            );
-
-            try {
-                await registrarAuditoria({
-                    acao: AcaoAuditoria.VEICULO_ATUALIZADO,
-                    resultado: ResultadoAuditoria.FALHA,
-                    adminId: usuario.id,
-                    veiculoId: id,
-                });
-            }
-            catch (erroAuditoria) {
-                capturarErro(
-                    erroAuditoria,
-                    "audit",
-                    "registrar_falha_atualizacao"
-                );
-
-                logError(
-                    "vehicle_update_failure_audit_failed",
-                    error,
-                    {
-                        component: "audit",
-                        operation: "registrar_falha_atualizacao",
-                    }
-                );
-            }
-
-            return res
-                .status(500)
-                .json({
-                    ok: false,
-                    erro: "Erro inesperado ao editar veículo.",
-                });
-        }
+    if (!resultadoAtualizacao) {
+      return res.status(404).json({
+        ok: false,
+        erro: "Veículo não encontrado.",
+      });
     }
-);
+
+    if (!resultadoAtualizacao.alterado) {
+      return res.json({
+        ok: true,
+        mensagem: "Nenhuma alteração foi realizada.",
+        veiculo: resultadoAtualizacao.veiculo,
+      });
+    }
+
+    return res.json({
+      ok: true,
+      mensagem: "Veículo atualizado com sucesso",
+      veiculo: resultadoAtualizacao.veiculo,
+    });
+  } catch (error) {
+    capturarErro(error, "database", "atualizar_veiculo");
+
+    logError("vehicle_update_failed", error, {
+      component: "database",
+      operation: "editar_veiculo",
+      status: 500,
+    });
+
+    try {
+      await registrarAuditoria({
+        acao: AcaoAuditoria.VEICULO_ATUALIZADO,
+        resultado: ResultadoAuditoria.FALHA,
+        adminId: usuario.id,
+        veiculoId: id,
+      });
+    } catch (erroAuditoria) {
+      capturarErro(erroAuditoria, "audit", "registrar_falha_atualizacao");
+
+      logError("vehicle_update_failure_audit_failed", error, {
+        component: "audit",
+        operation: "registrar_falha_atualizacao",
+      });
+    }
+
+    return res.status(500).json({
+      ok: false,
+      erro: "Erro inesperado ao editar veículo.",
+    });
+  }
+});
 
 /* Rota para indicar veículos como vendidos */
-router.patch(
-    "/:id/vendido",
-    exigirAdmin,
-    async (req, res) => {
-        const id = Number(req.params.id);
+router.patch("/:id/vendido", exigirAdmin, async (req, res) => {
+  const id = Number(req.params.id);
 
-        if (
-            !Number.isInteger(id) ||
-            id <= 0
-        ) {
-            return res.status(400).json({
-                ok: false,
-                erro: "ID inválido.",
-            });
-        }
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({
+      ok: false,
+      erro: "ID inválido.",
+    });
+  }
 
-        const usuario = res.locals.usuario;
+  const usuario = res.locals.usuario;
 
-        try {
-            const veiculo =
-                await prisma.veiculo
-                    .findUnique({
-                        where: {
-                            id,
-                        },
+  try {
+    const veiculo = await prisma.veiculo.findUnique({
+      where: {
+        id,
+      },
 
-                        select: {
-                            id: true,
+      select: {
+        id: true,
 
-                            imagens: {
-                                select: {
-                                    url: true,
-                                },
-                            },
-                        },
-                    });
+        imagens: {
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
 
-            if (!veiculo) {
-                return res
-                    .status(404)
-                    .json({
-                        ok: false,
-                        erro:
-                            "Veículo não encontrado.",
-                    });
-            }
-
-            const caminhosImagens =
-                veiculo.imagens
-                    .map((imagem) =>
-                        extrairCaminhoStorageDaUrl(
-                            imagem.url
-                        )
-                    )
-                    .filter(
-                        (
-                            caminho
-                        ): caminho is string =>
-                            caminho !==
-                            null
-                    );
-
-            await prisma.$transaction(
-                async (tx) => {
-                    await tx.veiculo.delete({
-                        where: {
-                            id,
-                        },
-                    });
-
-                    await incrementarVendaDoDia(tx);
-
-                    await registrarAuditoria({
-                            acao: AcaoAuditoria.VEICULO_VENDIDO,
-                            resultado: ResultadoAuditoria.SUCESSO,
-                            adminId: usuario.id,
-                            veiculoId: id,
-                        },
-                        tx
-                    );
-                }
-            );
-
-            let avisoStorage:
-                string | undefined;
-
-            if (
-                caminhosImagens.length >
-                0
-            ) {
-                const {
-                    error:
-                        erroStorage,
-                } =
-                    await supabase.storage
-                        .from("Imagens")
-                        .remove(
-                            caminhosImagens
-                        );
-
-                if (erroStorage) {
-                    capturarErro(
-                        erroStorage,
-                        "storage",
-                        "remover_imagens_veiculo_vendido"
-                    );
-
-                    logError(
-                        "sold_vehicle_image_cleanup_failed",
-                        erroStorage,
-                        {
-                            component: "storage",
-                            operation: "remover_imagens_veiculo_vendido",
-                        }
-                    );
-
-                    avisoStorage = "O veículo foi removido, mas algumas imagens não puderam ser apagadas do armazenamento.";
-                }
-            }
-
-            return res.json({
-                ok: true,
-                mensagem:
-                    "Veículo vendido e removido com sucesso.",
-
-                ...(avisoStorage
-                    ? {
-                        aviso:
-                            avisoStorage,
-                    }
-                    : {}),
-            });
-        }
-        catch (error) {
-            capturarErro(
-                error,
-                "database",
-                "marcar_veiculo_vendido"
-            );
-
-            logError(
-                "vehicle_mark_sold_failed",
-                error,
-                {
-                    component: "database",
-                    operation: "marcar_veiculo_vendido",
-                    status: 500,
-                }
-            );
-
-            try {
-                await registrarAuditoria({
-                    acao: AcaoAuditoria.VEICULO_VENDIDO,
-                    resultado: ResultadoAuditoria.FALHA,
-                    adminId: usuario.id,
-                    veiculoId: id,
-                });
-            }
-            catch (erroAuditoria) {
-                capturarErro(
-                    erroAuditoria,
-                    "audit",
-                    "registrar_falha_venda"
-                );
-
-                logError(
-                    "vehicle_sale_failure_audit_failed",
-                    erroAuditoria,
-                    {
-                        component: "audit",
-                        operation: "registrar_falha_venda",
-                    }
-                );
-            }
-
-            return res
-                .status(500)
-                .json({
-                    ok: false,
-                    erro:
-                        "Erro ao remover o veículo vendido.",
-                });
-        }
+    if (!veiculo) {
+      return res.status(404).json({
+        ok: false,
+        erro: "Veículo não encontrado.",
+      });
     }
-);
+
+    const caminhosImagens = veiculo.imagens
+      .map((imagem) => extrairCaminhoStorageDaUrl(imagem.url))
+      .filter((caminho): caminho is string => caminho !== null);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.veiculo.delete({
+        where: {
+          id,
+        },
+      });
+
+      await incrementarVendaDoDia(tx);
+
+      await registrarAuditoria(
+        {
+          acao: AcaoAuditoria.VEICULO_VENDIDO,
+          resultado: ResultadoAuditoria.SUCESSO,
+          adminId: usuario.id,
+          veiculoId: id,
+        },
+        tx,
+      );
+    });
+
+    let avisoStorage: string | undefined;
+
+    if (caminhosImagens.length > 0) {
+      const { error: erroStorage } = await supabase.storage
+        .from("Imagens")
+        .remove(caminhosImagens);
+
+      if (erroStorage) {
+        capturarErro(erroStorage, "storage", "remover_imagens_veiculo_vendido");
+
+        logError("sold_vehicle_image_cleanup_failed", erroStorage, {
+          component: "storage",
+          operation: "remover_imagens_veiculo_vendido",
+        });
+
+        avisoStorage =
+          "O veículo foi removido, mas algumas imagens não puderam ser apagadas do armazenamento.";
+      }
+    }
+
+    return res.json({
+      ok: true,
+      mensagem: "Veículo vendido e removido com sucesso.",
+
+      ...(avisoStorage
+        ? {
+            aviso: avisoStorage,
+          }
+        : {}),
+    });
+  } catch (error) {
+    capturarErro(error, "database", "marcar_veiculo_vendido");
+
+    logError("vehicle_mark_sold_failed", error, {
+      component: "database",
+      operation: "marcar_veiculo_vendido",
+      status: 500,
+    });
+
+    try {
+      await registrarAuditoria({
+        acao: AcaoAuditoria.VEICULO_VENDIDO,
+        resultado: ResultadoAuditoria.FALHA,
+        adminId: usuario.id,
+        veiculoId: id,
+      });
+    } catch (erroAuditoria) {
+      capturarErro(erroAuditoria, "audit", "registrar_falha_venda");
+
+      logError("vehicle_sale_failure_audit_failed", erroAuditoria, {
+        component: "audit",
+        operation: "registrar_falha_venda",
+      });
+    }
+
+    return res.status(500).json({
+      ok: false,
+      erro: "Erro ao remover o veículo vendido.",
+    });
+  }
+});
 
 export default router;

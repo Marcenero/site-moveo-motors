@@ -8,10 +8,8 @@ type GraficoVendasProps = {
 export default function GraficoVendas({ dados }: GraficoVendasProps) {
   if (!dados || dados.length === 0) {
     return (
-      <p className="text-sm text-gray-500">
-        Nenhum dado de venda disponível.
-      </p>
-    )
+      <p className="text-sm text-gray-500">Nenhum dado de venda disponível.</p>
+    );
   }
 
   const largura = 600;
@@ -34,7 +32,9 @@ export default function GraficoVendas({ dados }: GraficoVendasProps) {
       (index * (largura - paddingX * 2)) / Math.max(dados.length - 1, 1);
 
     const y =
-      altura - paddingY - (item.vendidos / maiorValor) * (altura - paddingY * 2);
+      altura -
+      paddingY -
+      (item.vendidos / maiorValor) * (altura - paddingY * 2);
 
     return { ...item, x, y };
   });

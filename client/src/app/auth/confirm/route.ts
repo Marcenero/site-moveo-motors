@@ -11,58 +11,38 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createClient();
 
-    const { 
-      data,
-      error, 
-    } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.session) {
       const apiUrl = getApiUrl();
 
       if (apiUrl) {
         try {
-          const respostaAuditoria =
-            await fetch(`${apiUrl}/audit/login`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${data.session.access_token}`
-              }
-            }
-          );
+          const respostaAuditoria = await fetch(`${apiUrl}/audit/login`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${data.session.access_token}`,
+            },
+          });
 
           if (!respostaAuditoria.ok) {
-            logError(
-              "admin_login_audit_request_failed",
-              error,
-              {
-                  component: "auth",
-                  operation: "registrar_login_admin",
-                  status: respostaAuditoria.status,
-              }
-            );
-          }
-        }
-        catch {
-          logError(
-            "admin_login_audit_failed",
-            error,
-            {
+            logError("admin_login_audit_request_failed", error, {
               component: "auth",
               operation: "registrar_login_admin",
-            }
-          );
-        }
-      }
-      else {
-        logError(
-          "api_url_missing",
-          undefined,
-          {
-            component: "configuration",
-            operation: "confirmar_login",
+              status: respostaAuditoria.status,
+            });
           }
-        );
+        } catch {
+          logError("admin_login_audit_failed", error, {
+            component: "auth",
+            operation: "registrar_login_admin",
+          });
+        }
+      } else {
+        logError("api_url_missing", undefined, {
+          component: "configuration",
+          operation: "confirmar_login",
+        });
       }
 
       const redirectUrl = request.nextUrl.clone();
@@ -74,15 +54,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (error) {
-      logError(
-        "login_confirmation_failed",
-        error,
-        {
-          component: "auth",
-          operation: "confirmar_login",
-          code: error.code,
-        }
-      );
+      logError("login_confirmation_failed", error, {
+        component: "auth",
+        operation: "confirmar_login",
+        code: error.code,
+      });
     }
   }
 
@@ -92,12 +68,7 @@ export async function GET(request: NextRequest) {
 
   loginUrl.search = "";
 
-  loginUrl.searchParams.set(
-    "error",
-    "auth"
-  );
+  loginUrl.searchParams.set("error", "auth");
 
-  return NextResponse.redirect(
-    loginUrl
-  );
+  return NextResponse.redirect(loginUrl);
 }

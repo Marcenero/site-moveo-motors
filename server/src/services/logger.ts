@@ -1,66 +1,52 @@
 type logContext = {
-    component?: string;
-    operation?: string;
-    method?: string;
-    status?: number;
+  component?: string;
+  operation?: string;
+  method?: string;
+  status?: number;
 };
 
 function escreverLog(
-    level: "info" | "warn" | "error",
-    event: string,
-    context: logContext = {},
-    error?: unknown
+  level: "info" | "warn" | "error",
+  event: string,
+  context: logContext = {},
+  error?: unknown,
 ) {
-    const log = {
-        timestamp: new Date().toISOString(),
-        level,
-        event,
-        ...context,
+  const log = {
+    timestamp: new Date().toISOString(),
+    level,
+    event,
+    ...context,
 
-        ...(error
-            ? {
-                errorName:
-                    error instanceof Error
-                        ? error.name
-                        : "UnknownError",
-            } : {}),
-    };
+    ...(error
+      ? {
+          errorName: error instanceof Error ? error.name : "UnknownError",
+        }
+      : {}),
+  };
 
-    const mensagem = JSON.stringify(log);
+  const mensagem = JSON.stringify(log);
 
-    if (level === "error") {
-        console.error(mensagem);
-        return;
-    }
+  if (level === "error") {
+    console.error(mensagem);
+    return;
+  }
 
-    if (level === "warn") {
-        console.warn(mensagem);
-        return;
-    }
+  if (level === "warn") {
+    console.warn(mensagem);
+    return;
+  }
 
-    console.log(mensagem);
+  console.log(mensagem);
 }
 
 export function logError(
-    event: string,
-    error: unknown,
-    context: logContext = {}
+  event: string,
+  error: unknown,
+  context: logContext = {},
 ) {
-    escreverLog(
-        "error",
-        event,
-        context,
-        error
-    );
+  escreverLog("error", event, context, error);
 }
 
-export function logInfo(
-    event: string,
-    context: logContext = {}
-) {
-    escreverLog(
-        "info",
-        event,
-        context
-    );
+export function logInfo(event: string, context: logContext = {}) {
+  escreverLog("info", event, context);
 }
