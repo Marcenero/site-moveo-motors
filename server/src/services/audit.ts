@@ -1,38 +1,35 @@
-import {
-  AcaoAuditoria,
-  ResultadoAuditoria,
-} from "../generated/prisma/enums.js";
+import { AcaoAuditoria, ResultadoAuditoria } from "../generated/prisma/enums.js";
 
 import type { Prisma } from "../generated/prisma/client.js";
 
 import { prisma } from "./prisma.js";
 
 type RegistrarAuditoriaParams = {
-  acao: AcaoAuditoria;
-  resultado: ResultadoAuditoria;
+    acao: AcaoAuditoria;
+    resultado: ResultadoAuditoria;
 
-  adminId: string;
+    adminId: string;
 
-  veiculoId?: number;
-  detalhes?: Prisma.InputJsonValue;
+    veiculoId?: number;
+    detalhes?: Prisma.InputJsonValue;
 };
 
 export async function registrarAuditoria(
-  { acao, resultado, adminId, veiculoId, detalhes }: RegistrarAuditoriaParams,
+    { acao, resultado, adminId, veiculoId, detalhes }: RegistrarAuditoriaParams,
 
-  tx?: Prisma.TransactionClient,
+    tx?: Prisma.TransactionClient
 ) {
-  const cliente = tx ?? prisma;
+    const cliente = tx ?? prisma;
 
-  return cliente.logAuditoria.create({
-    data: {
-      acao,
-      resultado,
-      adminId,
+    return cliente.logAuditoria.create({
+        data: {
+            acao,
+            resultado,
+            adminId,
 
-      ...(veiculoId !== undefined ? { veiculoId } : {}),
+            ...(veiculoId !== undefined ? { veiculoId } : {}),
 
-      ...(detalhes !== undefined ? { detalhes } : {}),
-    },
-  });
+            ...(detalhes !== undefined ? { detalhes } : {}),
+        },
+    });
 }

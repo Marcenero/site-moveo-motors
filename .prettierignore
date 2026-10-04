@@ -1,0 +1,10 @@
+**/node_modules
+**/.next
+**/dist
+**/build
+**/coverage
+
+**/package-lock.json
+
+client/public
+server/src/generated

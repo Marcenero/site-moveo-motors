@@ -2,28 +2,28 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export async function createClient() {
-  const cookieStore = await cookies();
+    const cookieStore = await cookies();
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
+    return createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll();
+                },
 
-        setAll(cookiesToSet, _headers) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
-            });
-          } catch {
-            //Pode acontecer quando createClient() é usado em server components.
-            //proxy.ts é responsável por atualizar/renovar os cookies da sessão.
-          }
-        },
-      },
-    },
-  );
+                setAll(cookiesToSet, _headers) {
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) => {
+                            cookieStore.set(name, value, options);
+                        });
+                    } catch {
+                        //Pode acontecer quando createClient() é usado em server components.
+                        //proxy.ts é responsável por atualizar/renovar os cookies da sessão.
+                    }
+                },
+            },
+        }
+    );
 }
