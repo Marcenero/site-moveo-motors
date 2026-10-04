@@ -1,13 +1,42 @@
-"use client";
-
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Car,
+  ClipboardCheck,
+  Handshake,
+  Landmark,
+  MessageCircle,
+  CheckCircle2,
+  type LucideIcon,
+} from "lucide-react";
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
+const whatsappNumber = "5511999999999";
+
+function buildWhatsappLink(message: string) {
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
+type DestaqueServico = "white" | "gold" | "black";
+
+type Servico = {
+  slug: string;
+  categoria: string;
+  titulo: string;
+  descricao: string;
+  itens: string[];
+  botao: string;
+  href: string;
+  destaque: DestaqueServico;
+  icone: LucideIcon;
+};
+
 const servicos: Servico[] = [
   {
+    slug: "compra",
     categoria: "Compra",
     titulo: "Seminovos premium",
     descricao:
@@ -19,23 +48,27 @@ const servicos: Servico[] = [
     ],
     botao: "Ver estoque",
     href: "/estoque",
-    destaque: "white",
+    destaque: "black",
+    icone: Car,
   },
   {
+    slug: "venda",
     categoria: "Venda",
     titulo: "Consignação inteligente",
     descricao:
       "Conte com a Moveo para apresentar, divulgar e conduzir a negociação do seu veículo com praticidade e transparência.",
     itens: [
-      "Apresentação porfissional do veículo",
+      "Apresentação profissional do veículo",
       "Divulgação em canais selecionados",
       "Acompanhamento durante a negociação",
     ],
     botao: "Quero consignar",
-    href: "https://wa.me/5511999999999?text=Olá! Tenho interesse em consignar meu veículo.",
+    href: buildWhatsappLink("Olá! Tenho interesse em consignar meu veículo."),
     destaque: "gold",
+    icone: Handshake,
   },
   {
+    slug: "avaliacao",
     categoria: "Avaliação",
     titulo: "Compro o seu usado",
     descricao:
@@ -46,35 +79,98 @@ const servicos: Servico[] = [
       "Possibilidade de venda ou troca",
     ],
     botao: "Avaliar meu usado",
-    href: "https://wa.me/5511999999999?text=Olá! Gostaria de avaliar meu usado.",
-    destaque: "black",
+    href: buildWhatsappLink("Olá! Gostaria de avaliar meu usado."),
+    destaque: "white",
+    icone: ClipboardCheck,
   },
   {
+    slug: "credito",
     categoria: "Crédito",
     titulo: "Financiamento facilitado",
     descricao:
-      "Trabalhamos com diversos bancos. Pré-aprovação online em minutos.",
+      "Trabalhamos com diversos bancos parceiros para encontrar a condição que faz sentido para você.",
     itens: [
       "Consulta a instituições financeiras parceiras",
       "Simulação conforme o seu perfil",
       "Condições sujeitas à análise de crédito",
     ],
     botao: "Consultar opções",
-    href: "https://wa.me/5511999999999?text=Olá! Gostaria de discutir um financiamento.",
+    href: buildWhatsappLink("Olá! Gostaria de discutir um financiamento."),
     destaque: "white",
+    icone: Landmark,
   },
 ];
 
-type DestaqueServico = "white" | "gold" | "black";
+const etapas = [
+  {
+    numero: "01",
+    titulo: "Você chama a Moveo",
+    texto: "Entre em contato pelo WhatsApp ou escolha um veículo no estoque.",
+  },
+  {
+    numero: "02",
+    titulo: "Avaliamos o cenário",
+    texto: "Entendemos se você quer comprar, vender, trocar ou financiar.",
+  },
+  {
+    numero: "03",
+    titulo: "Cuidamos do processo",
+    texto:
+      "Orientamos você ao longo da negociação, documentação e entrega do veículo.",
+  },
+];
 
-type Servico = {
-  categoria: string;
-  titulo: string;
-  descricao: string;
-  itens: string[];
-  botao: string;
-  href: string;
-  destaque: DestaqueServico;
+// Larguras alternadas para criar o layout em "bento" no desktop
+const larguraDosCards = [
+  "lg:col-span-7",
+  "lg:col-span-5",
+  "lg:col-span-5",
+  "lg:col-span-7",
+];
+
+const temas: Record<
+  DestaqueServico,
+  {
+    card: string;
+    categoria: string;
+    descricao: string;
+    caixaIcone: string;
+    iconeCheck: string;
+    numeroFundo: string;
+    divisoria: string;
+    botao: string;
+  }
+> = {
+  white: {
+    card: "bg-white text-black border border-black/5",
+    categoria: "text-gray-500",
+    descricao: "text-gray-600",
+    caixaIcone: "bg-[#F5F5F2] text-black",
+    iconeCheck: "text-[#D9A300]",
+    numeroFundo: "text-black/[0.04]",
+    divisoria: "border-black/5",
+    botao: "bg-black text-white hover:bg-[#D9A300] hover:text-black",
+  },
+  gold: {
+    card: "bg-[#D9A300] text-black",
+    categoria: "text-black/60",
+    descricao: "text-black/75",
+    caixaIcone: "bg-black text-[#D9A300]",
+    iconeCheck: "text-black",
+    numeroFundo: "text-black/[0.07]",
+    divisoria: "border-black/10",
+    botao: "bg-black text-[#D9A300] hover:bg-white hover:text-black",
+  },
+  black: {
+    card: "bg-[#111111] text-white",
+    categoria: "text-[#D9A300]",
+    descricao: "text-gray-400",
+    caixaIcone: "bg-[#D9A300] text-black",
+    iconeCheck: "text-[#D9A300]",
+    numeroFundo: "text-white/[0.04]",
+    divisoria: "border-white/10",
+    botao: "bg-[#D9A300] text-black hover:bg-white",
+  },
 };
 
 export default function ServicosPage() {
@@ -82,79 +178,127 @@ export default function ServicosPage() {
     <main className="min-h-screen bg-[#F5F5F2] text-black pt-20">
       <Header />
 
-      <section className="max-w-7xl mx-auto px-6 py-12 md:py-16">
-        <div className="mb-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-gray-400 mb-4">
-            O que fazemos
-          </p>
+      {/* Hero */}
+      <section className="max-w-7xl mx-auto px-6 pt-12 pb-10 md:pt-20 md:pb-14">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
+          <div className="lg:col-span-7">
+            <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-gray-500 mb-5">
+              <span className="h-px w-8 bg-[#D9A300]" />
+              O que fazemos
+            </p>
 
-          <h1 className="max-w-4xl text-4xl md:text-6xl font-black tracking-tight leading-none">
-            Quatro serviços.
-            <span className="text-[#D9A300]"> Um padrão.</span>
-          </h1>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[0.95]">
+              Quatro serviços.
+              <br />
+              <span className="text-[#D9A300]">Um padrão.</span>
+            </h1>
+          </div>
 
-          <p className="mt-5 max-w-2xl text-sm md:text-base text-gray-600 leading-relaxed">
-            Da escolha do veículo à negociação, buscamos oferecer um atendimento
-            transparente, cuidadoso e próximo em cada etapa.
-          </p>
+          <div className="lg:col-span-5">
+            <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+              Da escolha do veículo à negociação, buscamos oferecer um
+              atendimento transparente, cuidadoso e próximo em cada etapa.
+            </p>
+
+            <nav className="mt-6 flex flex-wrap gap-2">
+              {servicos.map((servico) => (
+                <a
+                  key={servico.slug}
+                  href={`#${servico.slug}`}
+                  className="rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-bold text-gray-700 transition hover:border-black hover:bg-black hover:text-white"
+                >
+                  {servico.categoria}
+                </a>
+              ))}
+            </nav>
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {servicos.map((servico) => (
-            <ServicoCard key={servico.titulo} {...servico} />
+      {/* Serviços */}
+      <section className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {servicos.map((servico, index) => (
+            <ServicoCard
+              key={servico.slug}
+              servico={servico}
+              numero={String(index + 1).padStart(2, "0")}
+              largura={larguraDosCards[index]}
+            />
           ))}
         </div>
+      </section>
 
-        <section className="mt-10 rounded-3xl border border-gray-200 bg-white p-6 md:p-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-gray-400 mb-8">
-            Como funciona
-          </p>
+      {/* Como funciona */}
+      <section className="max-w-7xl mx-auto px-6 mt-16 md:mt-24">
+        <div className="rounded-[2rem] bg-[#111111] text-white p-8 md:p-14">
+          <div className="max-w-xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#D9A300] mb-4">
+              Como funciona
+            </p>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-none">
+              Simples do primeiro contato à entrega.
+            </h2>
+          </div>
 
-          <div className="relative space-y-8">
-            {[
-              {
-                numero: "01",
-                titulo: "Você chama a Moveo",
-                texto:
-                  "Entre em contato pelo WhatsApp ou escolha um veículo no estoque.",
-              },
-              {
-                numero: "02",
-                titulo: "Avaliamos o cenário",
-                texto:
-                  "Entendemos se você quer comprar, vender, trocar ou financiar.",
-              },
-              {
-                numero: "03",
-                titulo: "Cuidamos do processo",
-                texto:
-                  "Orientamos você ao longo da negociação, documentação e entrega do veículo.",
-              },
-            ].map((etapa, index, etapas) => (
-              <div key={etapa.numero} className="relative flex gap-5">
+          <div className="relative mt-12 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+            {/* Linha conectando as etapas (desktop) */}
+            <div className="hidden md:block absolute top-6 left-6 right-[calc(33.333%-1.5rem)] h-px bg-gradient-to-r from-[#D9A300] via-white/20 to-white/10" />
+
+            {etapas.map((etapa, index) => (
+              <div key={etapa.numero} className="relative flex md:block gap-5">
+                {/* Linha vertical (mobile) */}
                 {index < etapas.length - 1 && (
-                  <div className="absolute left-3 top-7 h-[calc(100%+2rem)] w-px bg-gray-200" />
+                  <div className="md:hidden absolute left-6 top-12 h-[calc(100%+2.5rem)] w-px bg-white/10" />
                 )}
 
-                <div className="relative z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200 ring-8 ring-white">
-                  <span className="h-2.5 w-2.5 rounded-full bg-gray-400" />
+                <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#D9A300] bg-[#111111] text-sm font-black text-[#D9A300]">
+                  {etapa.numero}
                 </div>
 
-                <div>
-                  <span className="text-[#D9A300] font-black text-3xl">
-                    {etapa.numero}
-                  </span>
-
-                  <h3 className="mt-2 font-black text-xl">{etapa.titulo}</h3>
-
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                <div className="md:mt-6">
+                  <h3 className="font-black text-xl">{etapa.titulo}</h3>
+                  <p className="mt-2 text-sm text-gray-400 leading-relaxed max-w-xs">
                     {etapa.texto}
                   </p>
                 </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
+
+      {/* CTA final */}
+      <section className="max-w-7xl mx-auto px-6 mt-5 mb-16 md:mb-24">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 rounded-[2rem] bg-[#D9A300] p-8 md:p-12">
+          <div>
+            <h2 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
+              Não sabe por onde começar?
+            </h2>
+            <p className="mt-2 text-sm md:text-base text-black/70">
+              Fale com a gente e indicamos o melhor caminho para o seu caso.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={buildWhatsappLink("Olá! Gostaria de falar com a Moveo.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-black px-6 py-4 text-xs font-black uppercase tracking-wider text-[#D9A300] transition hover:bg-white hover:text-black"
+            >
+              <MessageCircle size={16} />
+              Chamar no WhatsApp
+            </a>
+            <Link
+              href="/estoque"
+              className="inline-flex items-center gap-2 rounded-xl border border-black/20 px-6 py-4 text-xs font-black uppercase tracking-wider text-black transition hover:bg-black hover:text-white"
+            >
+              Ver estoque
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
       </section>
 
       <Footer />
@@ -163,82 +307,138 @@ export default function ServicosPage() {
 }
 
 function ServicoCard({
-  categoria,
-  titulo,
-  descricao,
-  itens,
-  botao,
-  href,
-  destaque,
-}: Servico) {
-  const isGold = destaque === "gold";
-  const isBlack = destaque === "black";
+  servico,
+  numero,
+  largura,
+}: {
+  servico: Servico;
+  numero: string;
+  largura: string;
+}) {
+  const tema = temas[servico.destaque];
+  const Icone = servico.icone;
 
   return (
     <article
+      id={servico.slug}
       className={[
-        "rounded-3xl p-6 md:p-8 min-h-[200px] flex flex-col justify-between",
-        isGold
-          ? "bg-[#D9A300] text-black"
-          : isBlack
-            ? "bg-[#111111] text-white"
-            : "bg-white text-black border border-gray-200",
+        "group relative overflow-hidden rounded-[2rem] p-7 md:p-10 flex flex-col scroll-mt-28",
+        "transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/10",
+        tema.card,
+        largura,
       ].join(" ")}
     >
-      <div>
-        <p
-          className={[
-            "text-[10px] font-black uppercase tracking-[0.35em] mb-3",
-            isBlack ? "text-[#D9A300]" : "text-gray-500",
-          ].join(" ")}
-        >
-          {categoria}
-        </p>
-
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight">
-          {titulo}
-        </h2>
-
-        <p
-          className={[
-            "mt-3 text-sm leading-relaxed max-w-xl",
-            isBlack ? "text-gray-300" : "text-gray-700",
-          ].join(" ")}
-        >
-          {descricao}
-        </p>
-
-        <ul className="mt-5 space-y-2">
-          {itens.map((item) => (
-            <li
-              key={item}
-              className="flex items-center gap-2 text-sm font-semibold"
-            >
-              <CheckCircle2
-                size={16}
-                className={isBlack ? "text-[#D9A300]" : "text-black"}
-              />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <Link
-        href={href}
-        target={href.startsWith("http") ? "_blank" : undefined}
+      {/* Número grande ao fundo */}
+      <span
+        aria-hidden
         className={[
-          "mt-7 inline-flex w-fit items-center gap-2 rounded-xl px-5 py-3 text-xs font-black uppercase tracking-wider transition",
-          isGold
-            ? "bg-black text-[#D9A300] hover:bg-white hover:text-black"
-            : isBlack
-              ? "bg-[#D9A300] text-black hover:bg-white"
-              : "bg-black text-white hover:bg-[#D9A300] hover:text-black",
+          "pointer-events-none absolute -right-2 -top-6 select-none text-[9rem] md:text-[11rem] font-black leading-none",
+          tema.numeroFundo,
         ].join(" ")}
       >
-        {botao}
-        <ArrowRight size={15} />
-      </Link>
+        {numero}
+      </span>
+
+      <div className="relative flex items-center gap-4">
+        <div
+          className={[
+            "flex h-12 w-12 items-center justify-center rounded-2xl transition duration-300 group-hover:rotate-6",
+            tema.caixaIcone,
+          ].join(" ")}
+        >
+          <Icone size={22} strokeWidth={2.2} />
+        </div>
+
+        <p
+          className={[
+            "text-[10px] font-black uppercase tracking-[0.35em]",
+            tema.categoria,
+          ].join(" ")}
+        >
+          {servico.categoria}
+        </p>
+      </div>
+
+      <h2 className="relative mt-8 text-3xl md:text-4xl font-black tracking-tight leading-none">
+        {servico.titulo}
+      </h2>
+
+      <p
+        className={[
+          "relative mt-4 text-sm md:text-base leading-relaxed max-w-lg",
+          tema.descricao,
+        ].join(" ")}
+      >
+        {servico.descricao}
+      </p>
+
+      <ul
+        className={[
+          "relative mt-7 space-y-3 border-t pt-7",
+          tema.divisoria,
+        ].join(" ")}
+      >
+        {servico.itens.map((item) => (
+          <li
+            key={item}
+            className="flex items-start gap-3 text-sm font-semibold"
+          >
+            <CheckCircle2
+              size={18}
+              className={["mt-0.5 shrink-0", tema.iconeCheck].join(" ")}
+            />
+            {item}
+          </li>
+        ))}
+      </ul>
+
+      <div className="relative mt-auto pt-9">
+        <ServicoLink
+          href={servico.href}
+          className={[
+            "inline-flex items-center gap-2 rounded-xl px-6 py-4 text-xs font-black uppercase tracking-wider transition",
+            tema.botao,
+          ].join(" ")}
+        >
+          {servico.botao}
+          {servico.href.startsWith("http") ? (
+            <ArrowUpRight size={16} />
+          ) : (
+            <ArrowRight size={16} />
+          )}
+        </ServicoLink>
+      </div>
     </article>
+  );
+}
+
+function ServicoLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className: string;
+  children: React.ReactNode;
+}) {
+  const isExternal = href.startsWith("http");
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }
