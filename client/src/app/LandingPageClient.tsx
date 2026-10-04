@@ -302,7 +302,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">Atendimento</h4>
-                  <p className="text-gray-400 font-medium text-lg leading-snug">(11) 4387-8767<br />(11) 91234-5678</p>
+                  <p className="text-gray-400 font-medium text-lg leading-snug">Em breve<br />(11) xxxxx-xxxx</p>
                 </div>
               </div>
 
@@ -312,7 +312,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">Localização</h4>
-                  <p className="text-gray-400 font-medium text-lg leading-snug">Av. Santo Antônio, 815 - Vila Osasco<br />Osasco, SP - 06083-200</p>
+                  <p className="text-gray-400 font-medium text-lg leading-snug">Em breve</p>
                 </div>
               </div>
             </div>

@@ -134,7 +134,7 @@ export default function SobrePage() {
 
                         <div className="flex flex-col justify-center">
                             <p className="text-sm text-gray-500">Telefone</p>
-                            <p className="text-base font-semibold text-black">11 3023-2141</p>
+                            <p className="text-base font-semibold text-black">Em breve</p>
                         </div>
                     </div>
 
@@ -143,8 +143,7 @@ export default function SobrePage() {
 
                         <div className="flex flex-col justify-center">
                             <p className="text-sm text-gray-500">Horário de funcionamento</p>
-                            <p className="text-base font-semibold text-black">Seg. a Sex.: 8h-17h</p>
-                            <p className="text-base font-semibold text-black">Sáb. e Dom.: 10h-16h</p>
+                            <p className="text-base font-semibold text-black">Em breve</p>
                         </div>
                     </div>
 
@@ -153,30 +152,35 @@ export default function SobrePage() {
 
                         <div className="flex flex-col justify-center">
                             <p className="text-sm text-gray-500">Email</p>
-                            <p className="text-base font-semibold text-black">exemplo@gmail.com</p>
+                            <p className="text-base font-semibold text-black">moveomotors@gmail.com</p>
                         </div>
                     </div>
 
                     <a
-                        href="https://wa.me/5511984481526"
+                        /* href="https://wa.me/5511984481526" */
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300] hover:bg-green-500 hover:border-green-500 transition-all duration-300 cursor-pointer"
+                        className="group flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300] cursor-pointer"
                     >
-                        <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 group-hover:text-white group-hover:bg-green-300"><FaWhatsapp size={30} /></div>
+                        <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 group-hover:bg-green-400 transition-colors duration-300">
+                            <FaWhatsapp 
+                                size={30} 
+                                className="text-black group-hover:text-white transition-colors duration-300"
+                            />
+                        </div>
 
                         <div className="flex flex-col justify-center">
                             <p className="text-sm text-gray-500">Whatsapp</p>
-                            <p className="text-base font-semibold text-black group-hover:text-white">Clique aqui para entrar em contato</p>
+                            <p className="text-base font-semibold text-black">Clique aqui para entrar em contato</p>
                         </div>
                     </a>
 
                     <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
                         <div className="flex flex-row justify-center gap-3">
-                            <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-blue-400 hover:text-white"><FaFacebookF size={30} /></div>
+                            <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-blue-400 hover:text-white transition-colors duration-300"><FaFacebookF size={30} /></div>
                             <a 
                                 href="https://www.instagram.com/moveomotors?igsh=ankya3htZWVqMjZ2"
-                                className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-pink-500 hover:text-white"
+                                className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-pink-500 hover:text-white transition-colors duration-300"
                             >
                                 <FaInstagram size={30} />
                             </a>
@@ -189,8 +193,8 @@ export default function SobrePage() {
                     </div>
 
                     <a
-                        href="https://share.google/hpbbcHh7iOsKFGfOx"
-                        onClick={(event) => {
+                        //href="https://share.google/hpbbcHh7iOsKFGfOx"
+                        /*onClick={(event) => {
                             if (window.location.pathname === "/sobre") {
                                 event.preventDefault();
 
@@ -207,18 +211,18 @@ export default function SobrePage() {
                                     "/sobre#localizacao"
                                 );
                             }
-                        }}
+                        }} */
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group scroll-mt-80  rounded-2xl transition-all duration-500 target:scale-[1.03] target:ring-4 target:ring-[#D9A300]/40 target:shadow-2xl"
+                        className="group scroll-mt-80 rounded-2xl transition-all duration-500 target:scale-[1.03] target:ring-4 target:ring-[#D9A300]/40 target:shadow-2xl"
                         id="localizacao"
                     >
-                        <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300] group-hover:bg-[#D9A300]">
+                        <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
                             <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 group-hover:bg-gray-300"><FiMapPin size={30} /></div>
 
                             <div className="flex flex-col justify-center">
                                 <p className="text-sm text-gray-500">Localização (Clique aqui para descobrir como chegar lá)</p>
-                                <p className="text-base font-semibold text-black">Avenida Santo Antônio, 815</p>
+                                <p className="text-base font-semibold text-black">Em breve</p>
                             </div>
                         </div>
                     </a>
