@@ -1,10 +1,7 @@
 import "./instrument.js";
 import * as Sentry from "@sentry/node";
 
-import {
-  logError,
-  logInfo,
-} from "./services/logger.js";
+import { logError, logInfo } from "./services/logger.js";
 
 import express, {
   type Request,
@@ -34,50 +31,37 @@ if (isProduction) {
 }
 
 //CORS
-const origensPermitidas = [
-  process.env.FRONTEND_URL,
-].filter(Boolean) as string[];
+const origensPermitidas = [process.env.FRONTEND_URL].filter(
+  Boolean,
+) as string[];
 
 app.use(
   cors({
     origin: origensPermitidas,
 
-    methods: [
-      "GET",
-      "POST",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
 
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-    ],
-  })
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
 );
 
 //Headers de segurança
 app.use(
   helmet({
-    strictTransportSecurity:
-      isProduction
-        ? {
+    strictTransportSecurity: isProduction
+      ? {
           maxAge: 31536000,
           includeSubDomains: true,
           preload: false,
         }
-        : false,
+      : false,
 
-      contentSecurityPolicy: {
-        directives: {
-          "upgrade-insecure-requests":
-            isProduction
-              ? []
-              : null,
-        },
+    contentSecurityPolicy: {
+      directives: {
+        "upgrade-insecure-requests": isProduction ? [] : null,
       },
-  })
+    },
+  }),
 );
 
 //Rate limit geral
@@ -90,17 +74,12 @@ const limiteGeral = rateLimit({
   legacyHeaders: false,
 
   handler: (_req, res) => {
-    Sentry.metrics.count(
-      "http.rate_limited",
-      1
-    );
+    Sentry.metrics.count("http.rate_limited", 1);
 
-    return res
-      .status(429)
-      .json({
-        ok: false,
-        erro: "Muitas requisições. Tente novamente em alguns minutos.",
-      });
+    return res.status(429).json({
+      ok: false,
+      erro: "Muitas requisições. Tente novamente em alguns minutos.",
+    });
   },
 });
 
@@ -110,31 +89,24 @@ app.use(limiteGeral);
 app.use(
   express.json({
     limit: "1mb",
-  })
+  }),
 );
 
 //Monitorar HTTP 500
-app.use(
-  (req, res, next) => {
-    res.on("finish", () => {
-        if (res.statusCode >= 500) {
-          Sentry.metrics.count(
-            "http.server_error",
-            1,
-            {
-              attributes: {
-                method: req.method,
-                status: res.statusCode,
-              },
-            }
-          );
-        }
-      }
-    );
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    if (res.statusCode >= 500) {
+      Sentry.metrics.count("http.server_error", 1, {
+        attributes: {
+          method: req.method,
+          status: res.statusCode,
+        },
+      });
+    }
+  });
 
-    next();
-  }
-);
+  next();
+});
 
 //Rotas
 app.use("/veiculos", servicosRoutes);
@@ -142,153 +114,112 @@ app.use("/audit", auditRoutes);
 app.use("/health", healthRoutes);
 
 //Rota inexistente
-app.use(
-  (
-    req: Request,
-    res: Response
-  ) => {
-    return res
-      .status(404)
-      .json({
-        ok: false,
-        erro: "Rota não encontrada.",
-      });
-  }
-);
+app.use((req: Request, res: Response) => {
+  return res.status(404).json({
+    ok: false,
+    erro: "Rota não encontrada.",
+  });
+});
 
 //Monitoramento de erros do Sentry
 Sentry.setupExpressErrorHandler(app);
 
 //Tratamento global de erros
-app.use(
-  (
-    erro: unknown,
-    req: Request,
-    res: Response,
-    _next: NextFunction
-  ) => {
-    //Erros do Multer
-    if (erro instanceof multer.MulterError) {
-      if (erro.code === "LIMIT_FILE_SIZE") {
-        return res
-          .status(403)
-          .json({
-            ok: false,
-            erro: "Uma das imagens excede o limite de 8MB.",
-          });
-      }
-
-      if (erro.code === "LIMIT_FILE_COUNT") {
-        return res
-          .status(400)
-          .json({
-            ok: false,
-            erro: "O limite é de 20 imagens por envio.",
-          });
-      }
-
-      if (erro.code === "LIMIT_PART_COUNT") {
-        return res
-          .status(400)
-          .json({
-            ok: false,
-            erro: "A requisição de upload possui partes demais.",
-          });
-      }
-
-      if (erro.code === "LIMIT_FIELD_COUNT") {
-        return res
-          .status(400)
-          .json({
-            ok: false,
-            erro: "A requisição possui campos demais.",
-          })
-      }
-
-      if (erro.code === "LIMIT_UNEXPECTED_FILE") {
-        return res
-          .status(400)
-          .json({
-            ok: false,
-            erro: "Arquivo inesperado no upload.",
-          });
-      }
-
-      return res
-        .status(400)
-        .json({
-          ok: false,
-          erro: "Upload inválido.",
-        });
-    }
-
-    //Tipo de arquivo rejeitado
-    if (
-      erro instanceof Error &&
-      erro.message === "Formato de imagem não permitido. Utilize JPG, PNG ou WebP."
-    ) {
-      return res
-        .status(400)
-        .json({
-          ok: false,
-          erro: "Formato de imagem não permitido. Utilize JPG, PNG ou WebP.",
-        });
-    }
-
-    //Erros do express
-    if (erro instanceof Error) {
-      const erroHttp =
-        erro as Error & {
-          type?: string;
-          status?: number;
-        };
-      
-        if (erroHttp.type === "entity.too.large") {
-          return res
-            .status(413)
-            .json({
-              ok: false,
-              erro: "A requisição excede o tamanho permitido.",
-            });
-        }
-
-        if (erroHttp.type === "entity.parse.failed") {
-          return res
-            .status(400)
-            .json({
-              ok: false,
-              erro: "JSON inválido.",
-            });
-        }
-    }
-
-    logError(
-      "unhandled_error",
-      erro,
-      {
-        component: "http",
-        operation: "global_error_handler",
-        status: 500,
-      }
-    );
-
-    return res
-      .status(500)
-      .json({
+app.use((erro: unknown, req: Request, res: Response, _next: NextFunction) => {
+  //Erros do Multer
+  if (erro instanceof multer.MulterError) {
+    if (erro.code === "LIMIT_FILE_SIZE") {
+      return res.status(403).json({
         ok: false,
-        erro: "Erro interno do servidor.",
+        erro: "Uma das imagens excede o limite de 8MB.",
       });
+    }
+
+    if (erro.code === "LIMIT_FILE_COUNT") {
+      return res.status(400).json({
+        ok: false,
+        erro: "O limite é de 20 imagens por envio.",
+      });
+    }
+
+    if (erro.code === "LIMIT_PART_COUNT") {
+      return res.status(400).json({
+        ok: false,
+        erro: "A requisição de upload possui partes demais.",
+      });
+    }
+
+    if (erro.code === "LIMIT_FIELD_COUNT") {
+      return res.status(400).json({
+        ok: false,
+        erro: "A requisição possui campos demais.",
+      });
+    }
+
+    if (erro.code === "LIMIT_UNEXPECTED_FILE") {
+      return res.status(400).json({
+        ok: false,
+        erro: "Arquivo inesperado no upload.",
+      });
+    }
+
+    return res.status(400).json({
+      ok: false,
+      erro: "Upload inválido.",
+    });
   }
-);
+
+  //Tipo de arquivo rejeitado
+  if (
+    erro instanceof Error &&
+    erro.message ===
+      "Formato de imagem não permitido. Utilize JPG, PNG ou WebP."
+  ) {
+    return res.status(400).json({
+      ok: false,
+      erro: "Formato de imagem não permitido. Utilize JPG, PNG ou WebP.",
+    });
+  }
+
+  //Erros do express
+  if (erro instanceof Error) {
+    const erroHttp = erro as Error & {
+      type?: string;
+      status?: number;
+    };
+
+    if (erroHttp.type === "entity.too.large") {
+      return res.status(413).json({
+        ok: false,
+        erro: "A requisição excede o tamanho permitido.",
+      });
+    }
+
+    if (erroHttp.type === "entity.parse.failed") {
+      return res.status(400).json({
+        ok: false,
+        erro: "JSON inválido.",
+      });
+    }
+  }
+
+  logError("unhandled_error", erro, {
+    component: "http",
+    operation: "global_error_handler",
+    status: 500,
+  });
+
+  return res.status(500).json({
+    ok: false,
+    erro: "Erro interno do servidor.",
+  });
+});
 
 //Servidor
 const PORT = Number(process.env.PORT) || 3001;
 
 app.listen(PORT, "0.0.0.0", () => {
-  logInfo(
-    "server_started",
-    {
-      component: "server",
-    }
-  );
+  logInfo("server_started", {
+    component: "server",
+  });
 });

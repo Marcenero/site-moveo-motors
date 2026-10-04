@@ -6,7 +6,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-      <>
+    <>
       <nav className="fixed inset-x-0 top-0 w-full z-50 bg-black/95 backdrop-blur-sm border-b border-[#D9A300]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           {/* Logo Section - Moveo Motors */}
@@ -22,14 +22,29 @@ export default function Header() {
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-10 text-white/80 font-semibold text-sm uppercase tracking-widest">
-            <Link href="/estoque" className="hover:text-[#D9A300] transition-colors">Estoque</Link>
-            <Link href="/servicos" className="hover:text-[#D9A300] transition-colors">Serviços</Link>
-            <Link href="/sobre" className="hover:text-[#D9A300] transition-colors">Sobre Nós</Link>
+            <Link
+              href="/estoque"
+              className="hover:text-[#D9A300] transition-colors"
+            >
+              Estoque
+            </Link>
+            <Link
+              href="/servicos"
+              className="hover:text-[#D9A300] transition-colors"
+            >
+              Serviços
+            </Link>
+            <Link
+              href="/sobre"
+              className="hover:text-[#D9A300] transition-colors"
+            >
+              Sobre Nós
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button 
-            className="md:hidden shrink-0 text-white hover:text-[#FFFBEA] transition-colors" 
+          <button
+            className="md:hidden shrink-0 text-white hover:text-[#FFFBEA] transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
           >
@@ -40,16 +55,34 @@ export default function Header() {
         {/* Mobile Navigation Dropdown */}
         {isMenuOpen && (
           <div className="md:hidden bg-black border-t border-[#D9A300]/10 p-6 flex flex-col gap-6 animate-in slide-in-from-top fade-in duration-300">
-            <Link href="/estoque" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Estoque</Link>
-            <Link href="/servicos" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Serviços</Link>
-            <Link href="/sobre" className="text-white text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Sobre Nós</Link>
+            <Link
+              href="/estoque"
+              className="text-white text-lg font-bold"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Estoque
+            </Link>
+            <Link
+              href="/servicos"
+              className="text-white text-lg font-bold"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Serviços
+            </Link>
+            <Link
+              href="/sobre"
+              className="text-white text-lg font-bold"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Sobre Nós
+            </Link>
           </div>
         )}
       </nav>
 
       {/* Fundo clicável */}
       {isMenuOpen && (
-        <button 
+        <button
           type="button"
           aria-label="Fechar menu"
           onClick={() => setIsMenuOpen(false)}

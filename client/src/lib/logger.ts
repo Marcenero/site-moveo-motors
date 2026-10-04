@@ -1,33 +1,30 @@
 type logContext = {
-    component?: string;
-    operation?: string;
-    status?: number;
-    code?: string;
+  component?: string;
+  operation?: string;
+  status?: number;
+  code?: string;
 };
 
 export function logError(
-    event: string,
-    error: unknown,
-    context: logContext = {}
+  event: string,
+  error: unknown,
+  context: logContext = {},
 ) {
-    console.error(
-        JSON.stringify({
-            timestamp: new Date().toISOString(),
+  console.error(
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
 
-            level: "error",
+      level: "error",
 
-            event,
+      event,
 
-            ...context,
+      ...context,
 
-            ...(error !== undefined
-                ? {
-                    errorName:
-                        error instanceof Error
-                            ? error.name
-                            : "UnknownError",
-                }
-                : {}),
-        })
-    );
+      ...(error !== undefined
+        ? {
+            errorName: error instanceof Error ? error.name : "UnknownError",
+          }
+        : {}),
+    }),
+  );
 }

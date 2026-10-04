@@ -13,7 +13,7 @@ import {
   MessageCircle,
   ShieldCheck,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { FaWhatsapp } from "react-icons/fa";
@@ -29,7 +29,6 @@ function VehicleCardSkeleton() {
 
       {/* Informações */}
       <div className="space-y-4 p-5">
-
         {/* Nome */}
         <div className="h-6 w-3/4 rounded-md bg-gray-200" />
 
@@ -68,13 +67,10 @@ function MapaSkeleton() {
   );
 }
 
-const MapaLoja = dynamic(
-  () => import("../components/home/MapaLoja"),
-  {
-    ssr: false,
-    loading: () => <MapaSkeleton />,
-  }
-)
+const MapaLoja = dynamic(() => import("../components/home/MapaLoja"), {
+  ssr: false,
+  loading: () => <MapaSkeleton />,
+});
 
 export default function LandingPage() {
   const router = useRouter();
@@ -87,7 +83,7 @@ export default function LandingPage() {
     async function buscarVeiculosRecentes() {
       try {
         const apiUrl = getPublicApiUrl();
-        
+
         const resposta = await fetch(`${apiUrl}/veiculos`);
 
         if (!resposta.ok) {
@@ -102,25 +98,17 @@ export default function LandingPage() {
             ? dados.veiculos
             : [];
 
-        const destaques = [...lista]
-          .sort((a, b) => b.id - a.id)
-          .slice(0, 3);
+        const destaques = [...lista].sort((a, b) => b.id - a.id).slice(0, 3);
 
         setVeiculosRecentes(destaques);
-      }
-      catch (error) {
-        logError(
-          "featured_vehicles_fetch_failed",
-          error,
-          {
-            component: "home",
-            operation: "buscar_veiculos_destaque",
-          }
-        );
+      } catch (error) {
+        logError("featured_vehicles_fetch_failed", error, {
+          component: "home",
+          operation: "buscar_veiculos_destaque",
+        });
 
         setVeiculosRecentes([]);
-      }
-      finally {
+      } finally {
         setCarregandoRecentes(false);
       }
     }
@@ -144,7 +132,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-black selection:bg-[#D9A300] selection:text-white">
-
       {/* --- HEADER / NAVIGATION --- */}
       <Header />
 
@@ -168,13 +155,20 @@ export default function LandingPage() {
               <span className="text-[#D9A300] italic">DIRIGIR.</span>
             </h1>
             <p className="text-gray-300 text-lg md:text-xl mb-10 font-medium max-w-lg leading-relaxed">
-              Na <span className="text-[#D9A300] font-bold">MOVEO MOTORS</span>, selecionamos apenas o melhor para si. Veículos premium com garantia e procedência garantida.
+              Na <span className="text-[#D9A300] font-bold">MOVEO MOTORS</span>,
+              selecionamos apenas o melhor para si. Veículos premium com
+              garantia e procedência garantida.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => router.push("/estoque")}
-                className="group bg-[#D9A300] hover:bg-white text-black px-10 py-5 rounded-xl text-lg font-black uppercase flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-xl">
-                Ver Estoque <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
+                className="group bg-[#D9A300] hover:bg-white text-black px-10 py-5 rounded-xl text-lg font-black uppercase flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-xl"
+              >
+                Ver Estoque{" "}
+                <ArrowRight
+                  size={22}
+                  className="group-hover:translate-x-2 transition-transform"
+                />
               </button>
               <button className="border-2 border-white/30 hover:border-[#D9A300] text-white px-10 py-5 rounded-xl text-lg font-black uppercase transition-all hover:bg-white/5">
                 Avaliar Meu Usado
@@ -189,14 +183,22 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:justify-between items-start md:items-end md:mb-16 gap-6">
             <div className="w-full md:w-auto">
-              <span className="text-[#D9A300] font-black tracking-widest uppercase text-sm">Catálogo</span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-black mt-2 leading-none">Destaques Moveo</h2>
+              <span className="text-[#D9A300] font-black tracking-widest uppercase text-sm">
+                Catálogo
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-black mt-2 leading-none">
+                Destaques Moveo
+              </h2>
             </div>
             <button
               className="group flex items-center justify-between sm:justify-start w-full md:w-auto max-w-full gap-2 text-black font-black text-sm sm:text-lg border-b-4 border-[#D9A300] pb-1 hover:text-[#C89200] transition-colors"
               onClick={() => router.push("/estoque")}
             >
-              VER TODOS OS MODELOS <ArrowRight size={20} className="shrink-0 md:group-hover:translate-x-2 transition-transform" />
+              VER TODOS OS MODELOS{" "}
+              <ArrowRight
+                size={20}
+                className="shrink-0 md:group-hover:translate-x-2 transition-transform"
+              />
             </button>
           </div>
 
@@ -209,7 +211,8 @@ export default function LandingPage() {
               </>
             ) : veiculosRecentes.length === 0 ? (
               <p className="text-sm text-gray-500">
-                Estamos atualizando nossos destaques. Veja todos os veículos disponíveis no estoque.
+                Estamos atualizando nossos destaques. Veja todos os veículos
+                disponíveis no estoque.
               </p>
             ) : (
               veiculosRecentes.map((veiculo) => (
@@ -235,22 +238,37 @@ export default function LandingPage() {
                   <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shrink-0">
                     <ShieldCheck size={24} />
                   </div>
-                  <p className="font-bold text-lg">Veículos selecionados com cuidado e transparência.</p>
+                  <p className="font-bold text-lg">
+                    Veículos selecionados com cuidado e transparência.
+                  </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shrink-0">
                     <Zap size={24} />
                   </div>
-                  <p className="font-bold text-lg">Avaliação justa e personalizada do seu usado.</p>
+                  <p className="font-bold text-lg">
+                    Avaliação justa e personalizada do seu usado.
+                  </p>
                 </div>
               </div>
             </div>
             <div className="bg-black p-8 rounded-3xl shadow-2xl">
-              <p className="text-[#D9A300] font-black text-2xl mb-4 italic uppercase">Dúvidas?</p>
-              <p className="text-gray-400 mb-8 font-medium">Nossos especialistas estão prontos para encontrar o carro ideal para si.</p>
+              <p className="text-[#D9A300] font-black text-2xl mb-4 italic uppercase">
+                Dúvidas?
+              </p>
+              <p className="text-gray-400 mb-8 font-medium">
+                Nossos especialistas estão prontos para encontrar o carro ideal
+                para si.
+              </p>
               <button
                 className="w-full bg-green-500 text-white px-4 py-5 rounded-2xl font-black text-sm sm:text-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 sm:gap-3 text-center"
-                onClick={() => window.open("https://wa.me/5511984481526", "_blank", "noopener,noreferrer")}
+                onClick={() =>
+                  window.open(
+                    "https://wa.me/5511984481526",
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
               >
                 <span className="shrink-0 text-xl sm:text-2xl">
                   <FaWhatsapp />
@@ -264,45 +282,63 @@ export default function LandingPage() {
 
       {/* --- NOSSOS SERVIÇOS --- */}
       <section id="servicos" className="py-24 bg-gray-50">
-          <div className="max-w-5xl mx-auto px-6">
-              <div className="text-center mb-16">
-                <h2 className="text-black text-5xl font-black uppercase italic tracking-tighter">Serviços MOVEO</h2>
-                <div className="h-2 w-24 bg-[#D9A300] mx-auto mt-4 rounded-full"></div>
-              </div>
-
-              <h2 className="text-2xl font-black uppercase tracking-tight mt-4 mb-6 leading-[0.95]">
-                  Muito além de encontrar seu próximo carro.
-              </h2>
-
-              <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-xl">
-                  Conheça as soluções que a Moveo Motors oferece para tornar sua experiência automotiva mais simples, segura e completa.
-              </p>
-
-              <Link
-                  href="/servicos"
-                  className="group inline-flex items-center gap-3 bg-[#D9A300] text-black px-8 py-4 rounded-xl font-black uppercase hover:bg-[#111111] hover:text-white transition-all"
-              >
-                  Conhecer nossos Serviços
-
-                  <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-              </Link>
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-black text-5xl font-black uppercase italic tracking-tighter">
+              Serviços MOVEO
+            </h2>
+            <div className="h-2 w-24 bg-[#D9A300] mx-auto mt-4 rounded-full"></div>
           </div>
+
+          <h2 className="text-2xl font-black uppercase tracking-tight mt-4 mb-6 leading-[0.95]">
+            Muito além de encontrar seu próximo carro.
+          </h2>
+
+          <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-xl">
+            Conheça as soluções que a Moveo Motors oferece para tornar sua
+            experiência automotiva mais simples, segura e completa.
+          </p>
+
+          <Link
+            href="/servicos"
+            className="group inline-flex items-center gap-3 bg-[#D9A300] text-black px-8 py-4 rounded-xl font-black uppercase hover:bg-[#111111] hover:text-white transition-all"
+          >
+            Conhecer nossos Serviços
+            <ArrowRight
+              size={20}
+              className="group-hover:translate-x-2 transition-transform"
+            />
+          </Link>
+        </div>
       </section>
 
       {/* --- LOCALIZAÇÃO --- */}
-      <section id="contato" className="bg-black py-16 md:py-24 px-4 md:px-6 text-white overflow-hidden">
+      <section
+        id="contato"
+        className="bg-black py-16 md:py-24 px-4 md:px-6 text-white overflow-hidden"
+      >
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
           <div className="relative z-10">
-            <span className="text-[#D9A300] font-black tracking-widest uppercase">Onde Estamos</span>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mt-4 mb-8 leading-tight md:leading-[0.9] break-words">VENHA VISITAR O NOSSO SHOWROOM</h2>
+            <span className="text-[#D9A300] font-black tracking-widest uppercase">
+              Onde Estamos
+            </span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mt-4 mb-8 leading-tight md:leading-[0.9] break-words">
+              VENHA VISITAR O NOSSO SHOWROOM
+            </h2>
             <div className="space-y-10">
               <div className="flex gap-6 items-start">
                 <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#D9A300] shrink-0">
                   <Phone size={28} />
                 </div>
                 <div>
-                  <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">Atendimento</h4>
-                  <p className="text-gray-400 font-medium text-lg leading-snug">Em breve<br />(11) xxxxx-xxxx</p>
+                  <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">
+                    Atendimento
+                  </h4>
+                  <p className="text-gray-400 font-medium text-lg leading-snug">
+                    Em breve
+                    <br />
+                    (11) xxxxx-xxxx
+                  </p>
                 </div>
               </div>
 
@@ -311,8 +347,12 @@ export default function LandingPage() {
                   <MapPin size={28} />
                 </div>
                 <div>
-                  <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">Localização</h4>
-                  <p className="text-gray-400 font-medium text-lg leading-snug">Em breve</p>
+                  <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">
+                    Localização
+                  </h4>
+                  <p className="text-gray-400 font-medium text-lg leading-snug">
+                    Em breve
+                  </p>
                 </div>
               </div>
             </div>
@@ -321,7 +361,6 @@ export default function LandingPage() {
           <div className="relative z-0">
             <MapaLoja />
           </div>
-
         </div>
       </section>
 
@@ -341,15 +380,14 @@ export default function LandingPage() {
             }
           `}
       >
-        <MessageCircle 
-          fill="white" 
+        <MessageCircle
+          fill="white"
           className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9"
         />
         <span className="hidden md:block absolute right-full mr-6 top-1/2 -translate-y-1/2 bg-black text-white px-5 py-3 rounded-2xl text-sm font-black whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl border border-white/10 uppercase tracking-widest">
           Falar com Especialista
         </span>
       </a>
-
     </div>
   );
 }
