@@ -183,8 +183,7 @@ export default function ServicosPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
           <div className="lg:col-span-7">
             <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-gray-500 mb-5">
-              <span className="h-px w-8 bg-[#D9A300]" />
-              O que fazemos
+              <span className="h-px w-8 bg-[#D9A300]" />O que fazemos
             </p>
 
             <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[0.95]">
