@@ -8,14 +8,11 @@ type BreadcrumbItem = {
 
 type BreadcrumbsProps = {
     items: BreadcrumbItem[];
-}
+};
 
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
     return (
-        <nav
-            aria-label="Breadcrumb"
-            className="max-w-7xl mx-auto px-6"
-        >
+        <nav aria-label="Breadcrumb" className="max-w-7xl mx-auto px-6">
             <ol className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500">
                 {items.map((item, index) => {
                     const ultimo = index === items.length - 1;
@@ -25,7 +22,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
                             key={`${item.label}-${index}`}
                             className="flex items-center gap-1.5 min-w-0"
                         >
-                            {index > 0&& (
+                            {index > 0 && (
                                 <ChevronRight
                                     size={14}
                                     strokeWidth={1.8}
@@ -39,11 +36,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
                                     aria-current={ultimo ? "page" : undefined}
                                     className={`
                                         truncate
-                                        ${
-                                            ultimo
-                                                ? "font-semibold text-black"
-                                                : ""
-                                        }    
+                                        ${ultimo ? "font-semibold text-black" : ""}    
                                     `}
                                 >
                                     {item.label}
@@ -66,5 +59,5 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
                 })}
             </ol>
         </nav>
-    )
+    );
 }

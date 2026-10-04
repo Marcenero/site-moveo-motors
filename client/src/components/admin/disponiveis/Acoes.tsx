@@ -2,20 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { 
-    Edit,
-    CheckCircle,
-    Eye,
-    X,
-    AlertTriangle,
-} from "lucide-react";
+import { Edit, CheckCircle, Eye, X, AlertTriangle } from "lucide-react";
 
 import type { Veiculo } from "../../../types/veiculo";
 
 type AcoesProps = {
     veiculo: Veiculo;
     marcarComoVendido: (id: number) => Promise<boolean>;
-}
+};
 
 function gerarSlug(texto: string) {
     return texto
@@ -26,11 +20,11 @@ function gerarSlug(texto: string) {
         .replace(/(^-|-$)+/g, "");
 }
 
-export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) { 
+export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
     const [modalAberto, setModalAberto] = useState(false);
     const [confirmado, setConfirmado] = useState(false);
     const [processando, setProcessando] = useState(false);
-    
+
     const imagemPrincipal = veiculo.imagens?.[0]?.url;
 
     function abrirModalVenda() {
@@ -60,8 +54,7 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
             if (sucesso) {
                 setModalAberto(false);
             }
-        }
-        finally {
+        } finally {
             setProcessando(false);
         }
     }
@@ -73,9 +66,7 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                 key={veiculo.id}
                 className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
             >
-                <h2 className="text-xl font-bold text-gray-900">
-                    {veiculo.nome}
-                </h2>
+                <h2 className="text-xl font-bold text-gray-900">{veiculo.nome}</h2>
 
                 <p className="flex flex-wrap gap-1.5 mb-5 text-sm text-gray-500">
                     <span>{veiculo.ano}</span>
@@ -127,9 +118,7 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby={`titulo-venda-${veiculo.id}`}
-                        onClick={(event) =>
-                            event.stopPropagation()
-                        }
+                        onClick={(event) => event.stopPropagation()}
                         className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
                     >
                         {/* Cabeçalho */}
@@ -167,7 +156,7 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                         {/* Informações do veículo */}
                         <div className="mt-6 overflow-hidden rounded-xl border border-gray-200">
                             {imagemPrincipal ? (
-                                <img 
+                                <img
                                     src={imagemPrincipal}
                                     alt={`Foto do veículo ${veiculo.nome}`}
                                     className="h-52 w-full object-cover"
@@ -203,29 +192,19 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
 
                                 <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="block text-gray-500">
-                                            Ano
-                                        </span>
+                                        <span className="block text-gray-500">Ano</span>
 
-                                        <strong className="text-gray-900">
-                                            {veiculo.ano}
-                                        </strong>
+                                        <strong className="text-gray-900">{veiculo.ano}</strong>
                                     </div>
 
                                     <div>
-                                        <span className="block text-gray-500">
-                                            Cor
-                                        </span>
+                                        <span className="block text-gray-500">Cor</span>
 
-                                        <strong className="text-gray-900">
-                                            {veiculo.cor}
-                                        </strong>
+                                        <strong className="text-gray-900">{veiculo.cor}</strong>
                                     </div>
 
                                     <div>
-                                        <span className="block text-gray-500">
-                                            Quilometragem
-                                        </span>
+                                        <span className="block text-gray-500">Quilometragem</span>
 
                                         <strong className="text-gray-900">
                                             {veiculo.km.toLocaleString("pt-BR")} km
@@ -233,13 +212,9 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                                     </div>
 
                                     <div>
-                                        <span className="block text-gray-500">
-                                            Câmbio
-                                        </span>
+                                        <span className="block text-gray-500">Câmbio</span>
 
-                                        <strong className="text-gray-900">
-                                            {veiculo.cambio}
-                                        </strong>
+                                        <strong className="text-gray-900">{veiculo.cambio}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -248,28 +223,23 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                         {/* Aviso */}
                         <div className="mt-4 rounded-xl bg-red-50 p-4">
                             <p className="text-sm text-red-800">
-                                Ao confirmar, este veículo será removido
-                                do estoque. Verifique principalmente a
-                                foto, o código do veículo e o final da
-                                placa.
+                                Ao confirmar, este veículo será removido do estoque. Verifique
+                                principalmente a foto, o código do veículo e o final da placa.
                             </p>
                         </div>
 
                         {/* Checkbox */}
                         <label className="mt-5 flex cursor-pointer items-start gap-3">
-                            <input 
+                            <input
                                 type="checkbox"
                                 checked={confirmado}
                                 disabled={processando}
-                                onChange={(event) =>
-                                    setConfirmado(event.target.checked)
-                                }
+                                onChange={(event) => setConfirmado(event.target.checked)}
                                 className="mt-1 h-4 w-4"
                             />
 
                             <span className="text-sm text-gray-700">
-                                Conferi a foto e os dados e confirmo
-                                que este é o veículo vendido.
+                                Conferi a foto e os dados e confirmo que este é o veículo vendido.
                             </span>
                         </label>
 
@@ -290,10 +260,7 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                                 disabled={!confirmado || processando}
                                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {processando
-                                    ? "Confirmando..."
-                                    : "Confirmar venda"
-                                }
+                                {processando ? "Confirmando..." : "Confirmar venda"}
                             </button>
                         </div>
                     </div>

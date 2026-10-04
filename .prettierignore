@@ -1,0 +1,13 @@
+**/node_modules
+**/.next
+**/dist
+**/build
+**/coverage
+
+client/.next
+server/dist
+
+**/package-lock.json
+
+client/public
+server/src/generated

@@ -21,7 +21,7 @@ function gerarSlug(texto: string) {
 
 export default function VehicleCard({ veiculo }: VehicleCardProps) {
     const urlDetalhes = `/estoque/${gerarSlug(`${veiculo.nome}-${veiculo.ano}`)}-${veiculo.id}`;
-    
+
     const imagens =
         veiculo.imagens && veiculo.imagens.length > 0
             ? veiculo.imagens.map((imagem) => imagem.url)
@@ -50,7 +50,6 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
                 setImagemAtual(0);
             }}
         >
-        
             <div className="relative w-full aspect-[16/10] overflow-hidden bg-gray-100">
                 <Image
                     src={imagens[imagemAtual]}
@@ -70,9 +69,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
                             <span
                                 key={index}
                                 className={`h-2 rounded-full transition-all duration-500 ${
-                                    index === imagemAtual
-                                        ? "w-6 bg-[#D9A300]"
-                                        : "w-2 bg-white/80"
+                                    index === imagemAtual ? "w-6 bg-[#D9A300]" : "w-2 bg-white/80"
                                 }`}
                             />
                         ))}
@@ -81,9 +78,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
             </div>
 
             <div className="p-5 space-y-3">
-                <h3 className="text-xl font-semibold text-black">
-                    {veiculo.nome}
-                </h3>
+                <h3 className="text-xl font-semibold text-black">{veiculo.nome}</h3>
 
                 <p className="text-2xl font-bold text-[#D9A300]">
                     R$ {veiculo.preco.toLocaleString("pt-BR")}

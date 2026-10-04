@@ -21,22 +21,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let veiculos: Veiculo[] = [];
 
     try {
-        const resposta = await fetch(
-           `${apiUrl}/veiculos`
-        );
+        const resposta = await fetch(`${apiUrl}/veiculos`);
 
         if (!resposta.ok) {
-            throw new Error(
-                `Falha ao buscar veículos para o sitemap: HTTP ${resposta.status}`
-            )
+            throw new Error(`Falha ao buscar veículos para o sitemap: HTTP ${resposta.status}`);
         }
 
         const dados: unknown = await resposta.json();
 
         if (Array.isArray(dados)) {
             veiculos = dados;
-        }
-        else if (
+        } else if (
             dados &&
             typeof dados === "object" &&
             "veiculos" in dados &&
@@ -44,16 +39,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ) {
             veiculos = dados.veiculos;
         }
-    }
-    catch (error) {
-        logError(
-            "sitemap_generation_failed",
-            error,
-            {
-                component: "seo",
-                operation: "gerar_sitemap",
-            }
-        );
+    } catch (error) {
+        logError("sitemap_generation_failed", error, {
+            component: "seo",
+            operation: "gerar_sitemap",
+        });
     }
 
     const paginasFixas: MetadataRoute.Sitemap = [
@@ -89,19 +79,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ];
 
-    const paginasVeiculos: MetadataRoute.Sitemap = veiculos.map(
-        (veiculo) => ({
-            url: `${siteUrl}/estoque/${gerarSlug(veiculo.nome)}-${veiculo.id}`,
+    const paginasVeiculos: MetadataRoute.Sitemap = veiculos.map((veiculo) => ({
+        url: `${siteUrl}/estoque/${gerarSlug(veiculo.nome)}-${veiculo.id}`,
 
-            images:
-                veiculo.imagens
-                    ?.map((imagem) => imagem.url)
-                    .filter(Boolean) ?? [],
+        images: veiculo.imagens?.map((imagem) => imagem.url).filter(Boolean) ?? [],
 
-            changeFrequency: "daily",
-            priority: 0.8,
-        })
-    );
+        changeFrequency: "daily",
+        priority: 0.8,
+    }));
 
     return [...paginasFixas, ...paginasVeiculos];
 }

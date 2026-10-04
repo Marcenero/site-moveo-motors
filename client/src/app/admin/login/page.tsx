@@ -25,36 +25,28 @@ export default function AdminLoginPage() {
         try {
             const supabase = createClient();
 
-            const siteUrl = 
-                process.env.NEXT_PUBLIC_SITE_URL ||
-                window.location.origin;
+            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
 
-            const { error } = 
-                await supabase.auth.signInWithOtp({
-                    email: emailNormalizado,
+            const { error } = await supabase.auth.signInWithOtp({
+                email: emailNormalizado,
 
-                    options: {
-                        emailRedirectTo:
-                            `${siteUrl}/auth/confirm?next=/admin`,
+                options: {
+                    emailRedirectTo: `${siteUrl}/auth/confirm?next=/admin`,
 
-                        shouldCreateUser: false,
-                    },
-                });
-            
+                    shouldCreateUser: false,
+                },
+            });
+
             if (!error) {
                 setMensagem(MENSAGEM_GENERICA);
                 return;
             }
 
-            logError(
-                "magic_link_request_failed",
-                error,
-                {
-                    component: "auth",
-                    operation: "solicitar_magic_link",
-                    code: error.code
-                }
-            );
+            logError("magic_link_request_failed", error, {
+                component: "auth",
+                operation: "solicitar_magic_link",
+                code: error.code,
+            });
 
             switch (error.code) {
                 case "user_not_found":
@@ -64,7 +56,9 @@ export default function AdminLoginPage() {
 
                 case "over_email_send_rate_limit":
                 case "over_request_rate_limit":
-                    setErro("Muitas tentativas foram realizadas. Aguarde alguns minutos e tente novamente.");
+                    setErro(
+                        "Muitas tentativas foram realizadas. Aguarde alguns minutos e tente novamente."
+                    );
                     return;
 
                 case "email_address_invalid":
@@ -73,23 +67,21 @@ export default function AdminLoginPage() {
                     return;
 
                 default:
-                    setErro("Não foi possível solicitar o link de acesso. Tente novamente mais tarde.");
+                    setErro(
+                        "Não foi possível solicitar o link de acesso. Tente novamente mais tarde."
+                    );
                     return;
             }
-        }
-        catch (error) {
-            logError(
-                "admin_login_unexpected_error",
-                error,
-                {
-                    component: "auth",
-                    operation: "solicitar_magic_link",
-                }
-            );
+        } catch (error) {
+            logError("admin_login_unexpected_error", error, {
+                component: "auth",
+                operation: "solicitar_magic_link",
+            });
 
-            setErro("Não foi possível solicitar o link de acesso. Tente novamente em alguns instantes.");
-        }
-        finally {
+            setErro(
+                "Não foi possível solicitar o link de acesso. Tente novamente em alguns instantes."
+            );
+        } finally {
             setCarregando(false);
         }
     }
@@ -100,29 +92,22 @@ export default function AdminLoginPage() {
                 onSubmit={handleLogin}
                 className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm"
             >
-                <h1 className="mb-2 text-2xl font-bold text-gray-900">
-                    Admin Moveo Motors
-                </h1>
+                <h1 className="mb-2 text-2xl font-bold text-gray-900">Admin Moveo Motors</h1>
 
                 <p className="mb-6 text-sm text-gray-500">
                     Digite o seu email para receber o link de acesso.
                 </p>
 
-                <label
-                    htmlFor="email"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
                     Email
                 </label>
 
-                <input 
+                <input
                     id="email"
                     name="email"
                     type="email"
                     value={email}
-                    onChange={(e) =>
-                        setEmail(e.target.value)
-                    }
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
                     disabled={carregando}
@@ -153,9 +138,7 @@ export default function AdminLoginPage() {
                     disabled={carregando}
                     className="w-full rounded-xl bg-yellow-500 px-4 py-3 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                    {carregando
-                        ? "Enviando..."
-                        : "Envair link de acesso"}
+                    {carregando ? "Enviando..." : "Envair link de acesso"}
                 </button>
             </form>
         </main>

@@ -14,7 +14,7 @@ import { getPublicApiUrl } from "../../../../lib/env.client";
 export default function EditarVeiculoPage() {
     const router = useRouter();
     const params = useParams();
-    
+
     const id = params.id;
 
     const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
@@ -36,18 +36,12 @@ export default function EditarVeiculoPage() {
                 const dados = await resposta.json();
 
                 setVeiculo(dados.veiculo);
-            }
-            catch (error) {
-                logError(
-                    "vehicle_fetch_failed",
-                    error,
-                    {
-                        component: "admin",
-                        operation: "buscar_veiculo_edicao",
-                    }
-                );
-            }
-            finally {
+            } catch (error) {
+                logError("vehicle_fetch_failed", error, {
+                    component: "admin",
+                    operation: "buscar_veiculo_edicao",
+                });
+            } finally {
                 setCarregando(false);
             }
         }
@@ -60,9 +54,7 @@ export default function EditarVeiculoPage() {
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
-        const confirmou = window.confirm(
-            "Tem certeza que deseja salvar as alterações?"
-        );
+        const confirmou = window.confirm("Tem certeza que deseja salvar as alterações?");
 
         if (!confirmou) {
             return;
@@ -138,25 +130,17 @@ export default function EditarVeiculoPage() {
             }
 
             router.push("/admin/disponiveis");
-        }
-        catch (error) {
-            logError(
-                "vehicle_update_failed",
-                error,
-                {
-                    component: "admin",
-                    operation: "salvar_alteracoes_veiculo",
-                }
-            );
+        } catch (error) {
+            logError("vehicle_update_failed", error, {
+                component: "admin",
+                operation: "salvar_alteracoes_veiculo",
+            });
 
             const mensagem =
-                error instanceof Error
-                    ? error.message
-                    : "Erro desconhecido ao salvar alterações.";
+                error instanceof Error ? error.message : "Erro desconhecido ao salvar alterações.";
 
             setErro(mensagem);
-        }
-        finally {
+        } finally {
             setSalvando(false);
         }
     }
@@ -165,9 +149,7 @@ export default function EditarVeiculoPage() {
         return (
             <main className="min-h-screen bg-[#f7f7f7] p-6">
                 <section className="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-sm">
-                    <p className="text-sm text-gray-500">
-                        Carregando dados do veículo...
-                    </p>
+                    <p className="text-sm text-gray-500">Carregando dados do veículo...</p>
                 </section>
             </main>
         );
@@ -177,9 +159,7 @@ export default function EditarVeiculoPage() {
         return (
             <main className="min-h-screen bg-[#f7f7f7] p-6">
                 <section className="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-sm">
-                    <p className="text-sm text-red-600">
-                        Veículo não encontrado.
-                    </p>
+                    <p className="text-sm text-red-600">Veículo não encontrado.</p>
                 </section>
             </main>
         );
@@ -196,21 +176,16 @@ export default function EditarVeiculoPage() {
                     Voltar para disponíveis
                 </Link>
 
-                <h1 className="mb-6 text-2xl font-bold text-gray-900">
-                    Editar veículo
-                </h1>
+                <h1 className="mb-6 text-2xl font-bold text-gray-900">Editar veículo</h1>
 
                 <form onSubmit={handleSubmit} className="grid gap-6">
                     <div>
-                        <h2 className="mb-4 text-lg font-semibold text-black">
-                            Dados principais
-                        </h2>
+                        <h2 className="mb-4 text-lg font-semibold text-black">Dados principais</h2>
 
                         <div className="grid gap-4 md:grid-cols-2">
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Nome
-                                
-                                <input 
+                                <input
                                     name="nome"
                                     defaultValue={veiculo.nome}
                                     required
@@ -220,8 +195,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Ano
-
-                                <input 
+                                <input
                                     name="ano"
                                     type="number"
                                     defaultValue={veiculo.ano}
@@ -232,8 +206,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Preço
-
-                                <input 
+                                <input
                                     name="preco"
                                     type="number"
                                     defaultValue={veiculo.preco}
@@ -244,8 +217,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Quilometragem
-
-                                <input 
+                                <input
                                     name="km"
                                     type="number"
                                     defaultValue={veiculo.km}
@@ -256,8 +228,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Cor
-
-                                <input 
+                                <input
                                     name="cor"
                                     defaultValue={veiculo.cor}
                                     required
@@ -267,8 +238,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Final da placa
-
-                                <input 
+                                <input
                                     name="final_placa"
                                     type="number"
                                     defaultValue={veiculo.final_placa}
@@ -279,8 +249,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Câmbio
-
-                                <input 
+                                <input
                                     name="cambio"
                                     defaultValue={veiculo.cambio}
                                     required
@@ -290,8 +259,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Motor
-
-                                <input 
+                                <input
                                     name="motor"
                                     defaultValue={veiculo.motor}
                                     required
@@ -301,8 +269,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Combustível
-
-                                <input 
+                                <input
                                     name="combustivel"
                                     defaultValue={veiculo.combustivel}
                                     required
@@ -313,15 +280,12 @@ export default function EditarVeiculoPage() {
                     </div>
 
                     <div>
-                        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-                            Descrição
-                        </h2>
+                        <h2 className="mb-4 text-lg font-semibold text-gray-900">Descrição</h2>
 
                         <div className="grid gap-4">
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Descrição do veículo
-
-                                <textarea 
+                                <textarea
                                     name="descricao"
                                     defaultValue={veiculo.descricao ?? ""}
                                     required
@@ -331,8 +295,7 @@ export default function EditarVeiculoPage() {
 
                             <label className="grid gap-1 text-sm font-medium text-gray-700">
                                 Outras informações
-
-                                <textarea 
+                                <textarea
                                     name="outras_infos"
                                     defaultValue={(veiculo.outras_infos ?? []).join("\n")}
                                     className="min-h-24 rounded-lg border p-3"
@@ -343,7 +306,7 @@ export default function EditarVeiculoPage() {
 
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                         <label className="flex cursor-pointer items-center gap-3">
-                            <input 
+                            <input
                                 name="estado_ipva"
                                 type="checkbox"
                                 defaultChecked={veiculo.estado_ipva}
@@ -351,9 +314,7 @@ export default function EditarVeiculoPage() {
                             />
 
                             <div>
-                                <p className="text-sm font-semibold text-gray-900">
-                                    IPVA pago
-                                </p>
+                                <p className="text-sm font-semibold text-gray-900">IPVA pago</p>
 
                                 <p className="text-xs text-gray-500">
                                     Marque esta opção caso o veículo esteja com o IPVA em dia.
@@ -363,9 +324,7 @@ export default function EditarVeiculoPage() {
                     </div>
 
                     {erro && (
-                        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-                            {erro}
-                        </p>
+                        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{erro}</p>
                     )}
 
                     <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">

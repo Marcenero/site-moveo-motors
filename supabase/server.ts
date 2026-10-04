@@ -18,8 +18,7 @@ export async function createClient() {
                         cookiesToSet.forEach(({ name, value, options }) => {
                             cookieStore.set(name, value, options);
                         });
-                    }
-                    catch {
+                    } catch {
                         //Pode acontecer quando createClient() é usado em server components.
                         //proxy.ts é responsável por atualizar/renovar os cookies da sessão.
                     }

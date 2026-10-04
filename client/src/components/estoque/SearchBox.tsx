@@ -4,9 +4,7 @@ export default function SearchBox() {
     return (
         <div className="w-full flex justify-center">
             <section className="w-[97%] max-auto bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                <h2 className="text-2xl font-black text-black uppercase mb-6">
-                    Filtrar veículos
-                </h2>
+                <h2 className="text-2xl font-black text-black uppercase mb-6">Filtrar veículos</h2>
 
                 {/* Dropdowns */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
@@ -21,7 +19,9 @@ export default function SearchBox() {
                     </div>
 
                     <div className="flex flex-col">
-                        <label className="text-sm font-bold text-gray-700 mb-2">Faixa de preço</label>
+                        <label className="text-sm font-bold text-gray-700 mb-2">
+                            Faixa de preço
+                        </label>
                         <select className="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-orange-500">
                             <option value="">Selecione</option>
                             <option value="0-50000">Até R$50.000</option>

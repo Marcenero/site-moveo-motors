@@ -75,22 +75,16 @@ export default function EstoquePage() {
                 const lista = Array.isArray(dados)
                     ? dados
                     : Array.isArray(dados.veiculos)
-                        ? dados.veiculos
-                        : [];
+                      ? dados.veiculos
+                      : [];
 
                 setVeiculos(lista);
-            }
-            catch (error) {
-                logError(
-                    "inventory_fetch_failed",
-                    error,
-                    {
-                        component: "inventory",
-                        operation: "buscar_veiculos",
-                    }
-                );
-            }
-            finally {
+            } catch (error) {
+                logError("inventory_fetch_failed", error, {
+                    component: "inventory",
+                    operation: "buscar_veiculos",
+                });
+            } finally {
                 setCarregando(false);
             }
         }
@@ -103,16 +97,25 @@ export default function EstoquePage() {
     const [filtrosMobileAberto, setFiltrosMobileAberto] = useState(false);
 
     const resultados = useMemo(() => {
-        const listaVeiculos = Array.isArray(veiculos) ? veiculos: [];
+        const listaVeiculos = Array.isArray(veiculos) ? veiculos : [];
         const filtrados = filtrar(listaVeiculos, filtros);
         const ordenados = [...filtrados];
 
         switch (ordenacao) {
-            case "preco-asc": ordenados.sort((a, b) => a.preco - b.preco); break;
-            case "preco-desc": ordenados.sort((a, b) => b.preco - a.preco); break;
-            case "km-asc": ordenados.sort((a, b) => a.km - b.km); break;
-            case "ano-desc": ordenados.sort((a, b) => b.ano - a.ano); break;
-            default: ordenados.sort((a, b) => b.id - a.id);
+            case "preco-asc":
+                ordenados.sort((a, b) => a.preco - b.preco);
+                break;
+            case "preco-desc":
+                ordenados.sort((a, b) => b.preco - a.preco);
+                break;
+            case "km-asc":
+                ordenados.sort((a, b) => a.km - b.km);
+                break;
+            case "ano-desc":
+                ordenados.sort((a, b) => b.ano - a.ano);
+                break;
+            default:
+                ordenados.sort((a, b) => b.id - a.id);
         }
 
         return ordenados;
@@ -136,7 +139,7 @@ export default function EstoquePage() {
                 return b.veiculo.id - a.veiculo.id;
             })
             .slice(0, 3)
-            .map(({veiculo}) => veiculo);
+            .map(({ veiculo }) => veiculo);
     }, [veiculos, filtros]);
 
     const chipsAtivos = useMemo(() => construirChipsAtivos(filtros), [filtros]);
@@ -149,12 +152,7 @@ export default function EstoquePage() {
 
             {/* Breadcrumbs */}
             <div className="pt-6">
-                <Breadcrumbs
-                    items={[
-                        { label: "Início", href: "/" },
-                        { label: "Estoque" },
-                    ]}
-                />
+                <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Estoque" }]} />
             </div>
 
             {/* Page header */}
@@ -168,10 +166,10 @@ export default function EstoquePage() {
             <div className="max-w-7xl mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
                 {/* Sidebar (desktop) */}
                 <div className="hidden lg:block">
-                    <Filters 
-                        veiculos={Array.isArray(veiculos) ? veiculos : []} 
-                        valor={filtros} 
-                        aoMudar={setFiltros} 
+                    <Filters
+                        veiculos={Array.isArray(veiculos) ? veiculos : []}
+                        valor={filtros}
+                        aoMudar={setFiltros}
                     />
                 </div>
 
@@ -222,10 +220,15 @@ export default function EstoquePage() {
                                     className="h-10 pl-4 pr-9 rounded-xl border border-gray-200 bg-white text-sm font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-[#D9A300]"
                                 >
                                     {Object.entries(OPCOES_ORDENACAO).map(([k, v]) => (
-                                        <option key={k} value={k}>{v}</option>
+                                        <option key={k} value={k}>
+                                            {v}
+                                        </option>
                                     ))}
                                 </select>
-                                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                                <ChevronDown
+                                    size={16}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                                />
                             </div>
                         </div>
                     </div>
@@ -241,8 +244,8 @@ export default function EstoquePage() {
                             <VehicleCardSkeleton />
                         </div>
                     ) : resultados.length === 0 ? (
-                        <EstadoVazio 
-                            aoLimpar={() => setFiltros(FILTROS_INICIAIS)} 
+                        <EstadoVazio
+                            aoLimpar={() => setFiltros(FILTROS_INICIAIS)}
                             sugestoes={sugestoes}
                         />
                     ) : (
@@ -266,7 +269,9 @@ export default function EstoquePage() {
                     />
                     <div className="absolute right-0 top-0 bottom-0 w-[88%] max-w-sm bg-[#F5F5F2] overflow-y-auto">
                         <div className="sticky top-0 bg-[#F5F5F2] border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-                            <span className="font-black uppercase tracking-widest text-sm">Filtros</span>
+                            <span className="font-black uppercase tracking-widest text-sm">
+                                Filtros
+                            </span>
                             <button
                                 onClick={() => setFiltrosMobileAberto(false)}
                                 className="w-9 h-9 rounded-full hover:bg-black/5 flex items-center justify-center"
@@ -314,8 +319,7 @@ function nomeCorrespondeMarca(nome: string, marca: string) {
     const marcaNormalizada = normalizarTexto(marca);
 
     return (
-        nomeNormalizado === marcaNormalizada ||
-        nomeNormalizado.startsWith(`${marcaNormalizada} `)
+        nomeNormalizado === marcaNormalizada || nomeNormalizado.startsWith(`${marcaNormalizada} `)
     );
 }
 
@@ -336,17 +340,15 @@ function construirChipsAtivos(f: FilterState): Array<{ chave: keyof FilterState;
         chips.push({ chave: "kmMax", rotulo: `Até ${(f.kmMax / 1000).toFixed(0)}k km` });
 
     if (f.cambio.length > 0) chips.push({ chave: "cambio", rotulo: f.cambio.join(" / ") });
-    if (f.combustivel.length > 0) chips.push({ chave: "combustivel", rotulo: f.combustivel.join(" / ") });
+    if (f.combustivel.length > 0)
+        chips.push({ chave: "combustivel", rotulo: f.combustivel.join(" / ") });
     if (f.ipvaPago) chips.push({ chave: "ipvaPago", rotulo: "IPVA pago" });
 
     return chips;
 }
 
 //Determinação de sugestões
-function pontuarVeiculo(
-    veiculo: Veiculo, 
-    filtros: FilterState
-) {
+function pontuarVeiculo(veiculo: Veiculo, filtros: FilterState) {
     let pontos = 0;
 
     //Busca livre
@@ -356,15 +358,10 @@ function pontuarVeiculo(
 
         if (nome.includes(busca)) {
             pontos += 10;
-        }
-        else {
-            const palavrasBusca = busca
-                .split(" ")
-                .filter((palavra) => palavra.length >= 2);
+        } else {
+            const palavrasBusca = busca.split(" ").filter((palavra) => palavra.length >= 2);
 
-            const palavrasEncontradas = palavrasBusca.filter(
-                (palavra) => nome.includes(palavra)
-            );
+            const palavrasEncontradas = palavrasBusca.filter((palavra) => nome.includes(palavra));
 
             pontos += Math.min(palavrasEncontradas.length * 2, 6);
         }
@@ -384,17 +381,14 @@ function pontuarVeiculo(
 
         if (preco <= precoMax) {
             pontos += 8;
-        }
-        else {
+        } else {
             const percentualAcima = (preco - precoMax) / precoMax;
 
-            if (percentualAcima <= 0.10) {
+            if (percentualAcima <= 0.1) {
                 pontos += 6;
-            }
-            else if (percentualAcima <= 0.20) {
+            } else if (percentualAcima <= 0.2) {
                 pontos += 4;
-            }
-            else if (percentualAcima <= 0.35) {
+            } else if (percentualAcima <= 0.35) {
                 pontos += 2;
             }
         }
@@ -402,27 +396,23 @@ function pontuarVeiculo(
 
     //Ano
     const filtroAnoAtivo =
-        filtros.anoMin !== FILTROS_INICIAIS.anoMin ||
-        filtros.anoMax !== FILTROS_INICIAIS.anoMax;
+        filtros.anoMin !== FILTROS_INICIAIS.anoMin || filtros.anoMax !== FILTROS_INICIAIS.anoMax;
 
     if (filtroAnoAtivo) {
         if (veiculo.ano >= filtros.anoMin && veiculo.ano <= filtros.anoMax) {
             pontos += 6;
-        }
-        else {
+        } else {
             let distanciaAno = 0;
 
             if (veiculo.ano < filtros.anoMin) {
                 distanciaAno = filtros.anoMin - veiculo.ano;
-            }
-            else if (veiculo.ano > filtros.anoMax) {
+            } else if (veiculo.ano > filtros.anoMax) {
                 distanciaAno = veiculo.ano - filtros.anoMax;
             }
 
             if (distanciaAno === 1) {
                 pontos += 4;
-            }
-            else if (distanciaAno === 2) {
+            } else if (distanciaAno === 2) {
                 pontos += 2;
             }
         }
@@ -432,14 +422,12 @@ function pontuarVeiculo(
     if (filtros.kmMax !== FILTROS_INICIAIS.kmMax) {
         if (veiculo.km <= filtros.kmMax) {
             pontos += 5;
-        }
-        else {
+        } else {
             const percentualAcima = (veiculo.km - filtros.kmMax) / filtros.kmMax;
 
             if (percentualAcima <= 0.15) {
                 pontos += 3;
-            }
-            else if (percentualAcima <= 0.30) {
+            } else if (percentualAcima <= 0.3) {
                 pontos += 1;
             }
         }
@@ -482,13 +470,7 @@ function pontuarVeiculo(
 }
 
 //Estado vazio
-function EstadoVazio({
-    aoLimpar,
-    sugestoes,
-}: {
-    aoLimpar: () => void;
-    sugestoes: Veiculo[];
-}) {
+function EstadoVazio({ aoLimpar, sugestoes }: { aoLimpar: () => void; sugestoes: Veiculo[] }) {
     return (
         <div>
             <div className="mb-6">
@@ -560,9 +542,7 @@ function EstadoVazio({
                                 </div>
 
                                 <div className="p-3">
-                                    <h4 className="text-sm font-black truncate">
-                                        {veiculo.nome}
-                                    </h4>
+                                    <h4 className="text-sm font-black truncate">{veiculo.nome}</h4>
 
                                     <p className="text-xs text-gray-500">
                                         a partir de R${veiculo.preco.toLocaleString("pt-BR")}
@@ -574,5 +554,5 @@ function EstadoVazio({
                 </div>
             </div>
         </div>
-    )
+    );
 }

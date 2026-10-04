@@ -1,27 +1,19 @@
 import Link from "next/link";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
-function irParaLocalizacao(
-    event: React.MouseEvent<HTMLAnchorElement>
-) {
+function irParaLocalizacao(event: React.MouseEvent<HTMLAnchorElement>) {
     if (window.location.pathname !== "/sobre") {
         return;
     }
 
     event.preventDefault();
 
-    document
-        .getElementById("localizacao")
-        ?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-        });
-    
-    window.history.replaceState(
-        null,
-        "",
-        "/sobre#localizacao"
-    );
+    document.getElementById("localizacao")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+    });
+
+    window.history.replaceState(null, "", "/sobre#localizacao");
 }
 
 export default function Footer() {
@@ -31,17 +23,19 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
                     <div className="col-span-1 md:col-span-1">
                         <div className="flex flex-col mb-8">
-                            <img
-                                src="/Moveo-motors2.svg"
-                                alt="Moveo Motors Logo"
-                            />
+                            <img src="/Moveo-motors2.svg" alt="Moveo Motors Logo" />
                         </div>
                         <p className="font-medium leading-relaxed mb-8 italic">
-                            A Moveo Motors é sinônimo de exclusividade e paixão automóvel. O seu sonho é o nosso compromisso diário.
+                            A Moveo Motors é sinônimo de exclusividade e paixão automóvel. O seu
+                            sonho é o nosso compromisso diário.
                         </p>
                         <div className="flex gap-4">
                             {[FaInstagram, FaFacebookF, FaWhatsapp].map((Icon, idx) => (
-                                <a key={idx} href="#" className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#D9A300] hover:text-black transition-all">
+                                <a
+                                    key={idx}
+                                    href="#"
+                                    className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#D9A300] hover:text-black transition-all"
+                                >
                                     <Icon size={20} />
                                 </a>
                             ))}
@@ -49,11 +43,13 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">Menu</h4>
+                        <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">
+                            Menu
+                        </h4>
                         <ul className="space-y-4 font-bold text-gray-500">
                             <li>
-                                <Link 
-                                    href="/estoque" 
+                                <Link
+                                    href="/estoque"
                                     className="hover:text-[#D9A300] transition-colors"
                                 >
                                     Novos & Usados
@@ -70,8 +66,8 @@ export default function Footer() {
                                 </a>
                             </li>
                             <li>
-                                <Link 
-                                    href="/sobre#localizacao" 
+                                <Link
+                                    href="/sobre#localizacao"
                                     onClick={irParaLocalizacao}
                                     className="hover:text-[#D9A300] transition-colors"
                                 >
@@ -82,20 +78,46 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">Institucional</h4>
+                        <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">
+                            Institucional
+                        </h4>
                         <ul className="space-y-4 font-bold text-gray-500">
-                            <li><Link href="/sobre" className="hover:text-[#D9A300] transition-colors">Quem Somos</Link></li>
-                            <li><Link href="/termos" className="hover:text-[#D9A300] transition-colors">Termos & Condições</Link></li>
-                            <li><Link href="/privacidade" className="hover:text-[#D9A300] transition-colors">Privacidade</Link></li>
+                            <li>
+                                <Link
+                                    href="/sobre"
+                                    className="hover:text-[#D9A300] transition-colors"
+                                >
+                                    Quem Somos
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/termos"
+                                    className="hover:text-[#D9A300] transition-colors"
+                                >
+                                    Termos & Condições
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/privacidade"
+                                    className="hover:text-[#D9A300] transition-colors"
+                                >
+                                    Privacidade
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="text-gray-400 text-[10px] font-bold text-center md:text-left leading-relaxed max-w-2xl uppercase tracking-tighter">
-                        As especificações dos veículos estão sujeitas a confirmação. Preços anunciados válidos para venda direta sem troca, salvo erro ortográfico.
+                        As especificações dos veículos estão sujeitas a confirmação. Preços
+                        anunciados válidos para venda direta sem troca, salvo erro ortográfico.
                     </div>
-                    <p className="text-black font-black text-xs">© 2026 MOVEO MOTORS. TODOS OS DIREITOS RESERVADOS.</p>
+                    <p className="text-black font-black text-xs">
+                        © 2026 MOVEO MOTORS. TODOS OS DIREITOS RESERVADOS.
+                    </p>
                 </div>
             </div>
         </footer>

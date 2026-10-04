@@ -5,7 +5,7 @@ export type ImagemVeiculo = {
 
 export type Veiculo = {
     id: number;
-    
+
     nome: string;
     ano: number;
     preco: number;
@@ -23,4 +23,4 @@ export type Veiculo = {
 
     vendido: boolean;
     data_venda: string | null;
-}
+};

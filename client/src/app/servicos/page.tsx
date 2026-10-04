@@ -10,7 +10,8 @@ const servicos: Servico[] = [
     {
         categoria: "Compra",
         titulo: "Seminovos premium",
-        descricao: "Selecionamos veículos com atenção à procedência, conservação e histórico para oferecer mais segurança na sua escolha.",
+        descricao:
+            "Selecionamos veículos com atenção à procedência, conservação e histórico para oferecer mais segurança na sua escolha.",
         itens: [
             "Veículos criteriosamente selecionados",
             "Vistoria e análise de procedência",
@@ -23,7 +24,8 @@ const servicos: Servico[] = [
     {
         categoria: "Venda",
         titulo: "Consignação inteligente",
-        descricao: "Conte com a Moveo para apresentar, divulgar e conduzir a negociação do seu veículo com praticidade e transparência.",
+        descricao:
+            "Conte com a Moveo para apresentar, divulgar e conduzir a negociação do seu veículo com praticidade e transparência.",
         itens: [
             "Apresentação porfissional do veículo",
             "Divulgação em canais selecionados",
@@ -36,7 +38,8 @@ const servicos: Servico[] = [
     {
         categoria: "Avaliação",
         titulo: "Compro o seu usado",
-        descricao: "Nós avaliamos seu carro e fazemos uma oferta justa. Pagamento em até 24h após a inspeção presencial.",
+        descricao:
+            "Nós avaliamos seu carro e fazemos uma oferta justa. Pagamento em até 24h após a inspeção presencial.",
         itens: [
             "Avaliação personalizada do seu veículo",
             "Proposta baseada nas condições do carro",
@@ -85,13 +88,13 @@ export default function ServicosPage() {
                     </p>
 
                     <h1 className="max-w-4xl text-4xl md:text-6xl font-black tracking-tight leading-none">
-                        Quatro serviços. 
+                        Quatro serviços.
                         <span className="text-[#D9A300]"> Um padrão.</span>
                     </h1>
 
                     <p className="mt-5 max-w-2xl text-sm md:text-base text-gray-600 leading-relaxed">
-                        Da escolha do veículo à negociação, buscamos oferecer um atendimento transparente,
-                        cuidadoso e próximo em cada etapa.
+                        Da escolha do veículo à negociação, buscamos oferecer um atendimento
+                        transparente, cuidadoso e próximo em cada etapa.
                     </p>
                 </div>
 
@@ -138,9 +141,7 @@ export default function ServicosPage() {
                                         {etapa.numero}
                                     </span>
 
-                                    <h3 className="mt-2 font-black text-xl">
-                                        {etapa.titulo}
-                                    </h3>
+                                    <h3 className="mt-2 font-black text-xl">{etapa.titulo}</h3>
 
                                     <p className="mt-2 text-sm text-gray-600 leading-relaxed">
                                         {etapa.texto}
@@ -157,15 +158,7 @@ export default function ServicosPage() {
     );
 }
 
-function ServicoCard({
-    categoria,
-    titulo,
-    descricao,
-    itens,
-    botao,
-    href,
-    destaque,
-}: Servico) {
+function ServicoCard({ categoria, titulo, descricao, itens, botao, href, destaque }: Servico) {
     const isGold = destaque === "gold";
     const isBlack = destaque === "black";
 
@@ -176,8 +169,8 @@ function ServicoCard({
                 isGold
                     ? "bg-[#D9A300] text-black"
                     : isBlack
-                    ? "bg-[#111111] text-white"
-                    : "bg-white text-black border border-gray-200",
+                      ? "bg-[#111111] text-white"
+                      : "bg-white text-black border border-gray-200",
             ].join(" ")}
         >
             <div>
@@ -190,14 +183,12 @@ function ServicoCard({
                     {categoria}
                 </p>
 
-                <h2 className="text-2xl md:text-3xl font-black tracking-tight">
-                    {titulo}
-                </h2>
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight">{titulo}</h2>
 
                 <p
                     className={[
                         "mt-3 text-sm leading-relaxed max-w-xl",
-                        isBlack ?"text-gray-300" : "text-gray-700"
+                        isBlack ? "text-gray-300" : "text-gray-700",
                     ].join(" ")}
                 >
                     {descricao}
@@ -206,7 +197,7 @@ function ServicoCard({
                 <ul className="mt-5 space-y-2">
                     {itens.map((item) => (
                         <li key={item} className="flex items-center gap-2 text-sm font-semibold">
-                            <CheckCircle2 
+                            <CheckCircle2
                                 size={16}
                                 className={isBlack ? "text-[#D9A300]" : "text-black"}
                             />
@@ -218,14 +209,14 @@ function ServicoCard({
 
             <Link
                 href={href}
-                target={href.startsWith("http")? "_blank" : undefined}
+                target={href.startsWith("http") ? "_blank" : undefined}
                 className={[
                     "mt-7 inline-flex w-fit items-center gap-2 rounded-xl px-5 py-3 text-xs font-black uppercase tracking-wider transition",
                     isGold
                         ? "bg-black text-[#D9A300] hover:bg-white hover:text-black"
                         : isBlack
-                        ? "bg-[#D9A300] text-black hover:bg-white"
-                        : "bg-black text-white hover:bg-[#D9A300] hover:text-black",
+                          ? "bg-[#D9A300] text-black hover:bg-white"
+                          : "bg-black text-white hover:bg-[#D9A300] hover:text-black",
                 ].join(" ")}
             >
                 {botao}

@@ -4,10 +4,6 @@ export const metadata: Metadata = {
     title: "Veículos disponíveis",
 };
 
-export default function DisponiveisLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function DisponiveisLayout({ children }: { children: React.ReactNode }) {
     return children;
 }

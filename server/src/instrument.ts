@@ -5,13 +5,10 @@ import { sanitizarDados } from "./services/sentrySanitizer.js";
 
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    
+
     environment: process.env.NODE_ENV ?? "development",
 
-    tracesSampleRate:
-        process.env.NODE_ENV === "production"
-            ? 0.1
-            : 1.0,
+    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
 
     enableLogs: false,
 
@@ -47,14 +44,10 @@ Sentry.init({
     },
 
     beforeBreadcrumb(breadcrumb) {
-        return sanitizarDados(
-            breadcrumb
-        ) as typeof breadcrumb;
+        return sanitizarDados(breadcrumb) as typeof breadcrumb;
     },
 
     beforeSend(event) {
-        return sanitizarDados(
-            event
-        ) as typeof event;
+        return sanitizarDados(event) as typeof event;
     },
 });

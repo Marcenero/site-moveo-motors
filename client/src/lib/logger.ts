@@ -5,11 +5,7 @@ type logContext = {
     code?: string;
 };
 
-export function logError(
-    event: string,
-    error: unknown,
-    context: logContext = {}
-) {
+export function logError(event: string, error: unknown, context: logContext = {}) {
     console.error(
         JSON.stringify({
             timestamp: new Date().toISOString(),
@@ -22,11 +18,8 @@ export function logError(
 
             ...(error !== undefined
                 ? {
-                    errorName:
-                        error instanceof Error
-                            ? error.name
-                            : "UnknownError",
-                }
+                      errorName: error instanceof Error ? error.name : "UnknownError",
+                  }
                 : {}),
         })
     );

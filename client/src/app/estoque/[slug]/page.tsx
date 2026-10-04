@@ -8,7 +8,7 @@ import { getPublicApiUrl } from "../../../lib/env.client";
 
 type Props = {
     params: Promise<{ slug: string }>;
-}
+};
 
 function gerarSlug(texto: string) {
     return texto
@@ -39,9 +39,7 @@ async function buscarVeiculoPorId(id: number): Promise<Veiculo | null> {
     return dados.veiculo ?? null;
 }
 
-export async function generateMetadata({
-    params,
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
 
     const id = Number(slug.split("-").pop());
@@ -62,9 +60,7 @@ export async function generateMetadata({
 
     const ano = String(veiculo.ano);
 
-    const nomeComAno = veiculo.nome.includes(ano)
-        ? veiculo.nome
-        : `${veiculo.nome} ${ano}`;
+    const nomeComAno = veiculo.nome.includes(ano) ? veiculo.nome : `${veiculo.nome} ${ano}`;
 
     const detalhes = [
         `${veiculo.km.toLocaleString("pt-BR")} km`,
@@ -81,7 +77,7 @@ export async function generateMetadata({
 
     const imagemPrincipal = veiculo.imagens?.[0]?.url ?? "https://moveomotors.com.br/og.png";
 
-    const slugCanonico = `${gerarSlug(veiculo.nome)}-${veiculo.id}`
+    const slugCanonico = `${gerarSlug(veiculo.nome)}-${veiculo.id}`;
 
     return {
         title: nomeComAno,
@@ -117,9 +113,7 @@ export async function generateMetadata({
     };
 }
 
-export default async function VehicleDetailsPage({
-    params,
-}: Props) {
+export default async function VehicleDetailsPage({ params }: Props) {
     const { slug } = await params;
 
     const id = Number(slug.split("-").pop());

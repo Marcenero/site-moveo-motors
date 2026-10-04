@@ -10,9 +10,7 @@ export default function NotFound() {
                     404 . not found
                 </p>
 
-                <h1 className="text-2xl md:text-4xl font-black mb-16">
-                    Quando a rota some.
-                </h1>
+                <h1 className="text-2xl md:text-4xl font-black mb-16">Quando a rota some.</h1>
 
                 <div className="mb-8">
                     <strong className="block text-[8rem] md:text-[12rem] leading-none font-black text-[#D9A300] tracking-tighter">
@@ -24,7 +22,8 @@ export default function NotFound() {
                     </h2>
 
                     <p className="text-gray-400 mt-4 max-w-xl text-sm md:text-base leading-relaxed">
-                        A página que você procurou não está mais aqui - talvez o veículo já tenha sido vendido, ou o link veio com um erro.
+                        A página que você procurou não está mais aqui - talvez o veículo já tenha
+                        sido vendido, ou o link veio com um erro.
                     </p>
                 </div>
 
@@ -33,7 +32,7 @@ export default function NotFound() {
                         href="/"
                         className="h-11 px-5 rounded-xl bg-[#D9A300] text-black font-black text-xs uppercase tracking-wider inline-flex items-center justify-center gap-2 hover:bg-white transition"
                     >
-                        <ChevronLeft size={16} strokeWidth={2.5} /> 
+                        <ChevronLeft size={16} strokeWidth={2.5} />
                         Voltar
                     </Link>
 
@@ -47,12 +46,12 @@ export default function NotFound() {
 
                 <div className="hidden mt-14 border-t border-white/10 pt-6">
                     <code className="text-xs text-gray-500">
-                        <span className="text-[#D9A300]">$</span>{" "}
-                        grep -r &quot;params.id&quot; estoque 
-                        <span className="text-gray-600">  → no match</span>
+                        <span className="text-[#D9A300]">$</span> grep -r &quot;params.id&quot;
+                        estoque
+                        <span className="text-gray-600"> → no match</span>
                     </code>
                 </div>
             </div>
         </main>
-    )
+    );
 }

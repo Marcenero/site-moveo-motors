@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest, } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 const cookieOptions = {
     path: "/",
@@ -22,45 +22,22 @@ export async function updateSession(request: NextRequest) {
                 getAll() {
                     return request.cookies.getAll();
                 },
-                setAll(
-                    cookiesToSet,
-                    headers
-                ) {
-                    cookiesToSet.forEach(
-                        ({ name, value }) => {
-                            request.cookies.set(
-                                name,
-                                value
-                            );
-                        }
-                    );
+                setAll(cookiesToSet, headers) {
+                    cookiesToSet.forEach(({ name, value }) => {
+                        request.cookies.set(name, value);
+                    });
 
                     response = NextResponse.next({
                         request,
                     });
 
-                    cookiesToSet.forEach(
-                        ({
-                            name,
-                            value,
-                            options,
-                        }) => {
-                            response.cookies.set(
-                                name,
-                                value,
-                                options
-                            );
-                        }
-                    );
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        response.cookies.set(name, value, options);
+                    });
 
-                    Object.entries(headers).forEach(
-                        ([key, value]) => {
-                            response.headers.set(
-                                key,
-                                value
-                            );
-                        }
-                    );
+                    Object.entries(headers).forEach(([key, value]) => {
+                        response.headers.set(key, value);
+                    });
                 },
             },
         }
@@ -72,12 +49,9 @@ export async function updateSession(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname;
 
-    const rotaAdminProtegida = pathname === "/admin" ||
-        (
-            pathname.startsWith("/admin/") &&
-            pathname !== "/admin/login"
-        );
-    
+    const rotaAdminProtegida =
+        pathname === "/admin" || (pathname.startsWith("/admin/") && pathname !== "/admin/login");
+
     if (rotaAdminProtegida && !autenticado) {
         const url = request.nextUrl.clone();
 
@@ -89,30 +63,19 @@ export async function updateSession(request: NextRequest) {
 
         const redirectResponse = NextResponse.redirect(url);
 
-        response.cookies
-            .getAll()
-            .forEach((cookie) => {
-                redirectResponse.cookies.set(cookie);
-            });
+        response.cookies.getAll().forEach((cookie) => {
+            redirectResponse.cookies.set(cookie);
+        });
 
-        for (
-            const header of [
-                "cache-control",
-                "expires",
-                "pragma",
-            ]
-        ) {
+        for (const header of ["cache-control", "expires", "pragma"]) {
             const value = response.headers.get(header);
 
             if (value) {
-                redirectResponse.headers.set(
-                    header,
-                    value
-                );
+                redirectResponse.headers.set(header, value);
             }
         }
 
-        return redirectResponse
+        return redirectResponse;
     }
 
     return response;

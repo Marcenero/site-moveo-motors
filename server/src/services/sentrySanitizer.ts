@@ -9,42 +9,26 @@ const SEGREDOS_AMBIENTE = [
     process.env.DIRECT_URL,
     process.env.JWT_SECRET,
     process.env.SENTRY_AUTH_TOKEN,
-]
-    .filter(
-        (valor): valor is string =>
-            typeof valor === "string" &&
-            valor.length > 0
-    );
+].filter((valor): valor is string => typeof valor === "string" && valor.length > 0);
 
-function sanitizarString(
-    valor: string
-) {
+function sanitizarString(valor: string) {
     let resultado = valor;
 
     for (const segredo of SEGREDOS_AMBIENTE) {
-        resultado = resultado
-            .split(segredo)
-            .join("[REDACTED]");
+        resultado = resultado.split(segredo).join("[REDACTED]");
     }
 
-    resultado = 
-        resultado.replace(
-            /Bearer\s+[^\s,;]+/gi,
-            "Bearer [REDACTED]"
-        );
+    resultado = resultado.replace(/Bearer\s+[^\s,;]+/gi, "Bearer [REDACTED]");
 
-    resultado =
-        resultado.replace(
-            /(access_token|refresh_token|token|password|secret)=([^&\s]+)/gi,
-            "$1=[REDACTED]"
-        );
+    resultado = resultado.replace(
+        /(access_token|refresh_token|token|password|secret)=([^&\s]+)/gi,
+        "$1=[REDACTED]"
+    );
 
     return resultado;
 }
 
-export function sanitizarDados(
-    valor: unknown
-): unknown {
+export function sanitizarDados(valor: unknown): unknown {
     if (typeof valor === "string") {
         return sanitizarString(valor);
     }

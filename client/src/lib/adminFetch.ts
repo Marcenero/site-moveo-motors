@@ -6,10 +6,7 @@ const supabase = createClient();
 
 const apiUrl = getPublicApiUrl();
 
-export async function adminFetch(
-    caminho: string,
-    options: RequestInit = {}
-) {
+export async function adminFetch(caminho: string, options: RequestInit = {}) {
     const {
         data: { session },
         error,
@@ -21,10 +18,7 @@ export async function adminFetch(
 
     const headers = new Headers(options.headers);
 
-    headers.set(
-        "Authorization",
-        `Bearer ${session.access_token}`
-    );
+    headers.set("Authorization", `Bearer ${session.access_token}`);
 
     return fetch(`${apiUrl}${caminho}`, {
         ...options,

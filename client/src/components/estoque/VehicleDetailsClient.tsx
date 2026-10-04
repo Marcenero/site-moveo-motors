@@ -32,20 +32,14 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
     const [linkCopiado, setLinkCopiado] = useState(false);
 
     const imagens =
-        veiculo.imagens?.length > 0
-            ? veiculo.imagens
-            : [{ url: "/placeholder-car.png" }];
+        veiculo.imagens?.length > 0 ? veiculo.imagens : [{ url: "/placeholder-car.png" }];
 
     function imagemAnterior() {
-        setImagemAtiva((atual) =>
-            atual === 0 ? imagens.length - 1 : atual - 1
-        );
+        setImagemAtiva((atual) => (atual === 0 ? imagens.length - 1 : atual - 1));
     }
 
     function proximaImagem() {
-        setImagemAtiva((atual) =>
-            atual === imagens.length - 1 ? 0 : atual + 1
-        );
+        setImagemAtiva((atual) => (atual === imagens.length - 1 ? 0 : atual + 1));
     }
 
     const mensagemWhatsApp = encodeURIComponent(
@@ -55,25 +49,18 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
 
     async function copiarLink() {
         try {
-            await navigator.clipboard.writeText(
-                window.location.href
-            );
+            await navigator.clipboard.writeText(window.location.href);
 
             setLinkCopiado(true);
 
             setTimeout(() => {
                 setLinkCopiado(false);
             }, 2000);
-        }
-        catch (error) {
-            logError(
-                "vehicle_copy_link_failed",
-                error,
-                {
-                    component: "vehicle_details",
-                    operation: "copiar_link",
-                }
-            );
+        } catch (error) {
+            logError("vehicle_copy_link_failed", error, {
+                component: "vehicle_details",
+                operation: "copiar_link",
+            });
         }
     }
 
@@ -95,7 +82,6 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
             <main className="max-w-7xl mx-auto px-6 pt-6 pb-20">
                 {/* Área principal */}
                 <section className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-8 lg:gap-10 items-start">
-
                     {/* Galeria */}
                     <div className="min-w-0">
                         <div className="relative overflow-hidden rounded-3xl bg-[#e9e9e5] aspect-[4/3] group">
@@ -150,13 +136,15 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                         <ChevronRight size={20} />
                                     </button>
 
-                                    <div className="
+                                    <div
+                                        className="
                                         absolute bottom-4 right-4
                                         rounded-full
                                         bg-black/70 text-white
                                         px-3 py-1.5
                                         text-xs font-bold
-                                    ">
+                                    "
+                                    >
                                         {imagemAtiva + 1} / {imagens.length}
                                     </div>
                                 </>
@@ -165,11 +153,13 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
 
                         {/* Miniaturas */}
                         {imagens.length > 1 && (
-                            <div className="
+                            <div
+                                className="
                                 flex gap-3 mt-4
                                 overflow-x-auto
                                 pb-2
-                            ">
+                            "
+                            >
                                 {imagens.map((imagem, index) => (
                                     <button
                                         type="button"
@@ -205,51 +195,61 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
 
                     {/* Painel do veículo */}
                     <aside className="lg:sticky lg:top-28">
-                        <div className="
+                        <div
+                            className="
                             bg-white
                             rounded-3xl
                             border border-black/5
                             shadow-[0_16px_50px_rgba(0,0,0,0.06)]
                             p-6 md:p-8
-                        ">
-                            <p className="
+                        "
+                        >
+                            <p
+                                className="
                                 text-[10px]
                                 font-black
                                 uppercase
                                 tracking-[0.3em]
                                 text-[#b98a00]
                                 mb-3
-                            ">
+                            "
+                            >
                                 Veículo selecionado
                             </p>
 
-                            <h1 className="
+                            <h1
+                                className="
                                 text-3xl md:text-4xl
                                 font-black
                                 tracking-tight
                                 leading-[1.05]
-                            ">
+                            "
+                            >
                                 {veiculo.nome}
                             </h1>
 
                             {/* Preço */}
                             <div className="mt-7 pb-7 border-b border-gray-100">
-                                <p className="
+                                <p
+                                    className="
                                     text-xs
                                     uppercase
                                     tracking-widest
                                     font-bold
                                     text-gray-400
                                     mb-1
-                                ">
+                                "
+                                >
                                     Por
                                 </p>
 
-                                <p className="
+                                <p
+                                    className="
                                     text-3xl md:text-4xl
                                     font-black
                                     tracking-tight
-                                ">
+                                "
+                                >
                                     {veiculo.preco.toLocaleString("pt-BR", {
                                         style: "currency",
                                         currency: "BRL",
@@ -285,27 +285,29 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                             </div>
 
                             {veiculo.estado_ipva && (
-                                <div className="
+                                <div
+                                    className="
                                     flex items-center gap-3
                                     rounded-2xl
                                     bg-[#fff9df]
                                     px-4 py-3.5
                                     mb-6
-                                ">
-                                    <div className="
+                                "
+                                >
+                                    <div
+                                        className="
                                         w-9 h-9
                                         shrink-0
                                         rounded-full
                                         bg-[#d9a300]
                                         flex items-center justify-center
-                                    ">
+                                    "
+                                    >
                                         <ShieldCheck size={18} />
                                     </div>
 
                                     <div>
-                                        <p className="text-sm font-black">
-                                            IPVA pago
-                                        </p>
+                                        <p className="text-sm font-black">IPVA pago</p>
 
                                         <p className="text-xs text-gray-500 mt-0.5">
                                             Mais tranquilidade para você.
@@ -354,11 +356,7 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                             transition-colors
                                         "
                                     >
-                                        {linkCopiado?(
-                                            <Check size={20} />
-                                        ) : (
-                                            <Share2 size={20} />
-                                        )}
+                                        {linkCopiado ? <Check size={20} /> : <Share2 size={20} />}
                                     </button>
 
                                     {/* Tooltip */}
@@ -387,12 +385,9 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                             }
                                         `}
                                     >
-                                        {linkCopiado
-                                            ? "Link copiado!"
-                                            : "Copiar link do veículo"
-                                        }
+                                        {linkCopiado ? "Link copiado!" : "Copiar link do veículo"}
 
-                                        <span 
+                                        <span
                                             className="
                                                 absolute
                                                 right-5
@@ -406,13 +401,15 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                 </div>
                             </div>
 
-                            <p className="
+                            <p
+                                className="
                                 mt-5
                                 text-center
                                 text-xs
                                 leading-relaxed
                                 text-gray-400
-                            ">
+                            "
+                            >
                                 Consulte disponibilidade e condições com nossa equipe.
                             </p>
                         </div>
@@ -422,57 +419,56 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                 {/* Ficha técnica */}
                 <section className="mt-16 md:mt-20">
                     <div className="mb-7">
-                        <p className="
+                        <p
+                            className="
                             text-[10px]
                             uppercase
                             tracking-[0.3em]
                             font-black
                             text-[#b98a00]
                             mb-2
-                        ">
+                        "
+                        >
                             Detalhes
                         </p>
 
-                        <h2 className="
+                        <h2
+                            className="
                             text-3xl md:text-4xl
                             font-black
                             tracking-tight
-                        ">
+                        "
+                        >
                             Ficha técnica
                         </h2>
                     </div>
 
-                    <div className="
+                    <div
+                        className="
                         bg-white
                         rounded-3xl
                         border border-gray-200
                         overflow-hidden
-                    ">
-                        <div className="
+                    "
+                    >
+                        <div
+                            className="
                             grid
                             grid-cols-1
                             sm:grid-cols-2
                             lg:grid-cols-5
-                        ">
-                            <FichaTecnicaItem
-                                label="Ano"
-                                valor={String(veiculo.ano)}
-                            />
+                        "
+                        >
+                            <FichaTecnicaItem label="Ano" valor={String(veiculo.ano)} />
 
                             <FichaTecnicaItem
                                 label="Quilometragem"
                                 valor={`${veiculo.km.toLocaleString("pt-BR")} km`}
                             />
 
-                            <FichaTecnicaItem
-                                label="Câmbio"
-                                valor={veiculo.cambio}
-                            />
+                            <FichaTecnicaItem label="Câmbio" valor={veiculo.cambio} />
 
-                            <FichaTecnicaItem
-                                label="Combustível"
-                                valor={veiculo.combustivel}
-                            />
+                            <FichaTecnicaItem label="Combustível" valor={veiculo.combustivel} />
 
                             <FichaTecnicaItem
                                 label="Motor"
@@ -485,79 +481,92 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                 {/* Outros detalhes */}
                 <section className="mt-16 md:mt-20">
                     <div className="mb-7">
-                        <p className="
+                        <p
+                            className="
                             text-[10px]
                             uppercase
                             tracking-[0.3em]
                             font-black
                             text-[#b98a00]
                             mb-2
-                        ">
+                        "
+                        >
                             Sobre o veículo
                         </p>
 
-                        <h2 className="
+                        <h2
+                            className="
                             text-3xl md:text-4xl
                             font-black
                             tracking-tight
-                        ">
+                        "
+                        >
                             Outros detalhes
                         </h2>
                     </div>
 
-                    <div className="
+                    <div
+                        className="
                         bg-white
                         rounded-3xl
                         border border-gray-200
                         overflow-hidden
-                    ">
+                    "
+                    >
                         {/* Descrição */}
                         <div className="p-6 md:p-8 lg:p-10 lg:border-r border-gray-100">
-                            <p className="
+                            <p
+                                className="
                                 text-[10px] 
                                 font-black 
                                 uppercase 
                                 tracking-[0.2em] 
                                 text-gray-400 
                                 mb-4
-                            ">
+                            "
+                            >
                                 Descrição
                             </p>
 
-                            <p className="
+                            <p
+                                className="
                             text-gray-600
                             text-base
                             md:text-lg
                             leading-8
                             max-w-2xl
-                        ">
-                            {veiculo.descricao || "Veículo em ótimo estado de conservação."}
-                        </p>
+                        "
+                            >
+                                {veiculo.descricao || "Veículo em ótimo estado de conservação."}
+                            </p>
                         </div>
 
                         {/* Linha divisória */}
                         <div className="mx-auto border-t border-gray-200" />
 
                         {/* Detalhes extras */}
-                        <div className="
+                        <div
+                            className="
                             p-6
                             md:p-8
                             lg:p-10
                             bg-white
-                        ">
-                            <p className="
+                        "
+                        >
+                            <p
+                                className="
                                 text-[10px]
                                 font-black
                                 uppercase
                                 tracking-[0.2em]
                                 text-gray-400
                                 mb-5
-                            ">
+                            "
+                            >
                                 Mais detalhes
                             </p>
 
-                            {veiculo.outras_infos &&
-                            veiculo.outras_infos.length > 0 ?(
+                            {veiculo.outras_infos && veiculo.outras_infos.length > 0 ? (
                                 <ul className="space-y-4">
                                     {veiculo.outras_infos.map((info, index) => (
                                         <li
@@ -572,7 +581,8 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                                 text-gray-700
                                             "
                                         >
-                                            <span className="
+                                            <span
+                                                className="
                                                 mt-0.5
                                                 w-6 h-6
                                                 shrink-0
@@ -581,16 +591,12 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                                 items-center
                                                 justify-center
                                                 text-black
-                                            ">
-                                                <Check
-                                                    size={24}
-                                                    strokeWidth={3}
-                                                />
+                                            "
+                                            >
+                                                <Check size={24} strokeWidth={3} />
                                             </span>
 
-                                            <span className="leading-6">
-                                                {info}
-                                            </span>
+                                            <span className="leading-6">{info}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -605,7 +611,8 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
             </main>
 
             {/* CTA fixo somente no celular */}
-            <div className="
+            <div
+                className="
                 fixed
                 left-0 right-0 bottom-0
                 z-50
@@ -614,7 +621,8 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                 backdrop-blur
                 border-t border-gray-200
                 p-3
-            ">
+            "
+            >
                 <a
                     href={`https://wa.me/55NUMERO?text=${mensagemWhatsApp}`}
                     target="_blank"
@@ -650,34 +658,40 @@ function Caracteristica({
 }) {
     return (
         <div className="flex gap-3 min-w-0">
-            <div className="
+            <div
+                className="
                 w-9 h-9
                 shrink-0
                 rounded-xl
                 bg-[#f5f5f2]
                 flex items-center justify-center
                 text-[#a77b00]
-            ">
+            "
+            >
                 {icone}
             </div>
 
             <div className="min-w-0">
-                <p className="
+                <p
+                    className="
                     text-[10px]
                     uppercase
                     tracking-wider
                     font-bold
                     text-gray-400
-                ">
+                "
+                >
                     {label}
                 </p>
 
-                <p className="
+                <p
+                    className="
                     text-sm
                     font-black
                     mt-0.5
                     truncate
-                ">
+                "
+                >
                     {valor}
                 </p>
             </div>
@@ -685,35 +699,31 @@ function Caracteristica({
     );
 }
 
-function FichaTecnicaItem({
-    label,
-    valor,
-}: {
-    label: string;
-    valor: string;
-}) {
+function FichaTecnicaItem({ label, valor }: { label: string; valor: string }) {
     return (
-        <div className="
+        <div
+            className="
             px-6 py-6
             border-b
             sm:border-r
             border-gray-100
             last:border-r-0
-        ">
-            <p className="
+        "
+        >
+            <p
+                className="
                 text-[10px]
                 font-black
                 uppercase
                 tracking-[0.2em]
                 text-gray-400
                 mb-2
-            ">
+            "
+            >
                 {label}
             </p>
 
-            <p className="text-lg font-black">
-                {valor}
-            </p>
+            <p className="text-lg font-black">{valor}</p>
         </div>
     );
 }

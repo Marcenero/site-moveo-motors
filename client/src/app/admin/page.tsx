@@ -10,7 +10,7 @@ import { getPublicApiUrl } from "../../lib/env.client";
 type VendaGrafico = {
     dia: string;
     vendidos: number;
-}
+};
 
 const API_URL = getPublicApiUrl();
 
@@ -52,22 +52,14 @@ export default async function AdminPage() {
 
         const resultado = await response.json();
 
-        const listaVeiculos = 
-            Array.isArray(resultado.veiculos)
-                ? resultado.veiculos
-                : [];
+        const listaVeiculos = Array.isArray(resultado.veiculos) ? resultado.veiculos : [];
 
         quantidade_disponiveis = listaVeiculos.length;
-    }
-    catch (error) {
-        logError(
-            "vehicle_count_fetch_failed",
-            error,
-            {
-                component: "admin",
-                operation: "carregar_quantidade_veiculos",
-            }
-        );
+    } catch (error) {
+        logError("vehicle_count_fetch_failed", error, {
+            component: "admin",
+            operation: "carregar_quantidade_veiculos",
+        });
 
         erroQuantidade = "Erro";
     }
@@ -82,48 +74,31 @@ export default async function AdminPage() {
         });
 
         if (response.status === 401) {
-            redirect(
-                "/admin/login?error=session"
-            );
+            redirect("/admin/login?error=session");
         }
 
         if (response.status === 403) {
-            redirect(
-                "/admin/login?error=forbidden"
-            );
+            redirect("/admin/login?error=forbidden");
         }
 
         if (!response.ok) {
-            logError(
-                "sales_api_request_failed",
-                undefined,
-                {
-                    component: "admin",
-                    operation: "buscar_vendas",
-                    status: response.status,
-                }
-            );
+            logError("sales_api_request_failed", undefined, {
+                component: "admin",
+                operation: "buscar_vendas",
+                status: response.status,
+            });
 
-            throw new Error(
-                "Erro ao buscar vendas nos últimos 5 dias."
-            );
+            throw new Error("Erro ao buscar vendas nos últimos 5 dias.");
         }
 
         const resultado = await response.json();
 
-        vendasUltimosDias = Array.isArray(resultado.vendas)
-            ? resultado.vendas
-            : [];
-    }
-    catch (error) {
-        logError(
-            "sales_chart_load_failed",
-            error,
-            {
-                component: "admin",
-                operation: "carregar_grafico_vendas",
-            }
-        );
+        vendasUltimosDias = Array.isArray(resultado.vendas) ? resultado.vendas : [];
+    } catch (error) {
+        logError("sales_chart_load_failed", error, {
+            component: "admin",
+            operation: "carregar_grafico_vendas",
+        });
 
         vendasUltimosDias = [
             { dia: "Hoje -4", vendidos: 0 },
@@ -139,28 +114,22 @@ export default async function AdminPage() {
             <section className="mx-auto max-w-6xl">
                 <div className="mb-8 flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
-                            Painel administrativo
-                        </h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Painel administrativo</h1>
 
-                        <p className="text-sm text-gray-500">
-                            Logado como {user.email}
-                        </p>
+                        <p className="text-sm text-gray-500">Logado como {user.email}</p>
                     </div>
 
                     <LogoutButton />
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-3">
-                    <Link 
+                    <Link
                         href="/admin/disponiveis"
                         className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:bg-gray-200"
                     >
                         <div className="mb-6 flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-500">
-                                    Disponíveis
-                                </p>
+                                <p className="text-sm text-gray-500">Disponíveis</p>
 
                                 <strong className="text-3xl text-gray-900">
                                     {erroQuantidade || quantidade_disponiveis}
@@ -201,15 +170,10 @@ export default async function AdminPage() {
                         className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:bg-gray-200"
                     >
                         <div className="mb-6 flex items-center justify-between">
-                            <strong className="text-2xl font-bold text-black">
-                                Auditoria
-                            </strong>
+                            <strong className="text-2xl font-bold text-black">Auditoria</strong>
 
                             <div className="rounded-full bg-gray-100 p-4">
-                                <History 
-                                    className="text-gray-800"
-                                    size={26}
-                                />
+                                <History className="text-gray-800" size={26} />
                             </div>
                         </div>
 

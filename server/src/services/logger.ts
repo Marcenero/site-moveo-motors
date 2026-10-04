@@ -19,11 +19,9 @@ function escreverLog(
 
         ...(error
             ? {
-                errorName:
-                    error instanceof Error
-                        ? error.name
-                        : "UnknownError",
-            } : {}),
+                  errorName: error instanceof Error ? error.name : "UnknownError",
+              }
+            : {}),
     };
 
     const mensagem = JSON.stringify(log);
@@ -41,26 +39,10 @@ function escreverLog(
     console.log(mensagem);
 }
 
-export function logError(
-    event: string,
-    error: unknown,
-    context: logContext = {}
-) {
-    escreverLog(
-        "error",
-        event,
-        context,
-        error
-    );
+export function logError(event: string, error: unknown, context: logContext = {}) {
+    escreverLog("error", event, context, error);
 }
 
-export function logInfo(
-    event: string,
-    context: logContext = {}
-) {
-    escreverLog(
-        "info",
-        event,
-        context
-    );
+export function logInfo(event: string, context: logContext = {}) {
+    escreverLog("info", event, context);
 }

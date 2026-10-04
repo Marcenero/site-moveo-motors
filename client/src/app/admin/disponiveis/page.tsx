@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { 
-    ArrowLeft,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import type { Veiculo } from "../../../types/veiculo";
 
@@ -28,12 +26,10 @@ async function buscarDisponiveis(): Promise<Veiculo[]> {
     const lista = Array.isArray(dados)
         ? dados
         : Array.isArray(dados.veiculos)
-            ? dados.veiculos
-            : [];
+          ? dados.veiculos
+          : [];
 
-    return lista.filter(
-        (veiculo: Veiculo) => !veiculo.vendido
-    );
+    return lista.filter((veiculo: Veiculo) => !veiculo.vendido);
 }
 
 export default function DisponiveisPage() {
@@ -53,14 +49,10 @@ export default function DisponiveisPage() {
                 }
             })
             .catch((error) => {
-                logError(
-                    "available_vehicles_fetch_failed",
-                    error,
-                    {
-                        component: "admin",
-                        operation: "buscar_veiculos_disponiveis",
-                    }
-                );
+                logError("available_vehicles_fetch_failed", error, {
+                    component: "admin",
+                    operation: "buscar_veiculos_disponiveis",
+                });
 
                 if (ativo) {
                     setErro("Não foi possível carregar os veículos.");
@@ -81,11 +73,9 @@ export default function DisponiveisPage() {
         setErro("");
 
         try {
-            const resposta = await adminFetch(`/veiculos/${id}/vendido`,
-                {
-                    method: "PATCH",
-                }
-            );
+            const resposta = await adminFetch(`/veiculos/${id}/vendido`, {
+                method: "PATCH",
+            });
 
             if (resposta.status === 401) {
                 router.push("/admin/login");
@@ -97,39 +87,26 @@ export default function DisponiveisPage() {
             }
 
             if (!resposta.ok) {
-                const dadosErro = await resposta
-                    .json()
-                    .catch(() => null);
+                const dadosErro = await resposta.json().catch(() => null);
 
                 throw new Error(
                     dadosErro?.erro ||
-                    dadosErro?.error ||
-                    "Não foi possível marcar o veículo como vendido."
+                        dadosErro?.error ||
+                        "Não foi possível marcar o veículo como vendido."
                 );
             }
 
-            setDisponiveis((atual) =>
-                atual.filter(
-                    (veiculo) => veiculo.id !== id
-                )
-            );
+            setDisponiveis((atual) => atual.filter((veiculo) => veiculo.id !== id));
 
             return true;
-        }
-        catch (error) {
-            logError(
-                "vehicle_mark_sold_failed",
-                error,
-                {
-                    component: "admin",
-                    operation: "marcar_veiculo_vendido",
-                }
-            );
+        } catch (error) {
+            logError("vehicle_mark_sold_failed", error, {
+                component: "admin",
+                operation: "marcar_veiculo_vendido",
+            });
 
             setErro(
-                error instanceof Error
-                    ? error.message
-                    : "Erro ao marcar veículo como vendido."
+                error instanceof Error ? error.message : "Erro ao marcar veículo como vendido."
             );
 
             return false;
@@ -146,15 +123,10 @@ export default function DisponiveisPage() {
                     <ArrowLeft size={22} /> Voltar para painel
                 </Link>
 
-                <h1 className="mb-6 text-2xl font-bold text-gray-900">
-                    Veículos disponíveis
-                </h1>
+                <h1 className="mb-6 text-2xl font-bold text-gray-900">Veículos disponíveis</h1>
 
                 {erro && (
-                    <p
-                        role="alert"
-                        className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-600"
-                    >
+                    <p role="alert" className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-600">
                         {erro}
                     </p>
                 )}

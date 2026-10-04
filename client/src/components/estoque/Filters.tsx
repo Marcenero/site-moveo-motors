@@ -58,7 +58,7 @@ export function filtrar(veiculos: Veiculo[], f: FilterState): Veiculo[] {
         if (v.km > f.kmMax) return false;
         if (f.cambio.length > 0 && !f.cambio.includes(v.cambio)) return false;
         if (f.combustivel.length > 0 && !f.combustivel.includes(v.combustivel)) return false;
-        if (f.ipvaPago && !v.estado_ipva) return false;       // ← correct field
+        if (f.ipvaPago && !v.estado_ipva) return false; // ← correct field
 
         return true;
     });
@@ -75,13 +75,9 @@ interface FiltersProps {
 export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
     const uid = useId();
 
-    const marcas = Array.from(
-        new Set(veiculos.map((v) => extrairMarca(v.nome)))
-    ).sort();
+    const marcas = Array.from(new Set(veiculos.map((v) => extrairMarca(v.nome)))).sort();
 
-    const cambioOpcoes = Array.from(
-        new Set(veiculos.map((v) => v.cambio).filter(Boolean))
-    ).sort();
+    const cambioOpcoes = Array.from(new Set(veiculos.map((v) => v.cambio).filter(Boolean))).sort();
 
     const combustivelOpcoes = Array.from(
         new Set(veiculos.map((v) => v.combustivel).filter(Boolean))
@@ -103,7 +99,9 @@ export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
         <aside className="space-y-6">
             {/* Search */}
             <div>
-                <label htmlFor={`${uid}-busca`} className={labelCls}>Busca</label>
+                <label htmlFor={`${uid}-busca`} className={labelCls}>
+                    Busca
+                </label>
                 <input
                     id={`${uid}-busca`}
                     type="search"
@@ -116,7 +114,9 @@ export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
 
             {/* Brand */}
             <div>
-                <label htmlFor={`${uid}-marca`} className={labelCls}>Marca</label>
+                <label htmlFor={`${uid}-marca`} className={labelCls}>
+                    Marca
+                </label>
                 <select
                     id={`${uid}-marca`}
                     value={valor.marca}
@@ -125,7 +125,9 @@ export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
                 >
                     <option value="">Todas</option>
                     {marcas.map((m) => (
-                        <option key={m} value={m}>{m}</option>
+                        <option key={m} value={m}>
+                            {m}
+                        </option>
                     ))}
                 </select>
             </div>
@@ -258,10 +260,11 @@ function Chip({ label, ativo, onClick }: { label: string; ativo: boolean; onClic
     return (
         <button
             onClick={onClick}
-            className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${ativo
-                ? "bg-black text-white border-black"
-                : "bg-white text-gray-700 border-gray-200 hover:border-black"
-                }`}
+            className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                ativo
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-black"
+            }`}
         >
             {label}
         </button>
@@ -280,7 +283,10 @@ function Toggle({
     onChange: (v: boolean) => void;
 }) {
     return (
-        <label htmlFor={id} className="flex items-center justify-between cursor-pointer select-none">
+        <label
+            htmlFor={id}
+            className="flex items-center justify-between cursor-pointer select-none"
+        >
             <span className="text-sm font-semibold">{label}</span>
             <div className="relative">
                 <input
@@ -290,8 +296,12 @@ function Toggle({
                     checked={checked}
                     onChange={(e) => onChange(e.target.checked)}
                 />
-                <div className={`w-10 h-6 rounded-full transition-colors ${checked ? "bg-[#D9A300]" : "bg-gray-200"}`} />
-                <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-4" : ""}`} />
+                <div
+                    className={`w-10 h-6 rounded-full transition-colors ${checked ? "bg-[#D9A300]" : "bg-gray-200"}`}
+                />
+                <div
+                    className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-4" : ""}`}
+                />
             </div>
         </label>
     );
@@ -300,5 +310,6 @@ function Toggle({
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const labelCls = "block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1";
-const inputCls = "w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#D9A300]";
+const inputCls =
+    "w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#D9A300]";
 const rangeCls = "w-full accent-[#D9A300]";
