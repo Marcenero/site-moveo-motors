@@ -11,6 +11,64 @@ import { adminFetch } from "../../../../lib/adminFetch";
 import { logError } from "../../../../lib/logger";
 import { getPublicApiUrl } from "../../../../lib/env.client";
 
+type DadosVeiculoFormulario = {
+    nome: string;
+    km: string;
+    cor: string;
+    final_placa: string;
+    estado_ipva: boolean;
+    preco: string;
+    ano: string;
+    cambio: string;
+    motor: string;
+    combustivel: string;
+    descricao: string;
+    outras_infos: string[];
+};
+
+function ItemRevisao({
+    titulo,
+    valor,
+}: {
+    titulo: string;
+    valor: string;
+}) {
+    return (
+        <div className="rounded-xl bg-gray-50 p-4">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+                {titulo}
+            </p>
+
+            <p className="font-medium text-gray-900">
+                {valor || "-"}
+            </p>
+        </div>
+    );
+}
+
+function formatarPreco(valor: string) {
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return valor;
+    }
+
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(numero);
+}
+
+function formatarKm(valor: string) {
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return valor;
+    }
+
+    return `${new Intl.NumberFormat("pt-BR").format(numero)} km`;
+}
+
 export default function EditarVeiculoPage() {
     const router = useRouter();
     const params = useParams();
@@ -21,6 +79,9 @@ export default function EditarVeiculoPage() {
     const [carregando, setCarregando] = useState(true);
     const [salvando, setSalvando] = useState(false);
     const [erro, setErro] = useState("");
+
+    const [modalAberto, setModalAberto] = useState(false);
+    const [dadosRevisao, setDadosRevisao] = useState<DadosVeiculoFormulario | null>(null);
 
     useEffect(() => {
         async function buscarVeiculo() {
@@ -54,9 +115,34 @@ export default function EditarVeiculoPage() {
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
-        const confirmou = window.confirm("Tem certeza que deseja salvar as alterações?");
+        setErro("");
 
-        if (!confirmou) {
+        const formData = new FormData(e.currentTarget);
+
+        const dados: DadosVeiculoFormulario = {
+            nome: String(formData.get("nome") ?? "").trim(),
+            km: String(formData.get("km") ?? "").trim(),
+            cor: String(formData.get("cor") ?? "").trim(),
+            final_placa: String(formData.get("final_placa") ?? "").trim(),
+            estado_ipva: formData.get("estado_ipva") === "on",
+            preco: String(formData.get("preco") ?? "").trim(),
+            ano: String(formData.get("ano") ?? "").trim(),
+            cambio: String(formData.get("cambio") ?? "").trim(),
+            motor: String(formData.get("motor") ?? "").trim(),
+            combustivel: String(formData.get("combustivel") ?? "").trim(),
+            descricao: String(formData.get("descricao") ?? "").trim(),
+            outras_infos: String(formData.get("outras_infos") ?? "")
+                .split("\n")
+                .map((item) => item.trim())
+                .filter(Boolean),
+        };
+
+        setDadosRevisao(dados);
+        setModalAberto(true);
+    }
+
+    async function confirmarEdicao() {
+        if (!dadosRevisao) {
             return;
         }
 
@@ -64,57 +150,38 @@ export default function EditarVeiculoPage() {
         setSalvando(true);
 
         try {
-            const formData = new FormData(e.currentTarget);
-
-            const payload = {
-                nome: formData.get("nome"),
-                km: formData.get("km"),
-                cor: formData.get("cor"),
-                final_placa: formData.get("final_placa"),
-                estado_ipva: formData.get("estado_ipva") === "on",
-                preco: formData.get("preco"),
-                ano: formData.get("ano"),
-                cambio: formData.get("cambio"),
-                motor: formData.get("motor"),
-                combustivel: formData.get("combustivel"),
-                descricao: formData.get("descricao"),
-                outras_infos: String(formData.get("outras_infos") || "")
-                    .split("\n")
-                    .map((item) => item.trim())
-                    .filter(Boolean),
-            };
-
-            const resposta = await adminFetch(`/veiculos/${id}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
+            const resposta = await adminFetch(
+                `/veiculos/${id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dadosRevisao),
+                }
+            );
 
             if (resposta.status === 401) {
-                router.push("/admin/login");
+                setModalAberto(false);
+                router.push("admin/login");
 
-                throw new Error("Sua sessão expirou. Faça login novamente.");
+                return;
             }
 
             if (resposta.status === 403) {
-                throw new Error("Você não possui permissão para editar veículos.");
+                throw new Error(
+                    "Você não possui permissão para editar veículos."
+                );
             }
 
             if (!resposta.ok) {
-                /*const erroBackend = await resposta.json().catch(() => null);
-
-                throw new Error(
-                    erroBackend?.erro || "Erro ao editar veículo."
-                );*/
-
-                const textoErro = await resposta.text();
+                const textoErro = await resposta.text()
 
                 let erroBackend = "";
 
                 try {
                     const erroJson = JSON.parse(textoErro);
+
                     erroBackend =
                         erroJson.erro ||
                         erroJson.error ||
@@ -125,9 +192,16 @@ export default function EditarVeiculoPage() {
                 }
 
                 throw new Error(
-                    `Erro ${resposta.status} - ${resposta.statusText}: ${erroBackend || "Sem detalhes do backend."}`
+                    `Erro ${resposta.status} - ${
+                        resposta.statusText
+                    }: ${
+                        erroBackend ||
+                        "Sem detalhes do backend."
+                    }`
                 );
             }
+
+            setModalAberto(false);
 
             router.push("/admin/disponiveis");
         } catch (error) {
@@ -136,8 +210,9 @@ export default function EditarVeiculoPage() {
                 operation: "salvar_alteracoes_veiculo",
             });
 
-            const mensagem =
-                error instanceof Error ? error.message : "Erro desconhecido ao salvar alterações.";
+            const mensagem = error instanceof Error
+                ? error.message
+                : "Erro desconhecido ao salvar alterações.";
 
             setErro(mensagem);
         } finally {
@@ -323,7 +398,7 @@ export default function EditarVeiculoPage() {
                         </label>
                     </div>
 
-                    {erro && (
+                    {erro && !modalAberto && (
                         <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{erro}</p>
                     )}
 
@@ -342,11 +417,183 @@ export default function EditarVeiculoPage() {
                             disabled={salvando}
                             className="rounded-lg border border-green-300 px-5 py-3 font-semibold text-green-700 transition hover:bg-green-100 disabled:opacity-60"
                         >
-                            {salvando ? "Salvando..." : "Salvar alterações"}
+                            Revisar alterações
                         </button>
                     </div>
                 </form>
             </section>
+
+            {modalAberto && dadosRevisao && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="titulo-confirmacao-edicao"
+                >
+                    <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+                        {/* Cabeçalho */}
+                        <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-6 py-5">
+                            <h2
+                                id="titulo-confirmacao-edicao"
+                                className="text-xl font-bold text-gray-900"
+                            >
+                                Confirmar alterações
+                            </h2>
+
+                            <p className="mt-1 text-sm text-gray-500">
+                                Confira as informações antes de atualizar o veículo.
+                            </p>
+                        </div>
+
+                        <div className="space-y-6 p-6">
+                            {/* Dados principais */}
+                            <section>
+                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                                    Dados principais
+                                </h3>
+
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <ItemRevisao 
+                                        titulo="Nome"
+                                        valor={dadosRevisao.nome}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Preço"
+                                        valor={formatarPreco(
+                                            dadosRevisao.preco
+                                        )}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Ano"
+                                        valor={dadosRevisao.ano}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Quilometragem"
+                                        valor={formatarKm(
+                                            dadosRevisao.km
+                                        )}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Cor"
+                                        valor={dadosRevisao.cor}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Final da placa"
+                                        valor={dadosRevisao.final_placa}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Câmbio"
+                                        valor={dadosRevisao.cambio}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Motor"
+                                        valor={dadosRevisao.motor}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="Combustível"
+                                        valor={dadosRevisao.combustivel}
+                                    />
+
+                                    <ItemRevisao 
+                                        titulo="IPVA"
+                                        valor={
+                                            dadosRevisao.estado_ipva
+                                                ? "Pago"
+                                                : "Não informado como pago"
+                                        }
+                                    />
+                                </div>
+                            </section>
+
+                            {/* Descrição */}
+                            <section className="border-t border-gray-200 pt-5">
+                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                                    Descrição
+                                </h3>
+
+                                <div className="rounded-xl bg-gray-50 p-4">
+                                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                                        {dadosRevisao.descricao}
+                                    </p>
+                                </div>
+                            </section>
+
+                            {/* Outras infos */}
+                            <section className="border-t border-gray-200 pt-5">
+                                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                                    Outras informações
+                                </h3>
+
+                                {dadosRevisao.outras_infos.length > 0
+                                    ? (
+                                        <ul className="grid gap-2">
+                                            {dadosRevisao.outras_infos.map(
+                                                (item, index) => (
+                                                    <li
+                                                        key={`${item}-${index}`}
+                                                        className="rounded-lg bg-gray-50 px-4 py-2 text-sm text-gray-700"
+                                                    >
+                                                        {item}
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    ) : (
+                                        <p className="text-sm text-gray-500">
+                                            Nenhuma informação adicional.
+                                        </p>
+                                    )
+                                }
+                            </section>
+
+                            {/* Erro */}
+                            {erro && (
+                                <p
+                                    role="alert"
+                                    className="rounded-xl bg-red-50 p-4 text-sm text-red-600"
+                                >
+                                    {erro}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Botões */}
+                        <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-gray-200 bg-white px-6 py-5 sm:flex-row sm:justify-end">
+                            <button
+                                type="button"
+                                disabled={salvando}
+                                onClick={() => {
+                                    setErro("");
+                                    setModalAberto(false);
+                                }}
+                                className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                Voltar e editar
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={salvando}
+                                onClick={confirmarEdicao}
+                                className="rounded-xl bg-green-600 px-5 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {salvando
+                                    ? "Salvando..."
+                                    : "Confirmar alterações"
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
