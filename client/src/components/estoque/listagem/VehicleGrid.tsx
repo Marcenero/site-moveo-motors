@@ -1,4 +1,4 @@
-import type { Veiculo } from "../../types/veiculo";
+import type { Veiculo } from "../../../types/veiculo";
 import VehicleCard from "./VehicleCard";
 
 type VehicleGridProps = {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import VehicleDetailsClient from "../../../components/estoque/VehicleDetailsClient";
+import VehicleDetailsClient from "../../../components/estoque/detalhes/VehicleDetailsClient";
 import type { Veiculo } from "../../../types/veiculo";
 
 import { getPublicApiUrl } from "../../../lib/env.client";

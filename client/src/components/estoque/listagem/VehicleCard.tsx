@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronsRight } from "lucide-react";
-import type { Veiculo } from "../../types/veiculo";
+import type { Veiculo } from "../../../types/veiculo";
 
 type VehicleCardProps = {
     veiculo: Veiculo;

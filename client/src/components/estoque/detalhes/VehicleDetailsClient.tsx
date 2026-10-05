@@ -15,13 +15,13 @@ import {
     Share2,
 } from "lucide-react";
 
-import Header from "../Header";
-import Footer from "../Footer";
-import Breadcrumbs from "../estoque/Breadcrumbs";
+import Header from "../../layout/Header";
+import Footer from "../../layout/Footer";
+import Breadcrumbs from "../../estoque/Breadcrumbs";
 
-import type { Veiculo } from "../../types/veiculo";
+import type { Veiculo } from "../../../types/veiculo";
 
-import { logError } from "../../lib/logger";
+import { logError } from "../../../lib/logger";
 
 type Props = {
     veiculo: Veiculo;

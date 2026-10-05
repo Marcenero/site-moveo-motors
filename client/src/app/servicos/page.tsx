@@ -10,9 +10,10 @@ import {
     CheckCircle2,
     type LucideIcon,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+import Header from "../../components/layout/Header";
+import Footer from "../../components/layout/Footer";
 
 const whatsappNumber = "5511999999999";
 
@@ -276,7 +277,7 @@ export default function ServicosPage() {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 rounded-xl bg-black px-6 py-4 text-xs font-black uppercase tracking-wider text-[#D9A300] transition hover:bg-white hover:text-black"
                         >
-                            <MessageCircle size={16} />
+                            <FaWhatsapp size={16} />
                             Chamar no WhatsApp
                         </a>
                         <Link
@@ -383,7 +384,7 @@ function ServicoCard({
                 >
                     {servico.botao}
                     {servico.href.startsWith("http") ? (
-                        <ArrowUpRight size={16} />
+                        <FaWhatsapp size={16} />
                     ) : (
                         <ArrowRight size={16} />
                     )}
