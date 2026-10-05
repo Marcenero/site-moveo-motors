@@ -98,7 +98,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
                     <span>&#8226;</span>
 
                     <span>
-                        <strong>{veiculo.combustivel}</strong>
+                        <strong>{veiculo.cambio}</strong>
                     </span>
                 </div>
 
