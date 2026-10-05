@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { logError } from "../../lib/logger";
 import { createClient } from "../../../../supabase/server";
 import LogoutButton from "../../components/admin/logout-button";
-import GraficoVendas from "../../components/admin/grafico-vendas";
+import GraficoVendas from "../../components/admin/dashboard/grafico-vendas";
 import { Car, TrendingUp, Plus, History } from "lucide-react";
 import { getPublicApiUrl } from "../../lib/env.client";
 

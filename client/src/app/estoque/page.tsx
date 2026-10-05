@@ -4,15 +4,15 @@ import Image from "next/image";
 import { useMemo, useEffect, useState } from "react";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+import Header from "../../components/layout/Header";
+import Footer from "../../components/layout/Footer";
 import Breadcrumbs from "../../components/estoque/Breadcrumbs";
-import VehicleCard from "../../components/estoque/VehicleCard";
+import VehicleCard from "../../components/estoque/listagem/VehicleCard";
 import Filters, {
     FILTROS_INICIAIS,
     filtrar,
     type FilterState,
-} from "../../components/estoque/Filters";
+} from "../../components/estoque/listagem/Filters";
 import { Veiculo } from "../../types/veiculo";
 
 import { logError } from "../../lib/logger";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LandingPageClient from "./LandingPageClient";
+import LandingPageClient from "../components/home/LandingPageClient";
 
 export const metadata: Metadata = {
     alternates: {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import type { Veiculo } from "../../types/veiculo";
+import type { Veiculo } from "../../../types/veiculo";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

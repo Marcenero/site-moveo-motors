@@ -1,18 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import VehicleCard from "../components/estoque/VehicleCard";
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
+import VehicleCard from "../estoque/listagem/VehicleCard";
 import { useEffect, useState } from "react";
-import type { Veiculo } from "../types/veiculo";
+import type { Veiculo } from "../../types/veiculo";
 import { MapPin, Phone, ArrowRight, MessageCircle, ShieldCheck, Zap } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { FaWhatsapp } from "react-icons/fa";
 
-import { logError } from "../lib/logger";
-import { getPublicApiUrl } from "../lib/env.client";
+import { logError } from "../../lib/logger";
+import { getPublicApiUrl } from "../../lib/env.client";
 
 function VehicleCardSkeleton() {
     return (
@@ -60,7 +60,7 @@ function MapaSkeleton() {
     );
 }
 
-const MapaLoja = dynamic(() => import("../components/home/MapaLoja"), {
+const MapaLoja = dynamic(() => import("./MapaLoja"), {
     ssr: false,
     loading: () => <MapaSkeleton />,
 });
