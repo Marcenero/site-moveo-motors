@@ -20,18 +20,18 @@ function irParaLocalizacao(event: React.MouseEvent<HTMLAnchorElement>) {
 
 export default function Footer() {
     return (
-        <footer id="sobre" className="bg-white pt-24 pb-12 px-6 border-t border-gray-100">
+        <footer id="sobre" className="bg-white pt-14 pb-8 px-6 border-t border-gray-100">
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
                     <div className="col-span-1 md:col-span-1">
-                        <div className="flex flex-col mb-8">
+                        <div className="flex flex-col mb-5">
                             <img
                                 src="/Moveo-motors3.svg"
                                 alt="Moveo Motors Logo"
                                 className="w-40 sm:w-48 md:w-56 lg:w-full max-w-[260px] h-auto"
                             />
                         </div>
-                        <p className="font-medium leading-relaxed mb-8 italic">
+                        <p className="font-medium leading-relaxed mb-5 italic">
                             A Moveo Motors é sinônimo de exclusividade e paixão automóvel. O seu
                             sonho é o nosso compromisso diário.
                         </p>
@@ -49,7 +49,7 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">
+                        <h4 className="font-black text-black mb-5 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">
                             Menu
                         </h4>
                         <ul className="space-y-4 font-bold text-gray-500">
@@ -84,7 +84,7 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-black text-black mb-8 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">
+                        <h4 className="font-black text-black mb-5 uppercase tracking-widest text-sm border-l-4 border-[#D9A300] pl-3">
                             Institucional
                         </h4>
                         <ul className="space-y-4 font-bold text-gray-500">
