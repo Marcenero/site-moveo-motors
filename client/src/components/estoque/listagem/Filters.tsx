@@ -134,23 +134,59 @@ export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
 
             {/* Price */}
             <div>
-                <div className="flex justify-between mb-1">
-                    <span className={labelCls}>Preço máximo</span>
-                    <span className="text-xs font-semibold text-gray-600">
-                        {valor.precoMax >= PRECO_MAX_GLOBAL
-                            ? "Qualquer"
-                            : `R$ ${valor.precoMax.toLocaleString("pt-BR")}`}
-                    </span>
+                <label
+                    htmlFor={`${uid}-preco-max`}
+                    className={labelCls}
+                >
+                    Preço máximo
+                </label>
+
+                <div className="mb-3">
+                    <div className="relative">
+                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                            R$
+                        </span>
+
+                        <input
+                            id={`${uid}-preco-max`}
+                            type="number"
+                            min={0}
+                            max={PRECO_MAX_GLOBAL}
+                            step={1_000}
+                            value={valor.precoMax}
+                            onChange={(e) => {
+                                const novoValor = Number(e.target.value);
+
+                                set(
+                                    "precoMax",
+                                    Math.min(
+                                        Math.max(novoValor, 0),
+                                        PRECO_MAX_GLOBAL
+                                    )
+                                );
+                            }}
+                            className={`${inputCls} pl-9`}
+                        />
+                    </div>
                 </div>
+
                 <input
                     type="range"
                     min={0}
                     max={PRECO_MAX_GLOBAL}
                     step={5_000}
                     value={valor.precoMax}
-                    onChange={(e) => set("precoMax", Number(e.target.value))}
-                    className={rangeCls}
+                    onChange={(e) =>
+                        set("precoMax", Number(e.target.value))
+                    }
+                    className="w-full accent-[#D9A300] cursor-pointer"
                 />
+
+                {valor.precoMax >= PRECO_MAX_GLOBAL && (
+                    <p className="mt-1 text-xs text-gray-400">
+                        Sem limite de preço
+                    </p>
+                )}
             </div>
 
             {/* Year */}
@@ -180,23 +216,59 @@ export default function Filters({ veiculos, valor, aoMudar }: FiltersProps) {
 
             {/* Mileage */}
             <div>
-                <div className="flex justify-between mb-1">
-                    <span className={labelCls}>Km máximo</span>
-                    <span className="text-xs font-semibold text-gray-600">
-                        {valor.kmMax >= KM_MAX_GLOBAL
-                            ? "Qualquer"
-                            : `${(valor.kmMax / 1_000).toFixed(0)}k km`}
-                    </span>
+                <label
+                    htmlFor={`${uid}-km-max`}
+                    className={labelCls}
+                >
+                    Km máximo
+                </label>
+
+                <div className="mb-3">
+                    <div className="relative">
+                        <input
+                            id={`${uid}-km-max`}
+                            type="number"
+                            min={0}
+                            max={KM_MAX_GLOBAL}
+                            step={1_000}
+                            value={valor.kmMax}
+                            onChange={(e) => {
+                                const novoValor = Number(e.target.value);
+
+                                set(
+                                    "kmMax",
+                                    Math.min(
+                                        Math.max(novoValor, 0),
+                                        KM_MAX_GLOBAL
+                                    )
+                                );
+                            }}
+                            className={`${inputCls} pr-10`}
+                        />
+
+                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                            km
+                        </span>
+                    </div>
                 </div>
+
                 <input
                     type="range"
                     min={0}
                     max={KM_MAX_GLOBAL}
                     step={5_000}
                     value={valor.kmMax}
-                    onChange={(e) => set("kmMax", Number(e.target.value))}
-                    className={rangeCls}
+                    onChange={(e) =>
+                        set("kmMax", Number(e.target.value))
+                    }
+                    className="w-full accent-[#D9A300] cursor-pointer"
                 />
+
+                {valor.kmMax >= KM_MAX_GLOBAL && (
+                    <p className="mt-1 text-xs text-gray-400">
+                        Sem limite de quilometragem
+                    </p>
+                )}
             </div>
 
             {/* Transmission */}
