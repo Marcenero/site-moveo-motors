@@ -10,7 +10,7 @@ export default function GraficoVendas({ dados }: GraficoVendasProps) {
         return <p className="text-sm text-gray-500">Nenhum dado de venda disponível.</p>;
     }
 
-    const largura = 600;
+    const largura = Math.max(900, dados.length * 28);
     const altura = 240;
     const paddingX = 42;
     const paddingY = 32;
@@ -42,9 +42,10 @@ export default function GraficoVendas({ dados }: GraficoVendasProps) {
         <div className="w-full overflow-x-auto">
             <svg
                 viewBox={`0 0 ${largura} ${altura}`}
-                className="h-72 w-[90%]"
+                className="h-72 min-w-full"
+                style={{ width: `${largura}px` }}
                 role="img"
-                aria-label="Gráfico de veículos vendidos nos últimos 5 dias"
+                aria-label="Gráfico de veículos vendidos nos últimos 45 dias"
             >
                 <defs>
                     <linearGradient id="vendasGradient" x1="0" y1="0" x2="0" y2="1">
@@ -86,27 +87,33 @@ export default function GraficoVendas({ dados }: GraficoVendasProps) {
                     strokeLinejoin="round"
                 />
 
-                {pontos.map((ponto) => (
-                    <g key={ponto.dia}>
-                        <circle
-                            cx={ponto.x}
-                            cy={ponto.y}
-                            r="6"
-                            fill="#ffffff"
-                            stroke="#6ee7b7"
-                            strokeWidth="3"
-                        />
+                {pontos.map((ponto, index) => {
+                    const mostrarData = index % 5 === 0 || index === pontos.length - 1;
 
-                        <text
-                            x={ponto.x}
-                            y={altura - 8}
-                            textAnchor="middle"
-                            className="fill-gray-500 text-xs"
-                        >
-                            {ponto.dia}
-                        </text>
-                    </g>
-                ))}
+                    return (
+                        <g key={`${ponto.dia}-${index}`}>
+                            <circle
+                                cx={ponto.x}
+                                cy={ponto.y}
+                                r="5"
+                                fill="#ffffff"
+                                stroke="#6ee7b7"
+                                strokeWidth="3"
+                            />
+
+                            {mostrarData && (
+                                <text
+                                    x={ponto.x}
+                                    y={altura - 8}
+                                    textAnchor="middle"
+                                    className="fill-gray-500 text-xs"
+                                >
+                                    {ponto.dia}
+                                </text>
+                            )}
+                        </g>
+                    );
+                })}
             </svg>
         </div>
     );

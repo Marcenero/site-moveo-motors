@@ -148,7 +148,7 @@ export default function PrivacidadePage() {
                             </p>
                         </PrivacidadeSecao>
 
-                        <PrivacidadeSecao titulo="8.Plataformas externas">
+                        <PrivacidadeSecao titulo="8. Plataformas externas">
                             <p>
                                 O site poderá direcionar o usuário para serviços externos, como
                                 WhatsApp, Instagram, Facebook e Google Maps.

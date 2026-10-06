@@ -120,24 +120,8 @@ function pegarDataHojeBrasil() {
     }).format(new Date());
 }
 
-function pegarDataLimiteBrasil() {
-    const hoje = new Date();
-
-    // 4 dias antes de hoje, porque hoje conta como um dos 5 dias
-    hoje.setDate(hoje.getDate() - 4);
-
-    return new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/Sao_Paulo",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    }).format(hoje);
-}
-
 async function incrementarVendaDoDia(tx: Prisma.TransactionClient) {
     const dataHoje = dataStringParaDate(pegarDataHojeBrasil());
-
-    const dataLimite = dataStringParaDate(pegarDataLimiteBrasil());
 
     await tx.vendaDia.upsert({
         where: {
@@ -153,14 +137,6 @@ async function incrementarVendaDoDia(tx: Prisma.TransactionClient) {
         create: {
             data: dataHoje,
             quantidade: 1,
-        },
-    });
-
-    await tx.vendaDia.deleteMany({
-        where: {
-            data: {
-                lt: dataLimite,
-            },
         },
     });
 }
@@ -491,15 +467,15 @@ router.post(
     }
 );
 
-/* Rota para atualizar a tabela de vendas do dia */
-router.get("/vendas/ultimos-5-dias", exigirAdmin, async (req, res) => {
+/* Rota para buscar vendas dos últimos 45 dias */
+router.get("/vendas/ultimos-45-dias", exigirAdmin, async (req, res) => {
     try {
         const hoje = new Date();
 
-        const datas = Array.from({ length: 5 }, (_, index) => {
+        const datas = Array.from({ length: 45 }, (_, index) => {
             const data = new Date(hoje);
 
-            data.setDate(hoje.getDate() - (4 - index));
+            data.setDate(hoje.getDate() - (44 - index));
 
             return new Intl.DateTimeFormat("en-CA", {
                 timeZone: "America/Sao_Paulo",
@@ -545,17 +521,17 @@ router.get("/vendas/ultimos-5-dias", exigirAdmin, async (req, res) => {
             vendas: resultado,
         });
     } catch (error) {
-        capturarErro(error, "database", "buscar_vendas_ultimos_5_dias");
+        capturarErro(error, "database", "buscar_vendas_ultimos_45_dias");
 
         logError("sales_history_fetch_failed", error, {
             component: "database",
-            operation: "buscar_vendas_ultimos_5_dias",
+            operation: "buscar_vendas_ultimos_45_dias",
             status: 500,
         });
 
         return res.status(500).json({
             ok: false,
-            erro: "Erro ao buscar vendas dos últimos 5 dias.",
+            erro: "Erro ao buscar vendas dos últimos 45 dias.",
         });
     }
 });

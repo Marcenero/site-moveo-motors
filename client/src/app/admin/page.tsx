@@ -65,7 +65,7 @@ export default async function AdminPage() {
     }
 
     try {
-        const response = await fetch(`${API_URL}/veiculos/vendas/ultimos-5-dias`, {
+        const response = await fetch(`${API_URL}/veiculos/vendas/ultimos-45-dias`, {
             cache: "no-store",
 
             headers: {
@@ -88,7 +88,7 @@ export default async function AdminPage() {
                 status: response.status,
             });
 
-            throw new Error("Erro ao buscar vendas nos últimos 5 dias.");
+            throw new Error("Erro ao buscar vendas nos últimos 45 dias.");
         }
 
         const resultado = await response.json();
@@ -100,14 +100,17 @@ export default async function AdminPage() {
             operation: "carregar_grafico_vendas",
         });
 
-        vendasUltimosDias = [
-            { dia: "Hoje -4", vendidos: 0 },
-            { dia: "Hoje -3", vendidos: 0 },
-            { dia: "Hoje -2", vendidos: 0 },
-            { dia: "Ontem", vendidos: 0 },
-            { dia: "Hoje", vendidos: 0 },
-        ];
+        vendasUltimosDias = [];
     }
+
+    const totalVendas = vendasUltimosDias.reduce(
+        (total, venda) => total + venda.vendidos,
+        0
+    );
+
+    const mediaVendas = vendasUltimosDias.length > 0
+        ? totalVendas / vendasUltimosDias.length
+        : 0;
 
     return (
         <main className="min-h-screen bg-[#f7f7f7] p-6">
@@ -186,13 +189,24 @@ export default async function AdminPage() {
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 mt-6 shadow-sm lg:col-span-2">
                     <div className="mb-6 flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-500">
-                                Vendas nos últimos 5 dias
-                            </p>
+                            <strong className="font-bold text-black text-2xl">
+                                Vendas nos últimos 45 dias
+                            </strong>
 
-                            <h2 className="text-2xl font-bold text-gray-900">
-                                Veículos vendidos por dia
-                            </h2>
+                            <div className="mt-1 flex items-baseline gap-3">
+                                <h2 className="text-3xl font-bold text-gray-900">
+                                    {totalVendas}
+                                </h2>
+
+                                <span className="text-sm text-gray-500">
+                                    veículos vendidos
+                                </span>
+                            </div>
+
+                            <p className="mt-1 text-sm text-gray-400">
+                                Média de {" "}
+                                {mediaVendas.toFixed(1).replace(".", ",")} por dia
+                            </p>
                         </div>
 
                         <div className="rounded-full bg-gray-100 p-3">

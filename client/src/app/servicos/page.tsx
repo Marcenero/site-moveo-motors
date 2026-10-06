@@ -39,11 +39,11 @@ const servicos: Servico[] = [
     {
         slug: "compra",
         categoria: "Compra",
-        titulo: "Seminovos premium",
+        titulo: "Seminovos selecionados",
         descricao:
-            "Selecionamos veículos com atenção à procedência, conservação e histórico para oferecer mais segurança na sua escolha.",
+            "Cada veículo é avaliado com atenção à procedência, conservação e histórico para oferecer mais segurança na sua escolha.",
         itens: [
-            "Veículos criteriosamente selecionados",
+            "Avaliação criteriosa de cada veículo",
             "Vistoria e análise de procedência",
             "Informações transparentes sobre cada veículo",
         ],
