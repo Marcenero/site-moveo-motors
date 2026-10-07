@@ -9,6 +9,8 @@ type Consent = "accepted" | "rejected" | null;
 const COOKIE_NAME = "moveo_cookie_consent";
 const SIX_MONTHS = 60 * 60 * 24 * 180;
 
+const COOKIE_PREFERENCES_EVENT = "moveo:open-cookie-preferences";
+
 function getConsent(): Consent {
     const cookie = document.cookie.split("; ").find((row) => row.startsWith(`${COOKIE_NAME}=`));
 
@@ -39,19 +41,47 @@ export default function CookieConsent() {
     const [consent, setConsent] = useState<Consent>(null);
     const [initialized, setInitialized] = useState(false);
 
+    const [preferencesOpen, setPreferencesOpen] = useState(false);
+
     useEffect(() => {
         setConsent(getConsent());
         setInitialized(true);
+
+        function openPreferences() {
+            setPreferencesOpen(true);
+        }
+
+        window.addEventListener(
+            COOKIE_PREFERENCES_EVENT,
+            openPreferences
+        );
+
+        return () => {
+            window.removeEventListener(
+                COOKIE_PREFERENCES_EVENT,
+                openPreferences
+            );
+        };
     }, []);
 
     function acceptCookies() {
         saveConsent("accepted");
         setConsent("accepted");
+        setPreferencesOpen(false);
     }
 
     function rejectCookies() {
+        const previousConsent = consent;
+
         saveConsent("rejected");
+
+        if (previousConsent === "accepted") {
+            window.location.reload();
+            return;
+        }
+
         setConsent("rejected");
+        setPreferencesOpen(false);
     }
 
     if (!initialized) {
@@ -62,7 +92,7 @@ export default function CookieConsent() {
         <>
             {consent === "accepted" && <TrackingScripts />}
 
-            {consent === null && (
+            {(consent === null || preferencesOpen) && (
                 <div className="fixed bottom-4 left-4 right-4 z-[100] mx-auto max-w-5xl rounded-2xl border border-[#d9a300]/30 bg-white p-5 shadow-2xl md:p-6">
                     <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                         <div className="max-w-2xl">
@@ -86,9 +116,31 @@ export default function CookieConsent() {
                                 </Link>
                                 .
                             </p>
+
+                            {preferencesOpen && consent !== null && (
+                                <p className="mt-2 text-xs text-gray-500">
+                                    Preferência atual:{" "}
+                                    <strong>
+                                        {consent === "accepted"
+                                            ? "cookies opcionais aceitos"
+                                            : "cookies opcionais rejeitados"}
+                                    </strong>
+                                    .
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                            {preferencesOpen && consent !== null && (
+                                <button
+                                    type="button"
+                                    onClick={() => setPreferencesOpen(false)}
+                                    className="rounded-xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-100"
+                                >
+                                    Cancelar
+                                </button>
+                            )}
+
                             <button
                                 type="button"
                                 onClick={rejectCookies}
