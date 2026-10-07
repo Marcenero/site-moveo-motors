@@ -136,15 +136,26 @@ export default function PrivacidadePage() {
 
                         <PrivacidadeSecao titulo="7. Cookies">
                             <p>
-                                O site poderá utilizar cookies e tecnologias semelhantes necessários
-                                ao seu funcionamento ou destinados a melhorar a experiência de
-                                navegação.
+                                O site utiliza cookies e tecnologias semelhantes necessários ao
+                                funcionamento de determinados recursos e ao armazenamento das
+                                preferências do visitante.
                             </p>
 
                             <p>
-                                Caso sejam utilizados cookies de análise, publicidade ou outras
-                                categorais não essenciais, o visitante poderá ser informado e,
-                                quando aplicável, poderá gerenciar suas preferências.
+                                Mediante consentimento, poderão ser utilizadas tecnologias de
+                                análise e publicidade, incluindo Google Analytics e Meta Pixel,
+                                para compreender a utilização do site e avaliar ações de divulgação.
+                            </p>
+
+                            <p>
+                                Essas tecnologias opcionais somente são ativadas após a aceitação
+                                do visitante. A rejeição dos cookies não essenciais não impede a
+                                utilização das funcionalidades principais do site.
+                            </p>
+
+                            <p>
+                                A preferência escolhida poderá ser alterada posteriormente pela
+                                opção "Preferências de cookies", disponível no rodapé do site.
                             </p>
                         </PrivacidadeSecao>
 

@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
+const COOKIE_PREFERENCES_EVENT = "moveo:open-cookie-preferences";
+
+function abrirPreferenciasCookies() {
+    window.dispatchEvent(new Event(COOKIE_PREFERENCES_EVENT));
+}
+
 function irParaLocalizacao(event: React.MouseEvent<HTMLAnchorElement>) {
     if (window.location.pathname !== "/sobre") {
         return;
@@ -111,6 +117,15 @@ export default function Footer() {
                                 >
                                     Privacidade
                                 </Link>
+                            </li>
+                            <li>
+                                <button
+                                    type="button"
+                                    onClick={abrirPreferenciasCookies}
+                                    className="hover:text-[#D9A300] transition-colors text-left"
+                                >
+                                    Preferências de cookies
+                                </button>
                             </li>
                         </ul>
                     </div>
