@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
 const COOKIE_PREFERENCES_EVENT = "moveo:open-cookie-preferences";
+const LOCATION_HIGHLIGHT_EVENT = "moveo:highlight-location";
 
 function abrirPreferenciasCookies() {
     window.dispatchEvent(new Event(COOKIE_PREFERENCES_EVENT));
@@ -22,6 +23,8 @@ function irParaLocalizacao(event: React.MouseEvent<HTMLAnchorElement>) {
     });
 
     window.history.replaceState(null, "", "/sobre#localizacao");
+
+    window.dispatchEvent(new Event(LOCATION_HIGHLIGHT_EVENT));
 }
 
 export default function Footer() {
@@ -69,7 +72,7 @@ export default function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="https://wa.me/5511912345678"
+                                    //href="https://wa.me/5511912345678"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="hover:text-[#D9A300] transition-colors"

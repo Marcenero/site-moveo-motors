@@ -143,13 +143,25 @@ export default function LandingPage() {
                 {/* Hero Content */}
                 <div className="relative z-20 container mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
                     <div className="text-left">
+                        {/* Pré-lançamento */}
+                        <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#d9a300]/40 bg-black/50 px-4 py-2 backdrop-blur-md">
+                            <span className="relative flex h-2.5 w-2.5">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#d9a300] opacity-75" />
+                                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#d9a300]" />
+                            </span>
+
+                            <span className="text-xs font-black uppercase tracking-[0.2em] text-[#d9a300]">
+                                Site em pré-lançamento
+                            </span>
+                        </div>
+                        
                         <h1 className="text-white text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-[0.95] tracking-tighter">
                             A EMOÇÃO DE <br />
                             <span className="text-[#D9A300] italic">DIRIGIR.</span>
                         </h1>
                         <p className="text-gray-300 text-lg md:text-xl mb-10 font-medium max-w-lg leading-relaxed">
                             Na <span className="text-[#D9A300] font-bold">MOVEO MOTORS</span>,
-                            selecionamos apenas o melhor para si. Veículos premium com garantia e
+                            selecionamos apenas o melhor para você. Veículos premium com garantia e
                             procedência garantida.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
@@ -255,13 +267,13 @@ export default function LandingPage() {
                             </p>
                             <button
                                 className="w-full bg-green-500 text-white px-4 py-5 rounded-2xl font-black text-sm sm:text-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 sm:gap-3 text-center"
-                                onClick={() =>
+                                /*onClick={() =>
                                     window.open(
-                                        "https://wa.me/5511984481526",
+                                        "https://wa.me/5511999999999",
                                         "_blank",
                                         "noopener,noreferrer"
                                     )
-                                }
+                                }*/
                             >
                                 <span className="shrink-0 text-xl sm:text-2xl">
                                     <FaWhatsapp />
