@@ -75,7 +75,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         `${nomeComAno} com ${detalhes}` +
         "Confira fotos, ficha técnica e condições na Moveo Motors em Osasco, SP.";
 
-    const imagemPrincipal = veiculo.imagens?.[0]?.url ?? "https://moveomotors.com.br/og.png";
+    const imagemPrincipal = veiculo.imagens?.[0]?.url ?? "https://moveomotors.com.br/Moveo-motors2.png";
 
     const slugCanonico = `${gerarSlug(veiculo.nome)}-${veiculo.id}`;
 
