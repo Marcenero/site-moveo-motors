@@ -15,7 +15,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 
-const whatsappNumber = "5511999999999";
+const whatsappNumber = "5511NUMERO";
 
 function buildWhatsappLink(message: string) {
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;

@@ -529,7 +529,7 @@ function EstadoVazio({ aoLimpar, sugestoes }: { aoLimpar: () => void; sugestoes:
 
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {sugestoes.map((veiculo) => {
-                        const imagem = veiculo.imagens?.[0]?.url ?? "/placeholder-car.png";
+                        const imagem = veiculo.imagens?.[0]?.url ?? "/Moveo-motors2.png";
 
                         return (
                             <a

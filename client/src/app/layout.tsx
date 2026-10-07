@@ -51,7 +51,7 @@ export const metadata: Metadata = {
         siteName: "Moveo Motors",
         images: [
             {
-                url: "/og.png",
+                url: "/Moveo-motors2.png",
                 width: 1200,
                 height: 630,
                 alt: "Moveo Motors - Seminovos em Osasco",
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Moveo Motors - Seminovos em Osasco",
         description: "Carros seminovos com procedência e garantia em Osasco, SP.",
-        images: ["/og.png"],
+        images: ["/Moveo-motors2.png"],
     },
 
     icons: { icon: "/favicon.ico" },
