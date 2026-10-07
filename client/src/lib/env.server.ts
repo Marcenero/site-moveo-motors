@@ -21,9 +21,17 @@ export function getSiteUrl() {
         return siteUrl.replace(/\/+$/, "");
     }
 
+    const vercelUrl = 
+        process.env.VERCEL_BRANCH_URL ??
+        process.env.VERCEL_URL;
+
+    if (vercelUrl) {
+        return `https://${vercelUrl}`;
+    }
+
     if (!isProduction) {
         return "http://localhost:3000";
     }
 
-    throw new Error("NEXT_PUBLIC_SITE_URL não está configurada em produção.");
+    throw new Error("Não foi possível determinar a URL do site.");
 }
