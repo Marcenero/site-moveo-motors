@@ -219,7 +219,7 @@ export default function SobrePage() {
                                 <FaFacebookF size={30} />
                             </div>
                             <a
-                                href="https://www.instagram.com/moveomotors?igsh=ankya3htZWVqMjZ2"
+                                href="https://www.instagram.com/moveomotors"
                                 className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 hover:bg-pink-500 hover:text-white transition-colors duration-300"
                             >
                                 <FaInstagram size={30} />

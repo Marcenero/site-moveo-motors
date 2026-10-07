@@ -45,15 +45,33 @@ export default function Footer() {
                             sonho é o nosso compromisso diário.
                         </p>
                         <div className="flex gap-4">
-                            {[FaInstagram, FaFacebookF, FaWhatsapp].map((Icon, idx) => (
-                                <a
-                                    key={idx}
-                                    href="#"
-                                    className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#D9A300] hover:text-black transition-all"
-                                >
-                                    <Icon size={20} />
-                                </a>
-                            ))}
+                            <a
+                                href="https://www.instagram.com/moveomotors"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Instagram da Moveo Motors"
+                                className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#d9a300] hover:text-black transition-all"
+                            >
+                                <FaInstagram size={22} />
+                            </a>
+
+                            <button
+                                type="button"
+                                disabled
+                                aria-label="Facebook em breve"
+                                className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#d9a300] hover:text-black transition-all"
+                            >
+                                <FaFacebookF size={22} />
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled
+                                aria-label="Whatsapp em breve"
+                                className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#d9a300] hover:text-black transition-all"
+                            >
+                                <FaWhatsapp size={22} />
+                            </button>
                         </div>
                     </div>
 
