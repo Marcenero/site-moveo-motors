@@ -31,13 +31,13 @@ export default function Footer() {
     return (
         <footer id="sobre" className="bg-white pt-14 pb-8 px-6 border-t border-gray-100">
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-                    <div className="col-span-1 md:col-span-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[1.4fr_1fr_1fr] gap-10 xl:gap-16 mb-12">
+                    <div className="md:col-span-2 xl:col-span-1">
                         <div className="flex flex-col mb-5">
                             <img
                                 src="/Moveo-motors3.svg"
                                 alt="Moveo Motors Logo"
-                                className="w-40 sm:w-48 md:w-56 lg:w-full max-w-[260px] h-auto"
+                                className="w-40 sm:w-48 xl:w-56 max-w-[224px] h-auto"
                             />
                         </div>
                         <p className="font-medium leading-relaxed mb-5 italic">
@@ -152,8 +152,8 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="text-gray-400 text-[10px] font-bold text-center md:text-left leading-relaxed max-w-2xl uppercase tracking-tighter">
+                <div className="pt-6 border-t border-gray-100 flex flex-col lg:flex-row justify-between items-center gap-6">
+                    <div className="text-gray-400 text-[10px] font-bold text-center lg:text-left leading-relaxed max-w-2xl uppercase tracking-tighter">
                         As especificações dos veículos estão sujeitas a confirmação. Preços
                         anunciados válidos para venda direta sem troca, salvo erro ortográfico.
                     </div>

@@ -8,6 +8,8 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import Breadcrumbs from "../../components/estoque/Breadcrumbs";
 import VehicleCard from "../../components/estoque/listagem/VehicleCard";
+import VehicleCardSkeleton from "../../components/estoque/listagem/VehicleCardSkeleton";
+import EstoqueEmBreve from "../../components/estoque/listagem/EstoqueEmBreve";
 import Filters, {
     FILTROS_INICIAIS,
     filtrar,
@@ -28,38 +30,6 @@ const OPCOES_ORDENACAO: Record<Ordenacao, string> = {
     "ano-desc": "Mais novos",
 };
 
-function VehicleCardSkeleton() {
-    return (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-lg animate-pulse">
-            {/* Imagem */}
-            <div className="aspect-[16/10] w-full bg-gray-200" />
-
-            {/* Informações */}
-            <div className="space-y-4 p-5">
-                {/* Nome */}
-                <div className="h-6 w-3/4 rounded-md bg-gray-200" />
-
-                {/* Preço */}
-                <div className="h-8 w-1/2 rounded-md bg-gray-200" />
-
-                {/* Ano / km / Combustível */}
-                <div className="flex items-center gap-3">
-                    <div className="h-4 w-14 rounded bg-gray-200" />
-                    <div className="h-2 w-2 rounded-full bg-gray-200" />
-                    <div className="h-4 w-20 rounded bg-gray-200" />
-                    <div className="h-2 w-2 rounded-full bg-gray-200" />
-                    <div className="h-4 w-24 rounded bg-gray-200" />
-                </div>
-
-                {/* Botão */}
-                <div className="pt-2">
-                    <div className="h-12 w-full rounded-xl bg-gray-200" />
-                </div>
-            </div>
-        </div>
-    );
-}
-
 export default function EstoquePage() {
     const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
     const [carregando, setCarregando] = useState(true);
@@ -70,6 +40,11 @@ export default function EstoquePage() {
                 const apiUrl = getPublicApiUrl();
 
                 const resposta = await fetch(`${apiUrl}/veiculos`);
+
+                if (!resposta.ok) {
+                    throw new Error("Erro ao buscar veículos");
+                }
+
                 const dados = await resposta.json();
 
                 const lista = Array.isArray(dados)
@@ -158,110 +133,126 @@ export default function EstoquePage() {
             {/* Page header */}
             <header className="max-w-7xl mx-auto px-6 pt-6 pb-6">
                 <p className="text-xs font-mono uppercase tracking-[0.3em] text-gray-500 mb-2">
-                    Catálogo - Mostrando {resultados.length} veículos
+                    {carregando
+                        ? "Catálogo - Carregando"
+                        : veiculos.length === 0
+                            ? "Catálogo - Em preparação"
+                            : `Catálogo - Mostrando ${resultados.length} veículos`
+                    }
                 </p>
                 <h1 className="text-4xl md:text-5xl font-black tracking-tight">Estoque</h1>
             </header>
 
-            <div className="max-w-7xl mx-auto px-6 pb-16 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
-                {/* Sidebar (desktop) */}
-                <div className="hidden lg:block">
-                    <Filters
-                        veiculos={Array.isArray(veiculos) ? veiculos : []}
-                        valor={filtros}
-                        aoMudar={setFiltros}
-                    />
-                </div>
+            <div className="max-w-7xl mx-auto px-6 pb-16">
+                {!carregando && veiculos.length === 0 ? (
+                    <EstoqueEmBreve />
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
+                        {/* Sidebar (desktop) */}
+                        <div className="hidden lg:block">
+                            <Filters
+                                veiculos={Array.isArray(veiculos) ? veiculos : []}
+                                valor={filtros}
+                                aoMudar={setFiltros}
+                            />
+                        </div>
 
-                {/* Results */}
-                <main>
-                    {/* Toolbar: chips + mobile filter toggle + sort */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                                onClick={() => setFiltrosMobileAberto(true)}
-                                className="lg:hidden inline-flex items-center gap-2 h-9 px-3 rounded-full border border-black text-sm font-bold"
-                            >
-                                <SlidersHorizontal size={15} />
-                                Filtros
-                                {chipsAtivos.length > 0 && (
-                                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-[#D9A300] text-black text-[11px] font-black">
-                                        {chipsAtivos.length}
-                                    </span>
-                                )}
-                            </button>
-
-                            {chipsAtivos.map((chip) => (
-                                <span
-                                    key={String(chip.chave)}
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold pl-3 pr-1.5 py-1 rounded-full bg-black text-white"
-                                >
-                                    {chip.rotulo}
+                        {/* Results */}
+                        <main>
+                            {/* Toolbar */}
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                                <div className="flex items-center gap-2 flex-wrap">
                                     <button
-                                        onClick={() => removerChip(chip.chave)}
-                                        className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-white/15"
-                                        aria-label={`Remover filtro: ${chip.rotulo}`}
+                                        onClick={() => setFiltrosMobileAberto(true)}
+                                        className="lg:hidden inline-flex items-center gap-2 h-9 px-3 rounded-full border border-black text-sm font-bold"
                                     >
-                                        <X size={10} />
+                                        <SlidersHorizontal size={15} />
+                                        Filtros
+
+                                        {chipsAtivos.length > 0 && (
+                                            <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-[#D9A300] text-black text-[11px] font-black">
+                                                {chipsAtivos.length}
+                                            </span>
+                                        )}
                                     </button>
-                                </span>
-                            ))}
-                        </div>
 
-                        <div className="flex flex-col relative shrink-0 w-full sm:w-auto">
-                            <span className="ml-1 text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">
-                                Ordenar
-                            </span>
+                                    {chipsAtivos.map((chip) => (
+                                        <span
+                                            key={String(chip.chave)}
+                                            className="inline-flex items-center gap-1.5 text-xs font-semibold pl-3 pr-1.5 py-1 rounded-full bg-black text-white"
+                                        >
+                                            {chip.rotulo}
 
-                            <div className="relative w-fit">
-                                <select
-                                    value={ordenacao}
-                                    onChange={(e) => setOrdenacao(e.target.value as Ordenacao)}
-                                    className="h-10 w-full sm:w-auto pl-4 pr-9 rounded-xl border border-gray-200 bg-white text-sm font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-[#D9A300]"
-                                >
-                                    {Object.entries(OPCOES_ORDENACAO).map(([k, v]) => (
-                                        <option key={k} value={k}>
-                                            {v}
-                                        </option>
+                                            <button
+                                                onClick={() => removerChip(chip.chave)}
+                                                className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-white/15"
+                                                aria-label={`Remover filtro: ${chip.rotulo}`}
+                                            >
+                                                <X size={10} />
+                                            </button>
+                                        </span>
                                     ))}
-                                </select>
-                                <ChevronDown
-                                    size={16}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
-                                />
-                            </div>
-                        </div>
-                    </div>
+                                </div>
 
-                    {/* Grid / empty state */}
-                    {carregando ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <VehicleCardSkeleton />
-                            <VehicleCardSkeleton />
-                            <VehicleCardSkeleton />
-                            <VehicleCardSkeleton />
-                            <VehicleCardSkeleton />
-                            <VehicleCardSkeleton />
-                        </div>
-                    ) : resultados.length === 0 ? (
-                        <EstadoVazio
-                            aoLimpar={() => setFiltros(FILTROS_INICIAIS)}
-                            sugestoes={sugestoes}
-                        />
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {resultados.map((v) => (
-                                <VehicleCard key={v.id} veiculo={v} />
-                            ))}
-                        </div>
-                    )}
-                </main>
+                                <div className="flex flex-col relative shrink-0 w-full sm:w-auto">
+                                    <span className="ml-1 text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">
+                                        Ordenar
+                                    </span>
+
+                                    <div className="relative w-fit">
+                                        <select
+                                            value={ordenacao}
+                                            onChange={(e) =>
+                                                setOrdenacao(e.target.value as Ordenacao)
+                                            }
+                                            className="h-10 w-full sm:w-auto pl-4 pr-9 rounded-xl border border-gray-200 bg-white text-sm font-semibold appearance-none focus:outline-none focus:ring-2 focus:ring-[#D9A300]"
+                                        >
+                                            {Object.entries(OPCOES_ORDENACAO).map(([k, v]) => (
+                                                <option key={k} value={k}>
+                                                    {v}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <ChevronDown
+                                            size={16}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Grid / empty state */}
+                            {carregando ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <VehicleCardSkeleton />
+                                    <VehicleCardSkeleton />
+                                    <VehicleCardSkeleton />
+                                    <VehicleCardSkeleton />
+                                    <VehicleCardSkeleton />
+                                    <VehicleCardSkeleton />
+                                </div>
+                            ) : resultados.length === 0 ? (
+                                <EstadoVazio
+                                    aoLimpar={() => setFiltros(FILTROS_INICIAIS)}
+                                    sugestoes={sugestoes}
+                                />
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {resultados.map((v) => (
+                                        <VehicleCard key={v.id} veiculo={v} />
+                                    ))}
+                                </div>
+                            )}
+                        </main>
+                    </div>
+                )}
             </div>
 
             <Footer />
 
             {/* Filtros mobile (drawer) */}
-            {filtrosMobileAberto && (
+            {filtrosMobileAberto && veiculos.length > 0 && (
                 <div className="fixed inset-0 z-[70] lg:hidden">
                     <div
                         className="absolute inset-0 bg-black/50"
