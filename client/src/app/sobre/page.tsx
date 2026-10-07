@@ -193,7 +193,7 @@ export default function SobrePage() {
                     </div>
 
                     <a
-                        /* href="https://wa.me/5511999999999" */
+                        /* href="https://wa.me/5511NUMERO" */
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300] cursor-pointer"

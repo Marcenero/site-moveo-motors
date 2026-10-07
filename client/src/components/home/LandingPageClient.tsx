@@ -175,7 +175,7 @@ export default function LandingPage() {
                                     className="group-hover:translate-x-2 transition-transform"
                                 />
                             </button>
-                            <button className="border-2 border-white/30 hover:border-[#D9A300] text-white px-10 py-5 rounded-xl text-lg font-black uppercase transition-all hover:bg-white/5">
+                            <button className="border-2 border-white/30 hover:border-[#D9A300] text-white px-10 py-5 rounded-xl text-lg font-black uppercase transition-all hover:bg-white/5 cursor-not-allowed">
                                 Avaliar Meu Usado
                             </button>
                         </div>
