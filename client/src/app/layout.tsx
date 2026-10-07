@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { getSiteUrl } from "../lib/env.server";
+
 import CookieConsent from "../components/privacidade/CookieConsent";
 
 const geistSans = Geist({
@@ -14,8 +16,10 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
+const isProduction = process.env.VERCEL_ENV === "production";
+
 export const metadata: Metadata = {
-    metadataBase: new URL("https://moveomotors.com.br"),
+    metadataBase: new URL(getSiteUrl()),
 
     title: {
         default: "Moveo Motors - Seminovos em Osasco",
@@ -26,13 +30,13 @@ export const metadata: Metadata = {
         "Encontre carros seminovos com procedência e garantia na Moveo Motors. Confira nosso estoque e visite o showroom em Osasco, SP.",
 
     robots: {
-        index: true,
-        follow: true,
+        index: isProduction,
+        follow: isProduction,
 
         googleBot: {
-            index: true,
-            follow: true,
-            noimageindex: false,
+            index: isProduction,
+            follow: isProduction,
+            noimageindex: !isProduction,
             "max-image-preview": "large",
             "max-snippet": -1,
             "max-video-preview": -1,
