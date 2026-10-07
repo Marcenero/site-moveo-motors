@@ -2,8 +2,11 @@
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
+import { useEffect, useState } from "react";
 import { FiPhone, FiMail, FiMapPin, FiClock } from "react-icons/fi";
 import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
+
+const LOCATION_HIGHLIGHT_EVENT = "moveo:highlight-location";
 
 const autoDealerJsonLd = {
     "@context": "https://schema.org",
@@ -47,6 +50,35 @@ const autoDealerJsonLd = {
 };
 
 export default function SobrePage() {
+    const [destacarLocalizacao, setDestacarLocalizacao] = useState(false);
+
+    useEffect(() => {
+        let timer: ReturnType<typeof setTimeout>;
+
+        const destacar = () => {
+            setDestacarLocalizacao(true);
+
+            clearTimeout(timer);
+
+            timer = setTimeout(() => {
+                setDestacarLocalizacao(false);
+            }, 2000);
+        };
+
+        //Caso tenha vindo de outra página
+        if (window.location.hash === "#localizacao") {
+            destacar();
+        }
+
+        //Caso já esteja na página /sobre
+        window.addEventListener(LOCATION_HIGHLIGHT_EVENT, destacar);
+
+        return () => {
+            window.removeEventListener(LOCATION_HIGHLIGHT_EVENT, destacar);
+            clearTimeout(timer);
+        };
+    }, []);
+
     return (
         <>
             <script
@@ -161,7 +193,7 @@ export default function SobrePage() {
                     </div>
 
                     <a
-                        /* href="https://wa.me/5511984481526" */
+                        /* href="https://wa.me/5511999999999" */
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300] cursor-pointer"
@@ -204,31 +236,17 @@ export default function SobrePage() {
 
                     <a
                         //href="https://share.google/hpbbcHh7iOsKFGfOx"
-                        /*onClick={(event) => {
-                            if (window.location.pathname === "/sobre") {
-                                event.preventDefault();
-
-                                const elemento = document.getElementById("localizacao");
-
-                                elemento?.scrollIntoView({
-                                    behavior: "smooth",
-                                    block: "start",
-                                });
-
-                                window.history.replaceState(
-                                    null,
-                                    "",
-                                    "/sobre#localizacao"
-                                );
-                            }
-                        }} */
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group scroll-mt-80 rounded-2xl transition-all duration-500 target:scale-[1.03] target:ring-4 target:ring-[#D9A300]/40 target:shadow-2xl"
+                        className={`group scroll-mt-80 rounded-2xl transition-all duration-500 ${
+                            destacarLocalizacao
+                                ? "scale-[1.03] ring-4 ring-[#d9a300]/40 shadow-2xl"
+                                : "scale-100 ring-0"
+                        }`}
                         id="localizacao"
                     >
                         <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
-                            <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 group-hover:bg-gray-300">
+                            <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ease-in-out group-hover:bg-black group-hover:text-[#d9a300]">
                                 <FiMapPin size={30} />
                             </div>
 
