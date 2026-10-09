@@ -1,10 +1,10 @@
-import { CarFront } from "lucide-react";
+import { IconCar } from "@tabler/icons-react";
 
 export default function EstoqueEmBreve() {
     return (
         <div className="bg-white rounded-3xl border border-gray-200 px-6 py-14 md:px-10 md:py-20 text-center">
             <div className="w-16 h-16 mx-auto rounded-full bg-[#FFFBEA] text-[#D9A300] flex items-center justify-center">
-                <CarFront size={30} strokeWidth={2} />
+                <IconCar size={30} strokeWidth={2} />
             </div>
 
             <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-[#D9A300]">

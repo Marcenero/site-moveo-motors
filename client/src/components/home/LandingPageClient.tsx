@@ -10,7 +10,8 @@ import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import VehicleCard from "../estoque/listagem/VehicleCard";
 import type { Veiculo } from "../../types/veiculo";
-import { MapPin, Phone, ArrowRight, MessageCircle, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, MessageCircle, ShieldCheck, Zap } from "lucide-react";
+import { IconPhone, IconMapPin } from "@tabler/icons-react";
 import { FaWhatsapp } from "react-icons/fa";
 
 import { logError } from "../../lib/logger";
@@ -337,7 +338,7 @@ export default function LandingPage() {
                         <div className="space-y-10">
                             <div className="flex gap-6 items-start">
                                 <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#D9A300] shrink-0">
-                                    <Phone size={28} />
+                                    <IconPhone size={28} stroke={1.8} />
                                 </div>
                                 <div>
                                     <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">
@@ -353,7 +354,7 @@ export default function LandingPage() {
 
                             <div className="flex gap-6 items-start">
                                 <div className="w-14 h-14 bg-[#D9A300] rounded-2xl flex items-center justify-center text-black shrink-0">
-                                    <MapPin size={28} />
+                                    <IconMapPin size={28} stroke={1.8} />
                                 </div>
                                 <div>
                                     <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">

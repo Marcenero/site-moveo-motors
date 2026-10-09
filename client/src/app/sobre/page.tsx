@@ -3,7 +3,8 @@
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import { useEffect, useState } from "react";
-import { FiPhone, FiMail, FiMapPin, FiClock } from "react-icons/fi";
+import { FiMail } from "react-icons/fi";
+import { IconPhone, IconClock, IconMapPin } from "@tabler/icons-react";
 import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
 
 const LOCATION_HIGHLIGHT_EVENT = "moveo:highlight-location";
@@ -159,7 +160,7 @@ export default function SobrePage() {
                 <div className=" grid grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto gap-6 pt-15 px-4 mb-24">
                     <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
                         <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0">
-                            <FiPhone size={30} />
+                            <IconPhone size={30} />
                         </div>
 
                         <div className="flex flex-col justify-center">
@@ -170,7 +171,7 @@ export default function SobrePage() {
 
                     <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
                         <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0">
-                            <FiClock size={30} />
+                            <IconClock size={30} />
                         </div>
 
                         <div className="flex flex-col justify-center">
@@ -247,7 +248,7 @@ export default function SobrePage() {
                     >
                         <div className="flex items-center gap-4 bg-white rounded-2xl p-3 shadow-md border-2 border-[#D9A300]">
                             <div className="w-14 h-14 bg-[#D9A300] rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ease-in-out group-hover:bg-black group-hover:text-[#d9a300]">
-                                <FiMapPin size={30} />
+                                <IconMapPin size={30} />
                             </div>
 
                             <div className="flex flex-col justify-center">

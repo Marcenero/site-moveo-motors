@@ -3,17 +3,21 @@
 import Image from "next/image";
 import { useState } from "react";
 import {
-    CalendarDays,
-    Fuel,
-    Gauge,
     MessageCircle,
-    Settings2,
-    ShieldCheck,
     ChevronLeft,
     ChevronRight,
     Check,
     Share2,
 } from "lucide-react";
+import {
+    IconCalendar,
+    IconGauge,
+    IconManualGearbox,
+    IconAutomaticGearbox,
+    IconGasStation,
+    IconSettings,
+    IconShieldCheck,
+} from "@tabler/icons-react";
 
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
@@ -31,8 +35,18 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
     const [imagemAtiva, setImagemAtiva] = useState(0);
     const [linkCopiado, setLinkCopiado] = useState(false);
 
-    const imagens =
-        veiculo.imagens?.length > 0 ? veiculo.imagens : [{ url: "/placeholder-car.png" }];
+    const imagens = veiculo.imagens?.length > 0 ? veiculo.imagens : [{ url: "/Moveo-motors2.png" }];
+
+    const cambioNormalizado = veiculo.cambio.toLowerCase();
+
+    const iconeCambio = 
+        /autom[aá]tic|automatiz|cvt|dct|tiptronic/.test(cambioNormalizado) ? (
+            <IconAutomaticGearbox size={19} stroke={1.8} />
+        ) : /manual/.test(cambioNormalizado) ? (
+            <IconManualGearbox size={19} stroke={1.8} />
+        ) : (
+            <IconSettings size={19} stroke={1.8} />
+        );
 
     function imagemAnterior() {
         setImagemAtiva((atual) => (atual === 0 ? imagens.length - 1 : atual - 1));
@@ -260,25 +274,25 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                             {/* Características principais */}
                             <div className="grid grid-cols-2 gap-x-6 gap-y-6 py-7">
                                 <Caracteristica
-                                    icone={<CalendarDays size={19} />}
+                                    icone={<IconCalendar size={19} stroke={1.8} />}
                                     label="Ano"
                                     valor={String(veiculo.ano)}
                                 />
 
                                 <Caracteristica
-                                    icone={<Gauge size={19} />}
+                                    icone={<IconGauge size={19} stroke={1.8} />}
                                     label="Quilometragem"
                                     valor={`${veiculo.km.toLocaleString("pt-BR")} km`}
                                 />
 
                                 <Caracteristica
-                                    icone={<Settings2 size={19} />}
+                                    icone={iconeCambio}
                                     label="Câmbio"
                                     valor={veiculo.cambio}
                                 />
 
                                 <Caracteristica
-                                    icone={<Fuel size={19} />}
+                                    icone={<IconGasStation size={19} stroke={1.8} />}
                                     label="Combustível"
                                     valor={veiculo.combustivel}
                                 />
@@ -303,7 +317,7 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
                                         flex items-center justify-center
                                     "
                                     >
-                                        <ShieldCheck size={18} />
+                                        <IconShieldCheck size={18} stroke={1.8} />
                                     </div>
 
                                     <div>
