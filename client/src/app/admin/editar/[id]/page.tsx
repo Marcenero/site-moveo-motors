@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 
 import type { Veiculo } from "../../../../types/veiculo";
@@ -379,6 +380,52 @@ export default function EditarVeiculoPage() {
                         </div>
                     </div>
 
+                    
+                    {/* Imagens cadastradas */}
+                    <section>
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-lg font-semibold text-gray-900">
+                                Imagens do veículo
+                            </h2>
+
+                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+                                {veiculo.imagens?.length ?? 0} imagens
+                            </span>
+                        </div>
+
+                        {veiculo.imagens?.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                                {veiculo.imagens.map((imagem, index) => (
+                                    <div
+                                        key={imagem.id}
+                                        className="overflow-hidden rounded-xl border border-gray-200 bg-white"
+                                    >
+                                        <div className="relative aspect-[4/3] w-full bg-gray-100">
+                                            <Image
+                                                src={imagem.url}
+                                                alt={`Foto ${index + 1} de ${veiculo.nome}`}
+                                                fill
+                                                sizes="(max-width: 640px) 50vw, 220px"
+                                                className="object-cover"
+                                            />
+                                        </div>
+
+                                        <div className="px-3 py-2 text-xs text-gray-600">
+                                            {index === 0
+                                                ? "Foto principal"
+                                                : `Foto ${index + 1}`}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-500">
+                                Este veículo não possui imagens cadastradas.
+                            </div>
+                        )}
+                    </section>
+
+
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                         <label className="flex cursor-pointer items-center gap-3">
                             <input
@@ -552,6 +599,54 @@ export default function EditarVeiculoPage() {
                                         </p>
                                     )
                                 }
+                            </section>
+
+                            {/* Imagens do veículo */}
+                            <section className="border-t border-gray-200 pt-5">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+                                        Imagens do veículo
+                                    </h3>
+
+                                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                                        {veiculo.imagens?.length ?? 0} imagens
+                                    </span>
+                                </div>
+
+                                {veiculo.imagens?.length > 0 ? (
+                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                        {veiculo.imagens.map((imagem, index) => (
+                                            <div
+                                                key={imagem.id}
+                                                className="overflow-hidden rounded-lg border border-gray-200"
+                                            >
+                                                <div className="relative aspect-[4/3] bg-gray-100">
+                                                    <Image
+                                                        src={imagem.url}
+                                                        alt={`Foto ${index + 1} de ${veiculo.nome}`}
+                                                        fill
+                                                        sizes="(max-width: 640px) 50vw, 200px"
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+
+                                                <p className="p-2 text-xs text-gray-600">
+                                                    {index === 0
+                                                        ? "Foto principal"
+                                                        : `Foto ${index + 1}`}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+                                        Este veículo não possui imagens cadastradas.
+                                    </p>
+                                )}
+
+                                <p className="mt-3 text-xs text-gray-500">
+                                    As imagens atuais serão preservadas nesta edição.
+                                </p>
                             </section>
 
                             {/* Erro */}

@@ -1,12 +1,10 @@
 import Link from "next/link";
 import {
     ArrowRight,
-    ArrowUpRight,
     Car,
     ClipboardCheck,
     Handshake,
     Landmark,
-    MessageCircle,
     CheckCircle2,
     type LucideIcon,
 } from "lucide-react";

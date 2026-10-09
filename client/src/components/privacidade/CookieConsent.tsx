@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Script from "next/script";
 
@@ -10,9 +10,12 @@ const COOKIE_NAME = "moveo_cookie_consent";
 const SIX_MONTHS = 60 * 60 * 24 * 180;
 
 const COOKIE_PREFERENCES_EVENT = "moveo:open-cookie-preferences";
+const COOKIE_CONSENT_CHANGE_EVENT = "moveo:cookie-consent-change";
 
 function getConsent(): Consent {
-    const cookie = document.cookie.split("; ").find((row) => row.startsWith(`${COOKIE_NAME}=`));
+    const cookie = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith(`${COOKIE_NAME}=`));
 
     if (!cookie) {
         return null;
@@ -35,18 +38,54 @@ function saveConsent(value: Exclude<Consent, null>) {
         `Path=/; ` +
         `Max-Age=${SIX_MONTHS}; ` +
         `SameSite=Lax${secure}`;
+
+    // Notifica o React de que a preferência mudou
+    window.dispatchEvent(new Event(COOKIE_CONSENT_CHANGE_EVENT));
+}
+
+// Inscrição nas mudanças de consentimento
+function subscribeConsent(callback: () => void) {
+    window.addEventListener(COOKIE_CONSENT_CHANGE_EVENT, callback);
+
+    return () => {
+        window.removeEventListener(COOKIE_CONSENT_CHANGE_EVENT, callback);
+    };
+}
+
+//Valor usado durante a renderização no servidor
+function getServerConsent(): Consent {
+    return null;
+}
+
+// Detecta quando o componente já está no navegador
+function subscribeHydration() {
+    return () => {};
+}
+
+function getClientSnapshot() {
+    return true;
+}
+
+function getServerHydrationSnapshot() {
+    return false;
 }
 
 export default function CookieConsent() {
-    const [consent, setConsent] = useState<Consent>(null);
-    const [initialized, setInitialized] = useState(false);
+    const consent = useSyncExternalStore(
+        subscribeConsent,
+        getConsent,
+        getServerConsent
+    );
+
+    const initialized = useSyncExternalStore(
+        subscribeHydration,
+        getClientSnapshot,
+        getServerHydrationSnapshot
+    );
 
     const [preferencesOpen, setPreferencesOpen] = useState(false);
 
     useEffect(() => {
-        setConsent(getConsent());
-        setInitialized(true);
-
         function openPreferences() {
             setPreferencesOpen(true);
         }
@@ -66,7 +105,6 @@ export default function CookieConsent() {
 
     function acceptCookies() {
         saveConsent("accepted");
-        setConsent("accepted");
         setPreferencesOpen(false);
     }
 
@@ -74,14 +112,12 @@ export default function CookieConsent() {
         const previousConsent = consent;
 
         saveConsent("rejected");
+        setPreferencesOpen(false);
 
         if (previousConsent === "accepted") {
             window.location.reload();
             return;
         }
-
-        setConsent("rejected");
-        setPreferencesOpen(false);
     }
 
     if (!initialized) {
