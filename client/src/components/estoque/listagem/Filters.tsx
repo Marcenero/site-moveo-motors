@@ -382,6 +382,4 @@ function Toggle({
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const labelCls = "block text-xs font-bold uppercase tracking-widest text-gray-500 mb-1";
-const inputCls =
-    "w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#D9A300]";
-const rangeCls = "w-full accent-[#D9A300]";
+const inputCls = "w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#D9A300]";

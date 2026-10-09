@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Edit, CheckCircle, Eye, X, AlertTriangle } from "lucide-react";
 
@@ -25,11 +26,19 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
     const [confirmado, setConfirmado] = useState(false);
     const [processando, setProcessando] = useState(false);
 
-    const imagemPrincipal = veiculo.imagens?.[0]?.url;
+    const [erroVenda, setErroVenda] = useState<string | null>(null);
+
+    const imagemPrincipal = 
+        veiculo.imagens?.find(
+            (imagem) =>
+                typeof imagem.url === "string" &&
+                imagem.url.trim().length > 0 
+        )?.url ?? null;
 
     function abrirModalVenda() {
         setConfirmado(false);
         setModalAberto(true);
+        setErroVenda(null);
     }
 
     function fecharModalVenda() {
@@ -47,13 +56,22 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
         }
 
         setProcessando(true);
+        setErroVenda(null);
 
         try {
             const sucesso = await marcarComoVendido(veiculo.id);
 
             if (sucesso) {
                 setModalAberto(false);
+                setConfirmado(false);
             }
+            else {
+                setErroVenda("Não foi possível confirmar a venda. Tente novamente.");
+            }
+        } catch (error) {
+            console.error("Erro ao confirmar venda:", error);
+
+            setErroVenda("Ocorreu um erro ao confirmar a venda. Verifique sua conexão e tente novamente.");
         } finally {
             setProcessando(false);
         }
@@ -155,17 +173,22 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
 
                         {/* Informações do veículo */}
                         <div className="mt-6 overflow-hidden rounded-xl border border-gray-200">
-                            {imagemPrincipal ? (
-                                <img
-                                    src={imagemPrincipal}
-                                    alt={`Foto do veículo ${veiculo.nome}`}
-                                    className="h-52 w-full object-cover"
-                                />
-                            ) : (
-                                <div className="flex h-52 items-center justify-center bg-gray-100 text-sm text-gray-500">
-                                    Veículo sem imagem
-                                </div>
-                            )}
+                            <div className="relative h-52 w-full overflow-hidden bg-gray-100">
+                                {imagemPrincipal ? (
+                                    <Image
+                                        src={imagemPrincipal}
+                                        alt={`Foto do veículo ${veiculo.nome}`}
+                                        fill
+                                        sizes="(max-width: 640px) 100vw, 448px"
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-52 items-center justify-center bg-gray-100 text-sm text-gray-500">
+                                        <AlertTriangle size={24} />
+                                        Veículo sem imagem cadsatrada
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="p-4">
                                 <div className="flex items-start justify-between gap-4">
@@ -217,6 +240,16 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                                         <strong className="text-gray-900">{veiculo.cambio}</strong>
                                     </div>
                                 </div>
+
+                                {!imagemPrincipal && (
+                                    <p
+                                        role="alert"
+                                        className="mt-3 text-sm font-medium text-amber-700"
+                                    >
+                                        Atenção: este veículo não possui foto cadastrada.
+                                        Confira cuidadosamente os demais dados antes de confirmar a venda.
+                                    </p>
+                                )}
                             </div>
                         </div>
 
@@ -242,6 +275,15 @@ export default function Acoes({ veiculo, marcarComoVendido }: AcoesProps) {
                                 Conferi a foto e os dados e confirmo que este é o veículo vendido.
                             </span>
                         </label>
+
+                        {erroVenda && (
+                            <p
+                                role="alert"
+                                className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700"
+                            >
+                                {erroVenda}
+                            </p>
+                        )}
 
                         {/* Ações */}
                         <div className="mt-5 grid grid-cols-2 gap-x-4">

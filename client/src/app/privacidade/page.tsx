@@ -155,7 +155,7 @@ export default function PrivacidadePage() {
 
                             <p>
                                 A preferência escolhida poderá ser alterada posteriormente pela
-                                opção "Preferências de cookies", disponível no rodapé do site.
+                                opção &quot;Preferências de cookies&quot;, disponível no rodapé do site.
                             </p>
                         </PrivacidadeSecao>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
 const COOKIE_PREFERENCES_EVENT = "moveo:open-cookie-preferences";
@@ -34,9 +35,11 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[1.4fr_1fr_1fr] gap-10 xl:gap-16 mb-12">
                     <div className="md:col-span-2 xl:col-span-1">
                         <div className="flex flex-col mb-5">
-                            <img
+                            <Image
                                 src="/Moveo-motors3.svg"
                                 alt="Moveo Motors Logo"
+                                width={200}
+                                height={80}
                                 className="w-40 sm:w-48 xl:w-56 max-w-[224px] h-auto"
                             />
                         </div>

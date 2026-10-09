@@ -1,12 +1,10 @@
 import Link from "next/link";
 import {
     ArrowRight,
-    ArrowUpRight,
     Car,
     ClipboardCheck,
     Handshake,
     Landmark,
-    MessageCircle,
     CheckCircle2,
     type LucideIcon,
 } from "lucide-react";
@@ -64,7 +62,7 @@ const servicos: Servico[] = [
             "Acompanhamento durante a negociação",
         ],
         botao: "Quero consignar",
-        href: buildWhatsappLink("Olá! Tenho interesse em consignar meu veículo."),
+        href: /*buildWhatsappLink("Olá! Tenho interesse em consignar meu veículo.")*/ "/servicos",
         destaque: "gold",
         icone: Handshake,
     },
@@ -80,7 +78,7 @@ const servicos: Servico[] = [
             "Possibilidade de venda ou troca",
         ],
         botao: "Avaliar meu usado",
-        href: buildWhatsappLink("Olá! Gostaria de avaliar meu usado."),
+        href: /*buildWhatsappLink("Olá! Gostaria de avaliar meu usado.")*/ "/servicos",
         destaque: "white",
         icone: ClipboardCheck,
     },
@@ -96,7 +94,7 @@ const servicos: Servico[] = [
             "Condições sujeitas à análise de crédito",
         ],
         botao: "Consultar opções",
-        href: buildWhatsappLink("Olá! Gostaria de discutir um financiamento."),
+        href: /*buildWhatsappLink("Olá! Gostaria de discutir um financiamento.")*/ "/servicos",
         destaque: "white",
         icone: Landmark,
     },
@@ -272,7 +270,7 @@ export default function ServicosPage() {
 
                     <div className="flex flex-wrap gap-3">
                         <a
-                            href={buildWhatsappLink("Olá! Gostaria de falar com a Moveo.")}
+                            //href={buildWhatsappLink("Olá! Gostaria de falar com a Moveo.")}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 rounded-xl bg-black px-6 py-4 text-xs font-black uppercase tracking-wider text-[#D9A300] transition hover:bg-white hover:text-black"

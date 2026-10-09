@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -14,10 +15,13 @@ export default function Header() {
                     {/* Logo Section - Moveo Motors */}
                     <div className="flex items-center shrink-0">
                         <Link href="/">
-                            <img
+                            <Image
                                 src="/Moveo-motors3.png"
                                 alt="Moveo Motors Logo"
+                                width={200}
+                                height={80}
                                 className="h-10 sm:h-12 md:h-14 w-auto"
+                                loading="eager"
                             />
                         </Link>
                     </div>

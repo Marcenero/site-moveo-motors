@@ -102,6 +102,11 @@ const nextConfig: NextConfig = {
                 port: "",
                 pathname: "/storage/v1/object/public/Imagens/**",
             },
+            {
+                protocol: "https",
+                hostname: "images.unsplash.com",
+                pathname: "/photo-1503376780353-7e6692767b70",
+            },
         ],
     },
 

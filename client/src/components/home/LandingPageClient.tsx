@@ -1,14 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+
 import { useRouter } from "next/navigation";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import VehicleCard from "../estoque/listagem/VehicleCard";
-import { useEffect, useState } from "react";
 import type { Veiculo } from "../../types/veiculo";
 import { MapPin, Phone, ArrowRight, MessageCircle, ShieldCheck, Zap } from "lucide-react";
-import Link from "next/link";
-import dynamic from "next/dynamic";
 import { FaWhatsapp } from "react-icons/fa";
 
 import { logError } from "../../lib/logger";
@@ -133,10 +135,12 @@ export default function LandingPage() {
                 {/* Background Layer */}
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10" />
-                    <img
+                    <Image
                         src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1920"
                         alt="Carro de Luxo"
-                        className="w-full h-full object-cover object-center"
+                        fill
+                        sizes="100vw"
+                        className="object-cover object-center"
                     />
                 </div>
 
