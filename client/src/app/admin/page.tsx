@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logError } from "../../lib/logger";
 import { verificarAdmin } from "../../lib/auth/admin";
+import { adminServerFetch } from "../../lib/auth/adminServerFetch";
 import LogoutButton from "../../components/admin/logout-button";
 import GraficoVendas from "../../components/admin/dashboard/grafico-vendas";
 import { Car, TrendingUp, Plus, History } from "lucide-react";
@@ -30,7 +31,29 @@ export default async function AdminPage() {
     let quantidade_disponiveis: number | string = "-";
     let erroQuantidade = "";
 
-    const vendasUltimosDias: VendaGrafico[] = [];
+    let vendasUltimosDias: VendaGrafico[] = [];
+    let erroVendas = false;
+
+    try {
+        const resultadoVendas = await adminServerFetch("/veiculos/vendas/ultimos-45-dias");
+
+        if (!resultadoVendas.autorizado) {
+            erroVendas = true;
+        } else if (!resultadoVendas.response.ok) {
+            erroVendas = true;
+        } else {
+            const dados = await resultadoVendas.response.json();
+
+            vendasUltimosDias = Array.isArray(dados.vendas) ? dados.vendas : [];
+        }
+    } catch (error) {
+        erroVendas = true;
+
+        logError("sales_chart_load_failed", error, {
+            component: "admin",
+            operation: "carregar_grafico_vendas",
+        });
+    }
 
     try {
         const response = await fetch(`${API_URL}/veiculos`, {
@@ -156,7 +179,13 @@ export default async function AdminPage() {
                         </div>
                     </div>
 
-                    <GraficoVendas dados={vendasUltimosDias} />
+                    {erroVendas ? (
+                        <p role="alert" className="text-sm text-red-600">
+                            Não foi possível carregar o histórico de vendas.
+                        </p>
+                    ) : (
+                        <GraficoVendas dados={vendasUltimosDias} />
+                    )}
                 </div>
             </section>
         </main>
