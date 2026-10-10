@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logError } from "../../lib/logger";
-import { createClient } from "../../../../supabase/server";
+import { verificarAdmin } from "../../lib/auth/admin";
+import { adminServerFetch } from "../../lib/auth/adminServerFetch";
 import LogoutButton from "../../components/admin/logout-button";
 import GraficoVendas from "../../components/admin/dashboard/grafico-vendas";
 import { Car, TrendingUp, Plus, History } from "lucide-react";
@@ -12,34 +13,50 @@ type VendaGrafico = {
     vendidos: number;
 };
 
+// Garante que o painel administrativo não seja pré-renderizado
+export const dynamic = "force-dynamic";
+
 const API_URL = getPublicApiUrl();
 
 export default async function AdminPage() {
-    const supabase = await createClient();
+    const resultado = await verificarAdmin();
+
+    if (!resultado.autorizado) {
+        if (resultado.motivo === "forbidden") {
+            redirect("/admin/login?error=forbidden");
+        }
+
+        redirect("/admin/login");
+    }
+
+    const user = resultado.usuario;
 
     let quantidade_disponiveis: number | string = "-";
     let erroQuantidade = "";
+
     let vendasUltimosDias: VendaGrafico[] = [];
+    let erroVendas = false;
 
-    const {
-        data: { user },
-        error: erroUsuario,
-    } = await supabase.auth.getUser();
+    try {
+        const resultadoVendas = await adminServerFetch("/veiculos/vendas/ultimos-45-dias");
 
-    if (erroUsuario || !user) {
-        redirect("/admin/login");
+        if (!resultadoVendas.autorizado) {
+            erroVendas = true;
+        } else if (!resultadoVendas.response.ok) {
+            erroVendas = true;
+        } else {
+            const dados = await resultadoVendas.response.json();
+
+            vendasUltimosDias = Array.isArray(dados.vendas) ? dados.vendas : [];
+        }
+    } catch (error) {
+        erroVendas = true;
+
+        logError("sales_chart_load_failed", error, {
+            component: "admin",
+            operation: "carregar_grafico_vendas",
+        });
     }
-
-    const {
-        data: { session },
-        error: erroSessao,
-    } = await supabase.auth.getSession();
-
-    if (erroSessao || !session?.access_token) {
-        redirect("/admin/login");
-    }
-
-    const accessToken = session.access_token;
 
     try {
         const response = await fetch(`${API_URL}/veiculos`, {
@@ -64,53 +81,9 @@ export default async function AdminPage() {
         erroQuantidade = "Erro";
     }
 
-    try {
-        const response = await fetch(`${API_URL}/veiculos/vendas/ultimos-45-dias`, {
-            cache: "no-store",
+    const totalVendas = vendasUltimosDias.reduce((total, venda) => total + venda.vendidos, 0);
 
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-
-        if (response.status === 401) {
-            redirect("/admin/login?error=session");
-        }
-
-        if (response.status === 403) {
-            redirect("/admin/login?error=forbidden");
-        }
-
-        if (!response.ok) {
-            logError("sales_api_request_failed", undefined, {
-                component: "admin",
-                operation: "buscar_vendas",
-                status: response.status,
-            });
-
-            throw new Error("Erro ao buscar vendas nos últimos 45 dias.");
-        }
-
-        const resultado = await response.json();
-
-        vendasUltimosDias = Array.isArray(resultado.vendas) ? resultado.vendas : [];
-    } catch (error) {
-        logError("sales_chart_load_failed", error, {
-            component: "admin",
-            operation: "carregar_grafico_vendas",
-        });
-
-        vendasUltimosDias = [];
-    }
-
-    const totalVendas = vendasUltimosDias.reduce(
-        (total, venda) => total + venda.vendidos,
-        0
-    );
-
-    const mediaVendas = vendasUltimosDias.length > 0
-        ? totalVendas / vendasUltimosDias.length
-        : 0;
+    const mediaVendas = vendasUltimosDias.length > 0 ? totalVendas / vendasUltimosDias.length : 0;
 
     return (
         <main className="min-h-screen bg-[#f7f7f7] p-6">
@@ -194,18 +167,13 @@ export default async function AdminPage() {
                             </strong>
 
                             <div className="mt-1 flex items-baseline gap-3">
-                                <h2 className="text-3xl font-bold text-gray-900">
-                                    {totalVendas}
-                                </h2>
+                                <h2 className="text-3xl font-bold text-gray-900">{totalVendas}</h2>
 
-                                <span className="text-sm text-gray-500">
-                                    veículos vendidos
-                                </span>
+                                <span className="text-sm text-gray-500">veículos vendidos</span>
                             </div>
 
                             <p className="mt-1 text-sm text-gray-400">
-                                Média de {" "}
-                                {mediaVendas.toFixed(1).replace(".", ",")} por dia
+                                Média de {mediaVendas.toFixed(1).replace(".", ",")} por dia
                             </p>
                         </div>
 
@@ -214,7 +182,13 @@ export default async function AdminPage() {
                         </div>
                     </div>
 
-                    <GraficoVendas dados={vendasUltimosDias} />
+                    {erroVendas ? (
+                        <p role="alert" className="text-sm text-red-600">
+                            Não foi possível carregar o histórico de vendas.
+                        </p>
+                    ) : (
+                        <GraficoVendas dados={vendasUltimosDias} />
+                    )}
                 </div>
             </section>
         </main>
