@@ -40,10 +40,6 @@ export async function verificarAdmin() {
 }
 
 export async function exigirAdminNaPagina() {
-    await connection();
-
-    const { data, error } = await auth.getSession();
-
     const resultado = await verificarAdmin();
 
     if (!resultado.autorizado) {

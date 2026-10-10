@@ -1,78 +1,107 @@
-# Segurança do banco e storage
+# Segurança do banco de dados, autenticação e Storage
 
-## Banco de dados
+## 1. Arquitetura atual
 
-### Roles
+Após a migração da issue #113, os serviços da Moveo Motors são:
 
-#### postgres
+| Responsabilidade | Serviço | Utilização |
+| --- | --- | --- |
+| Banco de dados da aplicação | Neon PostgreSQL | Veículos, referências e ordem de imagens, vendas e auditoria |
+| Acesso ao banco | Prisma ORM no Express | Consultas e alterações das tabelas de negócio |
+| Autenticação administrativa | Neon Auth | Login por código enviado por email (OTP) e sessão |
+| Armazenamento de arquivos | Supabase Storage | Upload, exibição pública e exclusão das imagens |
+| Frontend | Next.js | Catálogo, páginas administrativas e API intermediária |
+| Backend | Express | Operações de negócio e integração com o Storage |
 
-Utilizada apenas para migrations e administração.
+A aplicação **não usa mais Supabase Auth nem o PostgreSQL do Supabase para armazenar dados de negócio**. O pacote `@supabase/supabase-js` continua no **backend**, exclusivamente para operar o Supabase Storage.
 
-- BYPASSRLS: sim
-- CREATEDB: sim
-- usada pela `DIRECT_URL`
+O Supabase Storage possui seus próprios metadados internos no Supabase. Isso é parte do funcionamento do serviço de arquivos e não equivale a utilizar o banco antigo para as tabelas da aplicação.
 
-#### moveo_app
+## 2. Neon PostgreSQL e Prisma
 
-Utilizada pela aplicação em runtime.
+### Conexões
 
-- LOGIN: sim
-- SUPERUSER: não
-- BYPASSRLS: não
-- CREATEDB: não
-- CREATEROLE: não
+- `server/src/services/prisma.ts` cria o Prisma Client usando `@prisma/adapter-pg` e `DATABASE_URL`.
+- `server/prisma.config.ts` usa `DIRECT_URL` para comandos e migrations do Prisma.
+- `server/prisma/schema.prisma` define `Veiculo`, `ImagemVeiculo`, `VendaDia` e `LogAuditoria`.
+- O frontend consulta os veículos pela API do Express e não recebe credenciais de acesso ao PostgreSQL.
 
-Permissões:
+| Variável | Onde configurar | Finalidade |
+| --- | --- | --- |
+| `DATABASE_URL` | Backend Express | Conexão de execução com o Neon PostgreSQL |
+| `DIRECT_URL` | Ambiente do Prisma CLI | Conexão direta para migrations |
+| `NEON_AUTH_BASE_URL` | Next.js | Endpoint do Neon Auth |
+| `NEON_AUTH_COOKIE_SECRET` | Next.js | Proteção dos cookies de sessão |
 
-- SELECT
-- INSERT
-- UPDATE
-- DELETE
+A `DIRECT_URL` não precisa ser disponibilizada ao frontend.
 
-Tabelas:
+### Privilégios e roles
 
-- `Veiculo`
-- `ImagemVeiculo`
-- `VendaDia`
+As roles `postgres`, `moveo_app`, `anon` e `authenticated` descritas na documentação anterior pertenciam à configuração antiga. **Não presumir que essas roles, nem seus privilégios, foram recriados no Neon.** Consultar as permissões reais no projeto Neon antes de documentá-las como verificadas.
 
-### Acesso público ao banco
+Boas práticas: separar credenciais de execução e migração quando possível, aplicar o princípio do menor privilégio, não expor URLs de conexão em variáveis `NEXT_PUBLIC_*` e manter procedimentos de backup e restauração.
 
-#### anon
+Verificações sem alteração de dados:
 
-- `Veiculo`: nenhum
-- `ImagemVeiculo`: nenhum
-- `VendaDia`: nenhum
+```powershell
+cd server
+npx prisma validate
+npx prisma migrate status
+```
 
-#### authenticated
+Revisar migrations pendentes, ambiente-alvo e backup antes de executar `npx prisma migrate deploy`. **Nunca usar `prisma migrate reset` em um banco com dados que precisam ser preservados.**
 
-- `Veiculo`: nenhum
-- `ImagemVeiculo`: nenhum
-- `VendaDia`: nenhum
+## 3. Neon Auth e autorização administrativa
 
-O catálogo público acessa os dados dos veículos exclusivamente através do backend.
+O fluxo administrativo funciona assim:
 
----
+1. O usuário solicita um código OTP por email.
+2. O Neon Auth valida o código e estabelece a sessão.
+3. O servidor Next.js verifica a sessão e o email configurado em `ADMIN_EMAILS`.
+4. Os layouts/páginas administrativas protegidos verificam a autorização antes de renderizar.
+5. A API intermediária Next.js emite um JWT interno de curta duração para operações protegidas.
+6. O middleware `exigirAdmin` do Express verifica o JWT e a permissão do email antes de executar a operação.
 
-## Supabase Storage
+Arquivos relevantes:
 
-### Bucket `Imagens`
+- `client/src/lib/auth/client.ts`: cliente Neon Auth.
+- `client/src/lib/auth/server.ts`: configuração de autenticação no servidor.
+- `client/src/lib/auth/admin.ts`: sessão e autorização via `ADMIN_EMAILS`.
+- `client/src/proxy.ts`: middleware de autenticação de páginas.
+- `client/src/app/api/auth/[...path]/route.ts`: integração de rotas do Neon Auth.
+- `client/src/app/api/admin/[...path]/route.ts`: API administrativa intermediária.
+- `server/src/middlewares/exigirAdmin.ts`: proteção das rotas no Express.
 
-O bucket `Imagens` é utilizado para armazenar as imagens exibidas no catálogo de veículos.
+### JWT interno
 
-Configuração atual:
+O JWT entre Next.js e Express utiliza HS256, expiração de **60 segundos**, emissor `moveo-motors-nextjs` e audiência `moveo-motors-express`. O segredo `INTERNAL_AUTH_SECRET` deve ter **32 bytes após decodificação Base64** e conter o **mesmo valor nos dois servidores de um mesmo ambiente**. Deve permanecer exclusivamente no servidor.
 
-- bucket público: sim (`public = true`)
-- prefixo utilizado para imagens de veículos: `veiculos/`
-- leitura pública das imagens: permitida
-- operações de escrita por usuários públicos: não permitidas
+`ADMIN_EMAILS` precisa ser configurada tanto no Next.js quanto no Express. CORS não substitui autenticação. As consultas públicas de veículos permanecem abertas; cadastro, edição, marcação de venda, upload, auditoria e histórico administrativo de vendas requerem autorização.
 
-O bucket é público para permitir que as imagens do catálogo sejam acessadas diretamente através de suas URLs públicas.
+**Limitação conhecida:** o JWT de 60 segundos não implementa uma duração máxima de sessão de 12 horas nem expiração por 30 minutos de inatividade. Esses controles dependem de uma implementação própria e podem ser acompanhados em outra issue.
 
-A configuração de bucket público não concede, por si só, permissão para upload, alteração ou remoção de arquivos.
+## 4. Supabase Storage
 
-### Policies de `storage.objects`
+### Bucket e arquivos
 
-Foi realizada a consulta:
+O bucket público `Imagens` permanece no Supabase e utiliza o prefixo `veiculos/`. As imagens são exibidas por suas URLs públicas; o backend Express faz upload, otimização com `sharp` e remoção. As URLs e a ordem das imagens são persistidas na tabela `ImagemVeiculo`, **no Neon**.
+
+Os arquivos centrais são `server/src/services/supabase.ts` e `server/src/routes/rotas.ts`.
+
+| Variável | Onde configurar | Uso |
+| --- | --- | --- |
+| `SUPABASE_URL` | Backend Express | Projeto Supabase do Storage |
+| `SUPABASE_SERVICE_ROLE_KEY` | Backend Express | Operações privilegiadas de Storage |
+
+**Nunca expor `SUPABASE_SERVICE_ROLE_KEY` em código do cliente, repositório ou variável `NEXT_PUBLIC_*`.** O cliente Supabase usado pelo Express desativa persistência e atualização automática de sessões; ele **não realiza login de usuários**.
+
+O domínio público de imagens usado por `next/image` e pela CSP não é uma credencial administrativa.
+
+### Acesso público e policies
+
+O bucket público permite a leitura das imagens, mas **não implica autorização de escrita anônima**. Na configuração anteriormente documentada, testes com a chave pública permitiram leitura e bloquearam upload e atualização anônimos. Uma tentativa de exclusão anônima retornou `data: []`, `error: null`, mas a imagem permaneceu armazenada. Esses resultados são históricos e devem ser revalidados caso as policies mudem.
+
+Para consultar as policies atuais no SQL Editor do **projeto Supabase usado para Storage**:
 
 ```sql
 select
@@ -88,61 +117,24 @@ where schemaname = 'storage'
 order by policyname;
 ```
 
-Resultado:
+Não conceder `INSERT`, `UPDATE` ou `DELETE` a usuários públicos sem necessidade e análise de segurança. Operações administrativas passam pelo backend protegido por `exigirAdmin`.
 
-- nenhuma policy cadastrada em `storage.objects`
+## 5. Verificações de conclusão da migração
 
-Com isso, usuários utilizando a chave pública (`anon`) não possuem permissão para realizar operações de escrita diretamente no Storage.
+- [ ] Migrations esperadas aplicadas ao banco Neon correto.
+- [ ] Consulta pública de veículos carrega dados do Neon.
+- [ ] Login e logout funcionam pelo Neon Auth.
+- [ ] Usuários fora de `ADMIN_EMAILS` não conseguem executar operações administrativas.
+- [ ] Cadastro, edição e marcação de venda persistem corretamente no Neon.
+- [ ] Auditoria e gráfico de vendas consultam os dados esperados.
+- [ ] Upload, exibição e exclusão de imagens funcionam no Supabase Storage.
+- [ ] Builds de frontend e backend passam sem erros.
+- [ ] Credenciais estão restritas aos ambientes corretos.
 
-### Permissões públicas do Storage
+Marcar somente as verificações efetivamente executadas e aprovadas.
 
-| Operação                | Acesso público |
-| ----------------------- | -------------- |
-| Leitura por URL pública | Permitida      |
-| INSERT                  | Bloqueado      |
-| UPDATE                  | Bloqueado      |
-| DELETE                  | Bloqueado      |
+## 6. Escopo e melhorias futuras
 
-### Operações administrativas
+A **issue #113** trata da migração das tabelas e conexões da aplicação de Supabase PostgreSQL para **Neon PostgreSQL**. No mesmo trabalho, a autenticação antiga foi substituída pelo **Neon Auth**. O Supabase permanece apenas como **Storage de imagens**.
 
-Uploads, alterações e remoções de imagens devem ocorrer exclusivamente através do backend.
-
-O backend utiliza a variável:
-
-```text
-SUPABASE_SERVICE_ROLE_KEY
-```
-
-A chave de `service_role` é utilizada apenas no servidor e não deve ser exposta ao frontend.
-
-As rotas administrativas são protegidas pelo middleware `exigirAdmin` antes da execução das operações no Storage.
-
-O upload de imagens utiliza o prefixo:
-
-```text
-veiculos/
-```
-
-### Validação das permissões
-
-Foi realizado um teste utilizando apenas a `anon key`, sem passar pelo backend.
-
-Resultados:
-
-- leitura pública da imagem: permitida
-- INSERT anônimo: bloqueado por RLS
-- UPDATE anônimo: bloqueado por RLS
-- DELETE anônimo: nenhum arquivo removido
-
-Na tentativa de DELETE, o Supabase retornou:
-
-```text
-data: []
-error: null
-```
-
-Apesar de não retornar erro explícito, uma verificação posterior utilizando o cliente administrativo confirmou que o arquivo continuava existindo.
-
-Portanto, usuários públicos não conseguem realizar upload, substituir ou excluir arquivos do bucket `Imagens`.
-
-As operações administrativas continuam disponíveis ao backend através da `SUPABASE_SERVICE_ROLE_KEY`.
+A possível mudança futura de infraestrutura para **Staycloud**, inclusive eventual revisão do fluxo de uploads, não faz parte da conclusão da issue #113. Controle de duração e inatividade de sessão e aprimoramentos na auditoria também podem ser acompanhados em issues específicas.
