@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 
 import type { Veiculo } from "../../../../types/veiculo";
@@ -11,6 +10,12 @@ import type { Veiculo } from "../../../../types/veiculo";
 import { adminFetch } from "../../../../lib/adminFetch";
 import { logError } from "../../../../lib/logger";
 import { getPublicApiUrl } from "../../../../lib/env.client";
+
+import {
+    GaleriaOrdenavel,
+    GaleriaRevisao,
+    type FotoEdicao,
+} from "../../../../components/admin/veiculos/GaleriaOrdenavel";
 
 type DadosVeiculoFormulario = {
     nome: string;
@@ -70,6 +75,44 @@ function formatarKm(valor: string) {
     return `${new Intl.NumberFormat("pt-BR").format(numero)} km`;
 }
 
+async function uploadImagensNoBackend(
+    arquivos: File[]
+): Promise<string[]> {
+    if (arquivos.length === 0) return [];
+
+    const formData = new FormData();
+
+    arquivos.forEach((arquivo) => {
+        formData.append("imagens", arquivo);
+    });
+
+    const resposta = await adminFetch("/veiculos/upload-imagens", {
+        method: "POST",
+        body: formData,
+    });
+
+    if (!resposta.ok) {
+        const dados = await resposta.json().catch(() => null);
+
+        throw new Error(
+            dados?.erro ??
+                `Erro ao enviar fotografias (HTTP ${resposta.status}).`
+        );
+    }
+
+    const dados = await resposta.json();
+
+    if (
+        !Array.isArray(dados.urls) ||
+        dados.urls.length !== arquivos.length ||
+        !dados.urls.every((url: unknown) => typeof url === "string")
+    ) {
+        throw new Error("Resposta inválida do upload de imagens.");
+    }
+
+    return dados.urls;
+}
+
 export default function EditarVeiculoPage() {
     const router = useRouter();
     const params = useParams();
@@ -83,6 +126,20 @@ export default function EditarVeiculoPage() {
 
     const [modalAberto, setModalAberto] = useState(false);
     const [dadosRevisao, setDadosRevisao] = useState<DadosVeiculoFormulario | null>(null);
+
+    const [fotos, setFotos] = useState<FotoEdicao[]>([]);
+    const [avisoFotos, setAvisoFotos] = useState("");
+
+    const previewUrlsRef = useRef<Set<string>>(new Set());
+
+    useEffect(() => {
+        const urls = previewUrlsRef.current;
+
+        return () => {
+            urls.forEach((url) => URL.revokeObjectURL(url));
+            urls.clear();
+        };
+    }, []);
 
     useEffect(() => {
         async function buscarVeiculo() {
@@ -98,6 +155,16 @@ export default function EditarVeiculoPage() {
                 const dados = await resposta.json();
 
                 setVeiculo(dados.veiculo);
+
+                setFotos(
+                    (dados.veiculo.imagens ?? []).map(
+                        (imagem: { id: number; url: string }): FotoEdicao => ({
+                            chave: `existente-${imagem.id}`,
+                            id: imagem.id,
+                            url: imagem.url,
+                        })
+                    )
+                )
             } catch (error) {
                 logError("vehicle_fetch_failed", error, {
                     component: "admin",
@@ -112,6 +179,58 @@ export default function EditarVeiculoPage() {
             buscarVeiculo();
         }
     }, [id]);
+
+    function adicionarFotos(arquivos: File[]) {
+        const tiposPermitidos = new Set([
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+        ]);
+
+        const tamanhoMaximo = 5 * 1024 * 1024;
+        const vagas = Math.max(0, 20 - fotos.length);
+        const arquivosValidos = arquivos.filter(
+            (arquivo) =>
+                tiposPermitidos.has(arquivo.type) &&
+                arquivo.size > 0 &&
+                arquivo.size <= tamanhoMaximo
+        );
+
+        const selecionados = arquivosValidos.slice(0, vagas);
+
+        setAvisoFotos(
+            selecionados.length !== arquivos.length
+                ? "Algumas imagens foram ignoradas. Limite de 20 fotos, com até 5MB por imagem (JPEG, PNG ou WebP)."
+                : ""
+            );
+
+            const novasFotos: FotoEdicao[] = selecionados.map((arquivo) => {
+                const url = URL.createObjectURL(arquivo);
+
+                previewUrlsRef.current.add(url);
+
+                return {
+                    chave: crypto.randomUUID(),
+                    arquivo,
+                    url,
+                };
+            });
+
+            setFotos((atuais) => [...atuais, ...novasFotos]);
+    }
+
+    function removerFoto(chave: string) {
+        const foto = fotos.find((item) => item.chave === chave);
+
+        if (foto?.arquivo) {
+            URL.revokeObjectURL(foto.url);
+            previewUrlsRef.current.delete(foto.url);
+        }
+
+        setFotos((atuais) =>
+            atuais.filter((item) => item.chave !== chave)
+        );
+    }
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -151,20 +270,41 @@ export default function EditarVeiculoPage() {
         setSalvando(true);
 
         try {
-            const resposta = await adminFetch(
-                `/veiculos/${id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(dadosRevisao),
-                }
+            const novasFotos = fotos.filter(
+                (foto): foto is FotoEdicao & { arquivo: File } =>
+                    foto.arquivo !== undefined
             );
+
+            const urlsNovas = await uploadImagensNoBackend(
+                novasFotos.map((foto) => foto.arquivo)
+            );
+
+            let indiceNovaFoto = 0;
+
+            const imagens = fotos.map((foto) => {
+                if (foto.id !== undefined) {
+                    return { id: foto.id };
+                }
+
+                return {
+                    url: urlsNovas[indiceNovaFoto++],
+                };
+            });
+
+            const resposta = await adminFetch(`/veiculos/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...dadosRevisao,
+                    imagens,
+                }),
+            });
 
             if (resposta.status === 401) {
                 setModalAberto(false);
-                router.push("admin/login");
+                router.push("/admin/login");
 
                 return;
             }
@@ -389,40 +529,57 @@ export default function EditarVeiculoPage() {
                             </h2>
 
                             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                                {veiculo.imagens?.length ?? 0} imagens
+                                {fotos.length} imagens
                             </span>
                         </div>
 
-                        {veiculo.imagens?.length > 0 ? (
-                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                                {veiculo.imagens.map((imagem, index) => (
-                                    <div
-                                        key={imagem.id}
-                                        className="overflow-hidden rounded-xl border border-gray-200 bg-white"
-                                    >
-                                        <div className="relative aspect-[4/3] w-full bg-gray-100">
-                                            <Image
-                                                src={imagem.url}
-                                                alt={`Foto ${index + 1} de ${veiculo.nome}`}
-                                                fill
-                                                sizes="(max-width: 640px) 50vw, 220px"
-                                                className="object-cover"
-                                            />
-                                        </div>
+                        <div className="mb-5 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5">
+                            <label className="grid gap-2 text-sm font-medium text-gray-700">
+                                Adicionar novas fotografias
 
-                                        <div className="px-3 py-2 text-xs text-gray-600">
-                                            {index === 0
-                                                ? "Foto principal"
-                                                : `Foto ${index + 1}`}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                                Este veículo não possui imagens cadastradas.
-                            </div>
-                        )}
+                                <input 
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                    disabled={salvando}
+                                    onChange={(event) => {
+                                        adicionarFotos(
+                                            Array.from(event.target.files ?? [])
+                                        );
+
+                                        event.target.value = "";
+                                    }}
+                                    className="rounded-lg border border-gray-300 bg-white p-3"
+                                />
+                            </label>
+
+                            <p className="mt-2 text-xs text-gray-500">
+                                Formatos JPEG, PNG e WebP. Máximo de 5MB por
+                                imagem e 20 fotografias por veículo.
+                            </p>
+
+                            {avisoFotos && (
+                                <p
+                                    role="alert"
+                                    className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800"
+                                >
+                                    {avisoFotos}
+                                </p>
+                            )}
+                        </div>
+
+                        <GaleriaOrdenavel 
+                            fotos={fotos}
+                            setFotos={setFotos}
+                            remover={removerFoto}
+                            desabilitado={salvando}
+                        />
+
+                        <p className="mt-3 text-xs text-gray-500">
+                            Arraste as fotografias para mudar sua ordem.
+                            A primeira imagem será a foto principal do veículo.
+                            As alterações serão aplicadas somente após a confirmação.
+                        </p>
                     </section>
 
 
@@ -609,43 +766,14 @@ export default function EditarVeiculoPage() {
                                     </h3>
 
                                     <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                                        {veiculo.imagens?.length ?? 0} imagens
+                                        {fotos.length} imagens
                                     </span>
                                 </div>
 
-                                {veiculo.imagens?.length > 0 ? (
-                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                        {veiculo.imagens.map((imagem, index) => (
-                                            <div
-                                                key={imagem.id}
-                                                className="overflow-hidden rounded-lg border border-gray-200"
-                                            >
-                                                <div className="relative aspect-[4/3] bg-gray-100">
-                                                    <Image
-                                                        src={imagem.url}
-                                                        alt={`Foto ${index + 1} de ${veiculo.nome}`}
-                                                        fill
-                                                        sizes="(max-width: 640px) 50vw, 200px"
-                                                        className="object-cover"
-                                                    />
-                                                </div>
-
-                                                <p className="p-2 text-xs text-gray-600">
-                                                    {index === 0
-                                                        ? "Foto principal"
-                                                        : `Foto ${index + 1}`}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-                                        Este veículo não possui imagens cadastradas.
-                                    </p>
-                                )}
+                                <GaleriaRevisao fotos={fotos} />
 
                                 <p className="mt-3 text-xs text-gray-500">
-                                    As imagens atuais serão preservadas nesta edição.
+                                    Confira a ordem final das fotografias antes de salvar.
                                 </p>
                             </section>
 

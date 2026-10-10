@@ -226,8 +226,20 @@ export const criarVeiculoSchema = z.strictObject({
     imagens: imagensSchema.default([]),
 });
 
+const imagemEdicaoSchema = z.union([
+    z.strictObject({
+        id: z.number().int().positive(),
+    }),
+    z.strictObject({
+        url: z.url().max(2048),
+    }),
+]);
+
 export const atualizarVeiculoSchema = z
-    .strictObject(camposVeiculo)
+    .strictObject({
+        ...camposVeiculo,
+        imagens: z.array(imagemEdicaoSchema).max(20),
+    })
     .partial()
     .refine((dados) => Object.keys(dados).length > 0, {
         error: "Informe pelo menos um campo para atualização.",
