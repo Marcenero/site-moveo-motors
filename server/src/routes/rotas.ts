@@ -92,6 +92,60 @@ async function removerImagensOrfas(urls: string[]) {
     }
 }
 
+class ErroImagensVeiculo extends Error {
+    constructor(
+        mensagem: string,
+        public readonly status = 400
+    ) {
+        super(mensagem);
+        this.name = "ErroImagensVeiculo";
+    }
+}
+
+function urlImagemNovaPermitida(valor: string): boolean {
+    try {
+        const prefixo = supabase.storage
+            .from("Imagens")
+            .getPublicUrl("veiculos/").data.publicUrl;
+
+        const base = new URL(prefixo);
+        const candidata = new URL(valor);
+
+        const nomeArquivo = candidata.pathname.slice(
+            base.pathname.length
+        );
+
+        return (
+            candidata.origin === base.origin &&
+            candidata.pathname.startsWith(base.pathname) &&
+            candidata.search === "" &&
+            candidata.hash === "" &&
+            /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\.webp$/i.test(
+                nomeArquivo
+            )
+        );
+    } catch {
+        return false;
+    }
+}
+
+async function tentarLimparUploadsOrfaos(urls: string[]) {
+    const urlsValidas = urls.filter(urlImagemNovaPermitida);
+
+    if (urlsValidas.length === 0) return;
+
+    try {
+        await removerImagensOrfas(urlsValidas);
+    } catch (error) {
+        capturarErro(error, "storage", "limpar_uploads_orfaos");
+
+        logError("orphan_upload_cleanup_failed", error, {
+            component: "storage",
+            operation: "limpar_uploads_orfaos",
+        });
+    }
+}
+
 /* Funções auxiliares para a rota de informações da tabela */
 function dataStringParaDate(data: string) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
@@ -182,6 +236,10 @@ router.get("/", async (req, res) => {
         const veiculos = await prisma.veiculo.findMany({
             include: {
                 imagens: {
+                    orderBy: [
+                        { ordem: "asc" },
+                        { id: "asc" },
+                    ],
                     select: {
                         id: true,
                         url: true,
@@ -234,8 +292,9 @@ router.post("/", exigirAdmin, async (req, res) => {
                 ...(imagens.length > 0
                     ? {
                           imagens: {
-                              create: imagens.map((url) => ({
+                              create: imagens.map((url, index) => ({
                                   url,
+                                  ordem: index,
                               })),
                           },
                       }
@@ -416,7 +475,7 @@ router.post(
 
             Sentry.metrics.count("upload.failure", 1, {
                 attributes: {
-                    compnent: "upload",
+                    component: "upload",
                 },
             });
 
@@ -555,6 +614,10 @@ router.get("/:id", async (req, res) => {
 
             include: {
                 imagens: {
+                    orderBy: [
+                        { ordem: "asc" },
+                        { id: "asc" },
+                    ],
                     select: {
                         id: true,
                         url: true,
@@ -613,15 +676,29 @@ router.patch("/:id", exigirAdmin, async (req, res) => {
 
     const { id } = resultadoParams.data;
 
-    const dados = resultadoBody.data;
+    const {
+        imagens: imagensEdicao,
+        ...dados
+    } = resultadoBody.data;
+
+    const urlsNovasInformadas =
+        imagensEdicao?.flatMap((imagem) =>
+            "url" in imagem ? [imagem.url] : []
+    ) ?? [];
 
     const usuario = res.locals.usuario;
 
     try {
         const resultadoAtualizacao = await prisma.$transaction(async (tx) => {
             const existente = await tx.veiculo.findUnique({
-                where: {
-                    id,
+                where: { id },
+                include: {
+                    imagens: {
+                        orderBy: [
+                            { ordem: "asc" },
+                            { id: "asc" },
+                        ],
+                    },
                 },
             });
 
@@ -720,21 +797,168 @@ router.patch("/:id", exigirAdmin, async (req, res) => {
                 camposAlterados.push("outras_infos");
             }
 
+            //Validação das alterações nas imagens
+            let houveMudancaImagens = false;
+
+            const idsMantidos: number[] = [];
+            const urlsNovas: string[] = [];
+
+            if (imagensEdicao !== undefined) {
+                for (const imagem of imagensEdicao) {
+                    if ("id" in imagem) {
+                        idsMantidos.push(imagem.id);
+                    }
+                    else {
+                        urlsNovas.push(imagem.url);
+                    }
+                }
+
+                //Não permitir imagens duplicadas
+                if (
+                    new Set(idsMantidos).size !== idsMantidos.length ||
+                    new Set(urlsNovas).size !== urlsNovas.length
+                ) {
+                    throw new ErroImagensVeiculo(
+                        "Existem fotografias duplicadas na edição."
+                    );
+                }
+
+                //Validar propriedade das imagens existentes
+                const idsAtuais = new Set(
+                    existente.imagens.map((imagem) => imagem.id)
+                );
+
+                if (idsMantidos.some((imagemId) => !idsAtuais.has(imagemId))) {
+                    throw new ErroImagensVeiculo(
+                        "Uma das fotografias não pertence a este veículo."
+                    );
+                }
+
+                //Validar URLs das imagens recém-enviadas
+                if (urlsNovas.some((url) => !urlImagemNovaPermitida(url))) {
+                    throw new ErroImagensVeiculo(
+                        "Uma das novas fotografias possui URL inválida."
+                    );
+                }
+
+                //Impedir associação de arquivos já utilizados
+                if (urlsNovas.length > 0) {
+                    const imagemUtilizada =
+                        await tx.imagemVeiculo.findFirst({
+                            where: {
+                                url: { in: urlsNovas },
+                            },
+                            select: { id: true },
+                        });
+
+                    if (imagemUtilizada) {
+                        throw new ErroImagensVeiculo(
+                            "Uma das fotografias já está cadastrada.",
+                            409
+                        );
+                    }
+                }
+
+                //Comparar também a ordem
+                const listaAtual = existente.imagens.map(
+                    (imagem) => ({ id: imagem.id })
+                );
+
+                houveMudancaImagens = 
+                    JSON.stringify(imagensEdicao) !==
+                    JSON.stringify(listaAtual);
+
+                if (houveMudancaImagens) {
+                    camposAlterados.push("imagens");
+                }
+            }
+
             // Sem mudanças
             if (camposAlterados.length === 0) {
                 return {
                     veiculo: existente,
                     alterado: false,
+                    urlsRemovidas: [] as string[],
                 };
             }
 
+            // Atualizar os dados comuns do veículo
+            if (Object.keys(dadosAtualizacao).length > 0) {
+                await tx.veiculo.update({
+                    where: { id },
+                    data: dadosAtualizacao,
+                });
+            }
+
+            // Sincronizar as fotografias
+            let urlsRemovidas: string[] = [];
+
+            if (
+                imagensEdicao !== undefined &&
+                houveMudancaImagens
+            ) {
+                const conjuntoMantidos = new Set(idsMantidos);
+
+                // Identificar arquivos removidos
+                urlsRemovidas = existente.imagens
+                    .filter(
+                        (imagem) => !conjuntoMantidos.has(imagem.id)
+                    )
+                    .map((imagem) => imagem.url);
+
+                // Remover somente registros não preservados
+                await tx.imagemVeiculo.deleteMany({
+                    where: {
+                        veiculoId: id,
+                        ...(idsMantidos.length > 0
+                            ? {
+                                id: {
+                                    notIn: idsMantidos
+                                },
+                            }
+                            : {}),
+                    },
+                });
+                
+                // Atualizar ordem e inserir novos registros
+                for (const [ordem, imagem] of imagensEdicao.entries()) {
+                    if ("id" in imagem) {
+                        // Fotografia já cadastrada: atualizar sua ordem
+                        await tx.imagemVeiculo.update({
+                            where: {
+                                id: imagem.id,
+                            },
+                            data: {
+                                ordem,
+                            },
+                        });
+                    } else {
+                        // Nova fotografia: criar o registro
+                        await tx.imagemVeiculo.create({
+                            data: {
+                                veiculoId: id,
+                                url: imagem.url,
+                                ordem,
+                            },
+                        });
+                    }
+                }
+
+            }
+
             // Atualiza os campos que mudaram
-            const atualizado = await tx.veiculo.update({
-                where: {
-                    id,
-                },
-                data: dadosAtualizacao,
-            });
+            const atualizado =
+                await tx.veiculo.findUniqueOrThrow({
+                    where: { id },
+                    include: {
+                        imagens: {
+                            orderBy: [
+                                { ordem: "asc" },
+                                { id: "asc" },
+                            ],
+                        },
+                    },
+                });
 
             await registrarAuditoria(
                 {
@@ -750,10 +974,13 @@ router.patch("/:id", exigirAdmin, async (req, res) => {
             return {
                 veiculo: atualizado,
                 alterado: true,
+                urlsRemovidas,
             };
         });
 
         if (!resultadoAtualizacao) {
+            await tentarLimparUploadsOrfaos(urlsNovasInformadas);
+
             return res.status(404).json({
                 ok: false,
                 erro: "Veículo não encontrado.",
@@ -768,12 +995,49 @@ router.patch("/:id", exigirAdmin, async (req, res) => {
             });
         }
 
+        let aviso: string | undefined;
+
+        if (resultadoAtualizacao.urlsRemovidas.length > 0) {
+            try {
+                await removerImagensOrfas(
+                    resultadoAtualizacao.urlsRemovidas
+                );
+            } catch (erroStorage) {
+                capturarErro(
+                    erroStorage,
+                    "storage",
+                    "remover_imagens_edicao"
+                );
+
+                logError(
+                    "vehicle_edit_image_cleanup_failed",
+                    erroStorage,
+                    {
+                        component: "storage",
+                        operation: "remover_imagens_edicao",
+                    }
+                );
+
+                aviso = "O veículo foi atualizado, mas algumas fotografias removidas ainda precisam ser excluídas do armazenamento.";
+            }
+        }
+
         return res.json({
             ok: true,
-            mensagem: "Veículo atualizado com sucesso",
+            mensagem: "Veículo atualizado com sucesso.",
             veiculo: resultadoAtualizacao.veiculo,
+            ...(aviso ? { aviso } : {}),
         });
     } catch (error) {
+        await tentarLimparUploadsOrfaos(urlsNovasInformadas);
+
+        if (error instanceof ErroImagensVeiculo) {
+            return res.status(error.status).json({
+                ok: false,
+                erro: error.message,
+            });
+        }
+
         capturarErro(error, "database", "atualizar_veiculo");
 
         logError("vehicle_update_failed", error, {

@@ -107,6 +107,12 @@ function MiniaturaImagem({ imagem, index, remover }: {
                     sizes="(max-width: 640px) 50vw, 220px"
                     className="object-cover"
                 />
+
+                {index === 0 && (
+                    <span className="absolute left-2 top-2 z-10 rounded-full bg-[#d9a300] px-3 py-1 text-xs font-semibold text-black shadow-sm">
+                        Imagem principal
+                    </span>
+                )}
             </div>
             <div className="space-y-2 p-3">
                 <p className="truncate text-xs text-gray-700" title={imagem.arquivo.name}>{imagem.arquivo.name}</p>

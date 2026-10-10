@@ -29,6 +29,7 @@ model Veiculo {
 model ImagemVeiculo {
   id        Int     @id @default(autoincrement())
   url       String
+  ordem     Int     @default(0)
   veiculoId Int
   veiculo   Veiculo @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
 }
