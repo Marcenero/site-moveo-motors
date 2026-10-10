@@ -21,6 +21,33 @@ type Contexto = {
     params: Promise<{ path: string[] }>;
 };
 
+function rotaPermitida(metodo: string, path: string[]): boolean {
+    const caminho = `/${path.join("/")}`;
+
+    if (metodo === "GET") {
+        return (
+            caminho === "/veiculos" ||
+            /^\/veiculos\/\d+$/.test(caminho) ||
+            caminho === "/veiculos/vendas/ultimos-45-dias" ||
+            caminho === "/audit"
+        );
+    }
+
+    if (metodo === "POST") {
+        return (
+            caminho === "/veiculos" ||
+            caminho === "/veiculos/upload-imagens" ||
+            caminho === "/audit/login"
+        );
+    }
+
+    if (metodo === "PATCH") {
+        return /^\/veiculos\/\d+$/.test(caminho) || /^\/veiculos\/\d+\/vendido$/.test(caminho);
+    }
+
+    return false;
+}
+
 async function encaminhar(request: NextRequest, contexto: Contexto) {
     // Bloqueia chamadas de origens diferentes à aplicação.
     if (!["GET", "HEAD"].includes(request.method)) {
@@ -66,6 +93,16 @@ async function encaminhar(request: NextRequest, contexto: Contexto) {
     // Somente namespaces de API conhecidos.
     if (!["veiculos", "audit"].includes(path[0])) {
         return NextResponse.json({ ok: false, erro: "Rota não permitida." }, { status: 404 });
+    }
+
+    if (!rotaPermitida(request.method, path)) {
+        return NextResponse.json(
+            {
+                ok: false,
+                erro: "Operação não permitida.",
+            },
+            { status: 404 }
+        );
     }
 
     const jwt = await new SignJWT({
@@ -136,5 +173,3 @@ async function encaminhar(request: NextRequest, contexto: Contexto) {
 export const GET = encaminhar;
 export const POST = encaminhar;
 export const PATCH = encaminhar;
-export const PUT = encaminhar;
-export const DELETE = encaminhar;

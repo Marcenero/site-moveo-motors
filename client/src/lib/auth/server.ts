@@ -11,7 +11,6 @@ if (!baseUrl || !cookieSecret) {
 
 export const auth = createNeonAuth({
     baseUrl,
-    logLevel: "debug",
     cookies: {
         secret: cookieSecret,
         sessionDataTtl: 300,

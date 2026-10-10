@@ -1,6 +1,8 @@
 import "server-only";
 
 import { auth } from "./server";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 const emailsAdministradores = new Set(
     (process.env.ADMIN_EMAILS ?? "")
@@ -10,6 +12,8 @@ const emailsAdministradores = new Set(
 );
 
 export async function verificarAdmin() {
+    await connection();
+    
     const { data, error } = await auth.getSession();
 
     if (error || !data?.user || !data?.session) {
@@ -33,4 +37,22 @@ export async function verificarAdmin() {
         usuario: data.user,
         sessao: data.session,
     };
+}
+
+export async function exigirAdminNaPagina() {
+    await connection();
+
+    const { data, error } = await auth.getSession();
+
+    const resultado = await verificarAdmin();
+
+    if (!resultado.autorizado) {
+        if (resultado.motivo === "forbidden") {
+            redirect("/admin/login?error=forbidden");
+        }
+
+        redirect("/admin/login");
+    }
+
+    return resultado.usuario;
 }

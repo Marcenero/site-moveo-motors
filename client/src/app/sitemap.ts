@@ -5,6 +5,8 @@ import { logError } from "../lib/logger";
 
 import { getApiUrl, getSiteUrl } from "../lib/env.server";
 
+export const dynamic = "force-dynamic";
+
 function gerarSlug(texto: string) {
     return texto
         .toLowerCase()

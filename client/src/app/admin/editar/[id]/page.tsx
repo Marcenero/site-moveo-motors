@@ -32,22 +32,14 @@ type DadosVeiculoFormulario = {
     outras_infos: string[];
 };
 
-function ItemRevisao({
-    titulo,
-    valor,
-}: {
-    titulo: string;
-    valor: string;
-}) {
+function ItemRevisao({ titulo, valor }: { titulo: string; valor: string }) {
     return (
         <div className="rounded-xl bg-gray-50 p-4">
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
                 {titulo}
             </p>
 
-            <p className="font-medium text-gray-900">
-                {valor || "-"}
-            </p>
+            <p className="font-medium text-gray-900">{valor || "-"}</p>
         </div>
     );
 }
@@ -75,9 +67,7 @@ function formatarKm(valor: string) {
     return `${new Intl.NumberFormat("pt-BR").format(numero)} km`;
 }
 
-async function uploadImagensNoBackend(
-    arquivos: File[]
-): Promise<string[]> {
+async function uploadImagensNoBackend(arquivos: File[]): Promise<string[]> {
     if (arquivos.length === 0) return [];
 
     const formData = new FormData();
@@ -94,10 +84,7 @@ async function uploadImagensNoBackend(
     if (!resposta.ok) {
         const dados = await resposta.json().catch(() => null);
 
-        throw new Error(
-            dados?.erro ??
-                `Erro ao enviar fotografias (HTTP ${resposta.status}).`
-        );
+        throw new Error(dados?.erro ?? `Erro ao enviar fotografias (HTTP ${resposta.status}).`);
     }
 
     const dados = await resposta.json();
@@ -164,7 +151,7 @@ export default function EditarVeiculoPage() {
                             url: imagem.url,
                         })
                     )
-                )
+                );
             } catch (error) {
                 logError("vehicle_fetch_failed", error, {
                     component: "admin",
@@ -181,11 +168,7 @@ export default function EditarVeiculoPage() {
     }, [id]);
 
     function adicionarFotos(arquivos: File[]) {
-        const tiposPermitidos = new Set([
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-        ]);
+        const tiposPermitidos = new Set(["image/jpeg", "image/png", "image/webp"]);
 
         const tamanhoMaximo = 5 * 1024 * 1024;
         const vagas = Math.max(0, 20 - fotos.length);
@@ -202,21 +185,21 @@ export default function EditarVeiculoPage() {
             selecionados.length !== arquivos.length
                 ? "Algumas imagens foram ignoradas. Limite de 20 fotos, com até 5MB por imagem (JPEG, PNG ou WebP)."
                 : ""
-            );
+        );
 
-            const novasFotos: FotoEdicao[] = selecionados.map((arquivo) => {
-                const url = URL.createObjectURL(arquivo);
+        const novasFotos: FotoEdicao[] = selecionados.map((arquivo) => {
+            const url = URL.createObjectURL(arquivo);
 
-                previewUrlsRef.current.add(url);
+            previewUrlsRef.current.add(url);
 
-                return {
-                    chave: crypto.randomUUID(),
-                    arquivo,
-                    url,
-                };
-            });
+            return {
+                chave: crypto.randomUUID(),
+                arquivo,
+                url,
+            };
+        });
 
-            setFotos((atuais) => [...atuais, ...novasFotos]);
+        setFotos((atuais) => [...atuais, ...novasFotos]);
     }
 
     function removerFoto(chave: string) {
@@ -227,9 +210,7 @@ export default function EditarVeiculoPage() {
             previewUrlsRef.current.delete(foto.url);
         }
 
-        setFotos((atuais) =>
-            atuais.filter((item) => item.chave !== chave)
-        );
+        setFotos((atuais) => atuais.filter((item) => item.chave !== chave));
     }
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -271,13 +252,10 @@ export default function EditarVeiculoPage() {
 
         try {
             const novasFotos = fotos.filter(
-                (foto): foto is FotoEdicao & { arquivo: File } =>
-                    foto.arquivo !== undefined
+                (foto): foto is FotoEdicao & { arquivo: File } => foto.arquivo !== undefined
             );
 
-            const urlsNovas = await uploadImagensNoBackend(
-                novasFotos.map((foto) => foto.arquivo)
-            );
+            const urlsNovas = await uploadImagensNoBackend(novasFotos.map((foto) => foto.arquivo));
 
             let indiceNovaFoto = 0;
 
@@ -310,13 +288,11 @@ export default function EditarVeiculoPage() {
             }
 
             if (resposta.status === 403) {
-                throw new Error(
-                    "Você não possui permissão para editar veículos."
-                );
+                throw new Error("Você não possui permissão para editar veículos.");
             }
 
             if (!resposta.ok) {
-                const textoErro = await resposta.text()
+                const textoErro = await resposta.text();
 
                 let erroBackend = "";
 
@@ -333,11 +309,8 @@ export default function EditarVeiculoPage() {
                 }
 
                 throw new Error(
-                    `Erro ${resposta.status} - ${
-                        resposta.statusText
-                    }: ${
-                        erroBackend ||
-                        "Sem detalhes do backend."
+                    `Erro ${resposta.status} - ${resposta.statusText}: ${
+                        erroBackend || "Sem detalhes do backend."
                     }`
                 );
             }
@@ -351,9 +324,8 @@ export default function EditarVeiculoPage() {
                 operation: "salvar_alteracoes_veiculo",
             });
 
-            const mensagem = error instanceof Error
-                ? error.message
-                : "Erro desconhecido ao salvar alterações.";
+            const mensagem =
+                error instanceof Error ? error.message : "Erro desconhecido ao salvar alterações.";
 
             setErro(mensagem);
         } finally {
@@ -520,7 +492,6 @@ export default function EditarVeiculoPage() {
                         </div>
                     </div>
 
-                    
                     {/* Imagens cadastradas */}
                     <section>
                         <div className="mb-4 flex items-center justify-between">
@@ -536,16 +507,13 @@ export default function EditarVeiculoPage() {
                         <div className="mb-5 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5">
                             <label className="grid gap-2 text-sm font-medium text-gray-700">
                                 Adicionar novas fotografias
-
-                                <input 
+                                <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
                                     multiple
                                     disabled={salvando}
                                     onChange={(event) => {
-                                        adicionarFotos(
-                                            Array.from(event.target.files ?? [])
-                                        );
+                                        adicionarFotos(Array.from(event.target.files ?? []));
 
                                         event.target.value = "";
                                     }}
@@ -554,8 +522,8 @@ export default function EditarVeiculoPage() {
                             </label>
 
                             <p className="mt-2 text-xs text-gray-500">
-                                Formatos JPEG, PNG e WebP. Máximo de 5MB por
-                                imagem e 20 fotografias por veículo.
+                                Formatos JPEG, PNG e WebP. Máximo de 5MB por imagem e 20 fotografias
+                                por veículo.
                             </p>
 
                             {avisoFotos && (
@@ -568,7 +536,7 @@ export default function EditarVeiculoPage() {
                             )}
                         </div>
 
-                        <GaleriaOrdenavel 
+                        <GaleriaOrdenavel
                             fotos={fotos}
                             setFotos={setFotos}
                             remover={removerFoto}
@@ -576,12 +544,11 @@ export default function EditarVeiculoPage() {
                         />
 
                         <p className="mt-3 text-xs text-gray-500">
-                            Arraste as fotografias para mudar sua ordem.
-                            A primeira imagem será a foto principal do veículo.
-                            As alterações serão aplicadas somente após a confirmação.
+                            Arraste as fotografias para mudar sua ordem. A primeira imagem será a
+                            foto principal do veículo. As alterações serão aplicadas somente após a
+                            confirmação.
                         </p>
                     </section>
-
 
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                         <label className="flex cursor-pointer items-center gap-3">
@@ -657,56 +624,37 @@ export default function EditarVeiculoPage() {
                                 </h3>
 
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    <ItemRevisao 
-                                        titulo="Nome"
-                                        valor={dadosRevisao.nome}
-                                    />
+                                    <ItemRevisao titulo="Nome" valor={dadosRevisao.nome} />
 
-                                    <ItemRevisao 
+                                    <ItemRevisao
                                         titulo="Preço"
-                                        valor={formatarPreco(
-                                            dadosRevisao.preco
-                                        )}
+                                        valor={formatarPreco(dadosRevisao.preco)}
                                     />
 
-                                    <ItemRevisao 
-                                        titulo="Ano"
-                                        valor={dadosRevisao.ano}
-                                    />
+                                    <ItemRevisao titulo="Ano" valor={dadosRevisao.ano} />
 
-                                    <ItemRevisao 
+                                    <ItemRevisao
                                         titulo="Quilometragem"
-                                        valor={formatarKm(
-                                            dadosRevisao.km
-                                        )}
+                                        valor={formatarKm(dadosRevisao.km)}
                                     />
 
-                                    <ItemRevisao 
-                                        titulo="Cor"
-                                        valor={dadosRevisao.cor}
-                                    />
+                                    <ItemRevisao titulo="Cor" valor={dadosRevisao.cor} />
 
-                                    <ItemRevisao 
+                                    <ItemRevisao
                                         titulo="Final da placa"
                                         valor={dadosRevisao.final_placa}
                                     />
 
-                                    <ItemRevisao 
-                                        titulo="Câmbio"
-                                        valor={dadosRevisao.cambio}
-                                    />
+                                    <ItemRevisao titulo="Câmbio" valor={dadosRevisao.cambio} />
 
-                                    <ItemRevisao 
-                                        titulo="Motor"
-                                        valor={dadosRevisao.motor}
-                                    />
+                                    <ItemRevisao titulo="Motor" valor={dadosRevisao.motor} />
 
-                                    <ItemRevisao 
+                                    <ItemRevisao
                                         titulo="Combustível"
                                         valor={dadosRevisao.combustivel}
                                     />
 
-                                    <ItemRevisao 
+                                    <ItemRevisao
                                         titulo="IPVA"
                                         valor={
                                             dadosRevisao.estado_ipva
@@ -736,26 +684,22 @@ export default function EditarVeiculoPage() {
                                     Outras informações
                                 </h3>
 
-                                {dadosRevisao.outras_infos.length > 0
-                                    ? (
-                                        <ul className="grid gap-2">
-                                            {dadosRevisao.outras_infos.map(
-                                                (item, index) => (
-                                                    <li
-                                                        key={`${item}-${index}`}
-                                                        className="rounded-lg bg-gray-50 px-4 py-2 text-sm text-gray-700"
-                                                    >
-                                                        {item}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    ) : (
-                                        <p className="text-sm text-gray-500">
-                                            Nenhuma informação adicional.
-                                        </p>
-                                    )
-                                }
+                                {dadosRevisao.outras_infos.length > 0 ? (
+                                    <ul className="grid gap-2">
+                                        {dadosRevisao.outras_infos.map((item, index) => (
+                                            <li
+                                                key={`${item}-${index}`}
+                                                className="rounded-lg bg-gray-50 px-4 py-2 text-sm text-gray-700"
+                                            >
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-sm text-gray-500">
+                                        Nenhuma informação adicional.
+                                    </p>
+                                )}
                             </section>
 
                             {/* Imagens do veículo */}
@@ -808,10 +752,7 @@ export default function EditarVeiculoPage() {
                                 onClick={confirmarEdicao}
                                 className="rounded-xl bg-green-600 px-5 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                             >
-                                {salvando
-                                    ? "Salvando..."
-                                    : "Confirmar alterações"
-                                }
+                                {salvando ? "Salvando..." : "Confirmar alterações"}
                             </button>
                         </div>
                     </div>

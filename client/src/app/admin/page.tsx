@@ -13,6 +13,9 @@ type VendaGrafico = {
     vendidos: number;
 };
 
+// Garante que o painel administrativo não seja pré-renderizado
+export const dynamic = "force-dynamic";
+
 const API_URL = getPublicApiUrl();
 
 export default async function AdminPage() {

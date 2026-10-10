@@ -67,8 +67,20 @@ export default function AdminLoginPage() {
                 return;
             }
 
-            // Navegação completa para que o middleware
-            // receba os cookies de sessão atualizados.
+            try {
+                const respostaAuditoria = await fetch("/api/admin/audit/login", {
+                    method: "POST",
+                    credentials: "same-origin",
+                });
+
+                if (!respostaAuditoria.ok) {
+                    console.warn("Não foi possível registrar o login administrativo.");
+                }
+            } catch {
+                console.warn("Falha na comunicação com a auditoria.");
+            }
+
+            // Navegação completa para que o middleware, receba os cookies de sessão atualizados.
             window.location.assign("/admin");
         } catch {
             setErro("Não foi possível verificar o código.");
