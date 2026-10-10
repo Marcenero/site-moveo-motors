@@ -1,11 +1,5 @@
-import * as Sentry from "@sentry/node";
-
-import { logError } from "../services/logger.js";
-
 import type { Request, Response, NextFunction } from "express";
-
-import { supabase } from "../services/supabase.js";
-import { capturarErro } from "../services/monitoring.js";
+import { jwtVerify } from "jose";
 
 const emailsAdministradores = new Set(
     (process.env.ADMIN_EMAILS ?? "")
@@ -14,71 +8,62 @@ const emailsAdministradores = new Set(
         .filter(Boolean)
 );
 
+const segredo = process.env.INTERNAL_AUTH_SECRET;
+
+if (!segredo || Buffer.from(segredo, "base64").length !== 32) {
+    throw new Error("INTERNAL_AUTH_SECRET inválido ou ausente.");
+}
+
+const chave = Buffer.from(segredo, "base64");
+
 export async function exigirAdmin(req: Request, res: Response, next: NextFunction) {
+    const authorization = req.headers.authorization;
+
+    if (!authorization?.startsWith("Bearer ")) {
+        return res.status(401).json({
+            ok: false,
+            erro: "Autenticação necessária.",
+        });
+    }
+
+    const token = authorization.slice(7).trim();
+
+    if (!token) {
+        return res.status(401).json({
+            ok: false,
+            erro: "Credencial ausente.",
+        });
+    }
+
     try {
-        const authorization = req.headers.authorization;
+        const { payload } = await jwtVerify(token, chave, {
+            issuer: "moveo-motors-nextjs",
+            audience: "moveo-motors-express",
+            algorithms: ["HS256"],
+            clockTolerance: 5,
+        });
 
-        if (!authorization || !authorization.startsWith("Bearer ")) {
-            return res.status(401).json({
-                ok: false,
-                erro: "Autenticação necessária.",
-            });
-        }
+        const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
 
-        const token = authorization.slice("Bearer ".length).trim();
+        const id = payload.sub;
 
-        if (!token) {
-            return res.status(401).json({
-                ok: false,
-                erro: "Token de autenticação ausente.",
-            });
-        }
-
-        const {
-            data: { user },
-            error: erroAutenticacao,
-        } = await supabase.auth.getUser(token);
-
-        if (erroAutenticacao || !user) {
-            Sentry.metrics.count("auth_failure", 1, {
-                attributes: {
-                    reason: "invalid_session",
-                },
-            });
-
-            return res.status(401).json({
-                ok: false,
-                erro: "Sessão inválida ou expirada.",
-            });
-        }
-
-        const email = user.email?.trim().toLowerCase();
-
-        if (!email || !emailsAdministradores.has(email)) {
+        if (!id || !email || !emailsAdministradores.has(email)) {
             return res.status(403).json({
                 ok: false,
-                erro: "Você não possui permissão para esta operação.",
+                erro: "Acesso não autorizado.",
             });
         }
 
         res.locals.usuario = {
-            id: user.id,
+            id,
             email,
         };
 
         return next();
-    } catch (error) {
-        capturarErro(error, "auth", "exigir_admin");
-
-        logError("admin_auth_validation_failed", error, {
-            component: "auth",
-            operation: "exigir_admin",
-            status: 500,
-        });
-
-        return res.status(500).json({
+    } catch {
+        return res.status(401).json({
             ok: false,
-            erro: "Erro interno de autenticação.",
+            erro: "Credencial inválida ou expirada.",
         });
     }
 }

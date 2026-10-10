@@ -1,26 +1,50 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { createClient } from "../../../../supabase/client";
+import { useState } from "react";
+import { authClient } from "../../lib/auth/client";
 
 export default function LogoutButton() {
-    const router = useRouter();
+    const [saindo, setSaindo] = useState(false);
+    const [erro, setErro] = useState("");
 
     async function handleLogout() {
-        const supabase = createClient();
+        if (saindo) return;
 
-        await supabase.auth.signOut();
+        setSaindo(true);
+        setErro("");
 
-        router.push("/admin/login");
-        router.refresh();
+        try {
+            const { error } = await authClient.signOut();
+
+            if (error) {
+                setErro("Não foi possível encerrar a sessão.");
+                return;
+            }
+
+            window.location.replace("/admin/login");
+        } catch {
+            setErro("Erro de comunicação ao sair.");
+        } finally {
+            setSaindo(false);
+        }
     }
 
     return (
-        <button
-            onClick={handleLogout}
-            className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
-        >
-            Sair
-        </button>
+        <div className="flex flex-col items-end gap-2">
+            <button
+                type="button"
+                onClick={handleLogout}
+                disabled={saindo}
+                className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-50"
+            >
+                {saindo ? "Saindo..." : "Sair"}
+            </button>
+
+            {erro && (
+                <p role="alert" className="text-sm text-red-600">
+                    {erro}
+                </p>
+            )}
+        </div>
     );
 }

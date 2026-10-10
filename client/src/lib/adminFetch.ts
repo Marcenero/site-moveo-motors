@@ -1,27 +1,21 @@
-import { createClient } from "../../../supabase/client";
-
-import { getPublicApiUrl } from "../lib/env.client";
-
-const supabase = createClient();
-
-const apiUrl = getPublicApiUrl();
-
 export async function adminFetch(caminho: string, options: RequestInit = {}) {
-    const {
-        data: { session },
-        error,
-    } = await supabase.auth.getSession();
+    if (!caminho.startsWith("/") || caminho.startsWith("//")) {
+        throw new Error("Caminho da API inválido.");
+    }
 
-    if (error || !session) {
+    const response = await fetch(`/api/admin${caminho}`, {
+        ...options,
+        credentials: "same-origin",
+        cache: "no-store",
+    });
+
+    if (response.status === 401) {
         throw new Error("Sua sessão expirou. Faça login novamente.");
     }
 
-    const headers = new Headers(options.headers);
+    if (response.status === 403) {
+        throw new Error("Você não tem permissão para esta operação.");
+    }
 
-    headers.set("Authorization", `Bearer ${session.access_token}`);
-
-    return fetch(`${apiUrl}${caminho}`, {
-        ...options,
-        headers,
-    });
+    return response;
 }

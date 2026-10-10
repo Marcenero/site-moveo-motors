@@ -1,11 +1,9 @@
-import type { NextRequest } from "next/server";
+import { auth } from "./lib/auth/server";
 
-import { updateSession } from "../../supabase/proxy";
-
-export async function proxy(request: NextRequest) {
-    return await updateSession(request);
-}
+export default auth.middleware({
+    loginUrl: "/admin/login",
+});
 
 export const config = {
-    matcher: ["/admin/:path*", "/auth/:path*"],
+    matcher: ["/admin/:path*"],
 };
