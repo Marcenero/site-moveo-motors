@@ -106,51 +106,6 @@ site-moveo-motors/
 └── package.json            # Scripts e workspaces npm
 ```
 
-## Executar localmente
-
-### Pré-requisitos
-
-- Node.js e npm em versões compatíveis com as dependências do projeto.
-- Acesso aos serviços Neon e Supabase usados no ambiente de desenvolvimento.
-- Variáveis de ambiente configuradas para o frontend e o backend.
-
-```bash
-git clone https://github.com/Marcenero/site-moveo-motors.git
-cd site-moveo-motors
-git switch develop
-npm install
-```
-
-Configure as variáveis de ambiente adequadas em `client/.env.local` e `server/.env` (não versione esses arquivos). Entre as principais variáveis estão:
-
-| Ambiente | Variáveis relevantes |
-| --- | --- |
-| Frontend (`client`) | `NEXT_PUBLIC_API_URL`, `API_URL`, `NEXT_PUBLIC_SITE_URL`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`, `ADMIN_EMAILS`, `INTERNAL_AUTH_SECRET` |
-| Backend (`server`) | `DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAILS`, `INTERNAL_AUTH_SECRET` |
-| Analytics (opcionais) | `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_META_PIXEL_ID` |
-
-**Atenção:** `INTERNAL_AUTH_SECRET` deve ser consistente entre os serviços do mesmo ambiente. Nunca exponha segredos do backend em variáveis `NEXT_PUBLIC_*`. Consulte a documentação de segurança para configurar corretamente o acesso e as conexões do Prisma.
-
-Depois de configurar o ambiente, gere o cliente Prisma:
-
-```bash
-cd server
-npx prisma generate
-cd ..
-```
-
-Inicie os serviços em terminais separados, a partir da raiz do projeto:
-
-```bash
-npm run dev:server
-```
-
-```bash
-npm run dev:client
-```
-
-Por padrão, o frontend de desenvolvimento utiliza `http://localhost:3000` e o backend `http://localhost:3001`, desde que essas portas estejam disponíveis.
-
 ## Cookies e privacidade
 
 O projeto oferece um mecanismo de **aceite ou rejeição de cookies opcionais**, com persistência da escolha do visitante e opção de revisar preferências.
