@@ -154,7 +154,7 @@ export default function SobrePage() {
                 </div>
 
                 <p className="text-gray-500 text-base text-center leading-relaxed px-6 sm:px-10 md:px-16">
-                    Aqui em baixo você pode escolher a melhor forma de entrar em contato com nós.
+                    Você pode escolher como deseja entrar em contato conosco logo abaixo.
                 </p>
 
                 <div className=" grid grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto gap-6 pt-15 px-4 mb-24">
