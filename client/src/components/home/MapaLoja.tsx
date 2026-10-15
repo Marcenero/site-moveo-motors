@@ -25,7 +25,7 @@ export default function MapaLoja() {
             boxZoom={false}
             keyboard={false}
             zoomControl={false}
-            className="h-[400px] w-full rounded-2xl"
+            className="h-full w-full rounded-2xl"
         >
             <TileLayer
                 attribution="&copy; OpenStreetMap contributors"

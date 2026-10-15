@@ -153,7 +153,7 @@ export default function SobrePage() {
                     </div>
                 </div>
 
-                <p className="text-gray-500 text-base text-center leading-relaxed">
+                <p className="text-gray-500 text-base text-center leading-relaxed px-6 sm:px-10 md:px-16">
                     Aqui em baixo você pode escolher a melhor forma de entrar em contato com nós.
                 </p>
 

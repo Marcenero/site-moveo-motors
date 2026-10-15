@@ -10,8 +10,8 @@ import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import VehicleCard from "../estoque/listagem/VehicleCard";
 import type { Veiculo } from "../../types/veiculo";
-import { ArrowRight, MessageCircle, ShieldCheck, Zap } from "lucide-react";
-import { IconPhone, IconMapPin } from "@tabler/icons-react";
+import { ArrowRight, MessageCircle, ShieldCheck, Zap, CalendarDays, Navigation } from "lucide-react";
+import { IconPhone, IconMapPin, IconClock } from "@tabler/icons-react";
 import { FaWhatsapp } from "react-icons/fa";
 
 import { logError } from "../../lib/logger";
@@ -51,7 +51,7 @@ function VehicleCardSkeleton() {
 
 function MapaSkeleton() {
     return (
-        <div className="h-[400px] w-full overflow-hidden rounded-2xl bg-gray-800 animate-pulse">
+        <div className="h-full min-h-[360px] w-full overflow-hidden rounded-2xl bg-gray-800 animate-pulse">
             <div className="flex h-full w-full items-center justify-center">
                 <div className="space-y-3 text-center">
                     <div className="mx-auto h-10 w-10 rounded-full bg-gray-700" />
@@ -68,12 +68,34 @@ const MapaLoja = dynamic(() => import("./MapaLoja"), {
     loading: () => <MapaSkeleton />,
 });
 
+const DADOS_LOJA = {
+    endereco: "",
+    horarioSemana: "",
+    horarioSabado: "",
+    telefone: "",
+    whatsapp: "",
+};
+
 export default function LandingPage() {
     const router = useRouter();
 
     const [veiculosRecentes, setVeiculosRecentes] = useState<Veiculo[]>([]);
     const [carregandoRecentes, setCarregandoRecentes] = useState(true);
     const [mostrarWhatsapp, setMostrarWhatsapp] = useState(false);
+
+    const mapsUrl = DADOS_LOJA.endereco.trim()
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(DADOS_LOJA.endereco)}`
+        : null;
+
+    const wazeUrl = DADOS_LOJA.endereco.trim()
+        ? `https://waze.com/ul?q=${encodeURIComponent(DADOS_LOJA.endereco)}&navigate=yes`
+        : null;
+
+    const whatsappUrl = DADOS_LOJA.whatsapp.trim()
+        ? `https://wa.me/${DADOS_LOJA.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+            "Olá! Gostaria de agendar uma visita e um test-drive na Moveo Motors."
+        )}`
+        : null;
 
     useEffect(() => {
         async function buscarVeiculosRecentes() {
@@ -325,51 +347,189 @@ export default function LandingPage() {
             {/* --- LOCALIZAÇÃO --- */}
             <section
                 id="contato"
-                className="bg-black py-16 md:py-24 px-4 md:px-6 text-white overflow-hidden"
+                className="scroll-mt-24 bg-black px-5 py-20 text-white sm:px-6 lg:py-28"
             >
-                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center">
-                    <div className="relative z-10">
-                        <span className="text-[#D9A300] font-black tracking-widest uppercase">
-                            Onde Estamos
+                <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-[1.2fr_0.95fr] lg:gap-12">
+                    {/* Coluna esquerda */}
+                    <div className="min-w-0">
+                        {/* Cabeçalho */}
+                        <span className="text-xs font-black uppercase tracking-[0.2em] text-[#d9a300] sm:text-sm">
+                            CONHEÇA A MOVEO MOTORS
                         </span>
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mt-4 mb-8 leading-tight md:leading-[0.9] break-words">
-                            VENHA VISITAR O NOSSO SHOWROOM
+
+                        <h2 className="mt-4 max-w-2xl text-3xl font-black leading-[1.1] tracking-tight sm:text-4xl lg:text-5xl">
+                            Venha conhecer nossos veículos na loja.
                         </h2>
-                        <div className="space-y-10">
-                            <div className="flex gap-6 items-start">
-                                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#D9A300] shrink-0">
-                                    <IconPhone size={28} stroke={1.8} />
+
+                        <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-gray-400 sm:text-lg">
+                            Sua próxima conquista merece uma experiência à altura.
+                            Conheça nossos veículos, converse com nossa equipe e
+                            descubra o carro ideal para você.
+                        </p>
+
+                        {/* Informações */}
+                        <div className="mt-12 grid grid-cols-1 gap-x-8 gap-y-9 sm:grid-cols-2">
+                            {/* Endereço */}
+                            <div className="flex items-start gap-4">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                                    <IconMapPin 
+                                        size={28}
+                                        stroke={1.8}
+                                        className="mt-1 shrink-0 text-[#d9a300]"
+                                    />
                                 </div>
+
                                 <div>
-                                    <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">
-                                        Atendimento
-                                    </h4>
-                                    <p className="text-gray-400 font-medium text-lg leading-snug">
-                                        Em breve
-                                        <br />
-                                        (11) xxxxx-xxxx
+                                    <h3 className="mb-2 text-lg font-bold text-white">
+                                        Endereço
+                                    </h3>
+
+                                    <p className="text-sm leading-relaxed text-gray-400 sm:text-base">
+                                        {DADOS_LOJA.endereco || "Em breve"}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="flex gap-6 items-start">
-                                <div className="w-14 h-14 bg-[#D9A300] rounded-2xl flex items-center justify-center text-black shrink-0">
-                                    <IconMapPin size={28} stroke={1.8} />
+                            {/* Horário */}
+                            <div className="flex items-start gap-4">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">   
+                                    <IconClock 
+                                        size={28}
+                                        strokeWidth={1.8}
+                                        className="mt-1 shrink-0 text-[#d9a300]"
+                                    />
                                 </div>
+
                                 <div>
-                                    <h4 className="font-black text-xl mb-1 uppercase text-[#D9A300]">
-                                        Localização
-                                    </h4>
-                                    <p className="text-gray-400 font-medium text-lg leading-snug">
-                                        Em breve
+                                    <h3 className="mb-2 text-lg font-bold text-white">
+                                        Horário
+                                    </h3>
+
+                                    <p className="text-sm leading-relaxed text-gray-400 sm:text-base">
+                                        {DADOS_LOJA.horarioSemana || "Em breve"}
+                                    </p>
+
+                                    {DADOS_LOJA.horarioSabado && (
+                                        <p className="mt-1 text-sm leading-relaxed text-gray-400 sm:text-base">
+                                            {DADOS_LOJA.horarioSabado}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Telefone */}
+                            <div className="flex items-start gap-4">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                                    <IconPhone 
+                                        size={28}
+                                        strokeWidth={1.8}
+                                        className="mt-1 shrink-0 text-[#d9a300]"
+                                    />
+                                </div>
+
+                                <div>
+                                    <h3 className="mb-2 text-lg font-bold text-white">
+                                        Telefone
+                                    </h3>
+
+                                    {DADOS_LOJA.telefone ? (
+                                        <a
+                                            href={`tel:${DADOS_LOJA.telefone.replace(/\D/g, "")}`}
+                                            className="text-sm text-gray-400 transition-colors hover:text-[#d9a300] sm:text-base"
+                                        >
+                                            {DADOS_LOJA.telefone}
+                                        </a>
+                                    ) : (
+                                        <p className="text-sm text-gray-400 sm:text-base">
+                                            Em breve
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Whatsapp */}
+                            <div className="flex items-start gap-4">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                                    <FaWhatsapp 
+                                        size={28}
+                                        strokeWidth={1.8}
+                                        className="shrink-0 text-[#d9a300]"
+                                    />
+                                </div>
+
+                                <div>
+                                    <h3 className="mb-2 text-lg font-bold text-white">
+                                        Whatsapp
+                                    </h3>
+
+                                    <p className="text-sm leading-relaxed text-gray-400 sm:text-base">
+                                        {DADOS_LOJA.whatsapp
+                                            ? "Atendimento online"
+                                            : "Em breve"
+                                        }
                                     </p>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Ações */}
+                        <div className="mt-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+                            {/* Agendamento */}
+                            <button
+                                type="button"
+                                disabled={!whatsappUrl}
+                                title={!whatsappUrl ? "Agendamento disponível em breve" : undefined}
+                                onClick={() => {
+                                    if (whatsappUrl) {
+                                        window.open(
+                                            whatsappUrl,
+                                            "_blank",
+                                            "noopener,noreferrer"
+                                        );
+                                    }
+                                }}
+                                className="group inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[#d9a300] px-6 py-4 text-sm font-black uppercase shadow-lg transition-all enabled:hover:-translate-y-1 enabled:hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                            >
+                                <CalendarDays size={20} />
+                                Agendar visita
+                            </button>
+
+                            {/* Rotas */}
+                            {mapsUrl && wazeUrl ? (
+                                <div className="flex flex-wrap items-center gap-4">
+                                    <a
+                                        href={mapsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-sm font-bold text-gray-300 transition-colors hover:text-[#d9a300]"
+                                    >
+                                        <Navigation size={20} />
+                                        Google Maps
+                                    </a>
+
+                                    <a
+                                        href={wazeUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-sm font-bold text-gray-300 transition-colors hover:text-[#d9a300]"
+                                    >
+                                        Waze
+                                    </a>
+                                </div>
+                            ) : (
+                                <span className="inline-flex items-center gap-2 text-sm font-bold text-gray-500">
+                                    <Navigation size={20} />
+                                    Rotas disponíveis em breve
+                                </span>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="relative z-0">
-                        <MapaLoja />
+                    {/* Coluna direita - Mapa */}
+                    <div className="relative isolate z-0 min-w-0">
+                        <div className="relative isolate z-0 h-[360px] overflow-hidden rounded-[28px] border border-white/10 bg-[#202b3d] shadow-2xl sm:h-[420px] lg:h-[440px]">
+                            <MapaLoja />
+                        </div>
                     </div>
                 </div>
             </section>
