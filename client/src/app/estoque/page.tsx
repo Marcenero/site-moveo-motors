@@ -6,7 +6,7 @@ import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
-import Breadcrumbs from "../../components/estoque/Breadcrumbs";
+import Breadcrumbs from "../../components/layout/Breadcrumbs";
 import VehicleCard from "../../components/estoque/listagem/VehicleCard";
 import VehicleCardSkeleton from "../../components/estoque/listagem/VehicleCardSkeleton";
 import EstoqueEmBreve from "../../components/estoque/listagem/EstoqueEmBreve";
@@ -277,7 +277,7 @@ export default function EstoquePage() {
                                 onClick={() => setFiltrosMobileAberto(false)}
                                 className="mt-6 w-full h-12 rounded-xl bg-black text-[#D9A300] font-black uppercase tracking-wider"
                             >
-                                Ver {resultados.length} veículos
+                                Ver {resultados.length} veículo{resultados.length === 1 ? "" : "s"}
                             </button>
                         </div>
                     </div>

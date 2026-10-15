@@ -12,6 +12,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
+import Breadcrumbs from "../../components/layout/Breadcrumbs";
 
 const whatsappNumber = "5511NUMERO";
 
@@ -171,8 +172,13 @@ export default function ServicosPage() {
         <main className="min-h-screen bg-[#F5F5F2] text-black pt-20">
             <Header />
 
+            {/* Breadcrumbs */}
+            <div className="pt-6">
+                <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Serviços" }]} />
+            </div>
+
             {/* Hero */}
-            <section className="max-w-7xl mx-auto px-6 pt-12 pb-10 md:pt-20 md:pb-14">
+            <section className="max-w-7xl mx-auto px-6 pt-6 pb-10 md:pt-6 md:pb-14">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
                     <div className="lg:col-span-7">
                         <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[0.95]">
