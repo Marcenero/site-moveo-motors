@@ -21,7 +21,7 @@ import {
 
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
-import Breadcrumbs from "../../estoque/Breadcrumbs";
+import Breadcrumbs from "../../layout/Breadcrumbs";
 
 import type { Veiculo } from "../../../types/veiculo";
 
