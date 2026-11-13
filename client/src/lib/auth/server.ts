@@ -1,19 +1,22 @@
-import { createNeonAuth } from "@neondatabase/auth/next/server";
+import "server-only";
 
-const baseUrl = process.env.NEON_AUTH_BASE_URL;
-const cookieSecret = process.env.NEON_AUTH_COOKIE_SECRET;
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-if (!baseUrl || !cookieSecret) {
-    throw new Error(
-        "Variáveis de ambiente do Neon Auth não configuradas."
-    );
+export async function createClient() {
+    const cookieStore = await cookies();
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) throw new Error("Supabase Auth não está configurado.");
+
+    return createServerClient(url, key, {
+        cookies: {
+            getAll: () => cookieStore.getAll(),
+            setAll(cookiesToSet) {
+                try {
+                    cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+                } catch { /* Server Components não podem gravar cookies; proxy.ts os atualiza. */ }
+            },
+        },
+    });
 }
-
-export const auth = createNeonAuth({
-    baseUrl,
-    cookies: {
-        secret: cookieSecret,
-        sessionDataTtl: 300,
-        sameSite: "lax",
-    },
-});

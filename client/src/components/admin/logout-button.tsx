@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { authClient } from "../../lib/auth/client";
+import { createClient } from "../../lib/auth/client";
 
 export default function LogoutButton() {
     const [saindo, setSaindo] = useState(false);
@@ -14,7 +14,7 @@ export default function LogoutButton() {
         setErro("");
 
         try {
-            const { error } = await authClient.signOut();
+            const { error } = await createClient().auth.signOut();
 
             if (error) {
                 setErro("Não foi possível encerrar a sessão.");
