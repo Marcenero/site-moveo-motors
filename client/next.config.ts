@@ -94,6 +94,10 @@ if (!isProduction) {
 }
 
 const nextConfig: NextConfig = {
+    experimental: {
+        agentUpgrade: "security",
+    },
+
     images: {
         remotePatterns: [
             {

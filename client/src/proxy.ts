@@ -1,9 +1,35 @@
-import { auth } from "./lib/auth/server";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-export default auth.middleware({
-    loginUrl: "/admin/login",
-});
+export async function proxy(request: NextRequest) {
+    let response = NextResponse.next({ request });
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) throw new Error("Supabase Auth não está configurado.");
+    const supabase = createServerClient(url, key, {
+        cookies: {
+            getAll: () => request.cookies.getAll(),
+            setAll(cookiesToSet) {
+                cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+                response = NextResponse.next({ request });
+                cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+            },
+        },
+    });
+    const { data: { user } } = await supabase.auth.getUser();
+    const admins = new Set((process.env.ADMIN_EMAILS ?? "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean));
+    const permitted = !!user?.email && admins.has(user.email.trim().toLowerCase());
+    if (request.nextUrl.pathname !== "/admin/login" && !permitted) {
+        const target = request.nextUrl.clone();
+        target.pathname = "/admin/login";
+        return NextResponse.redirect(target);
+    }
+    if (request.nextUrl.pathname === "/admin/login" && permitted) {
+        const target = request.nextUrl.clone(); target.pathname = "/admin";
+        return NextResponse.redirect(target);
+    }
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+}
 
-export const config = {
-    matcher: ["/admin/:path*"],
-};
+export const config = { matcher: ["/admin/:path*"] };
