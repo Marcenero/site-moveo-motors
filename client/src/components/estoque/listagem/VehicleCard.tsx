@@ -25,7 +25,7 @@ export default function VehicleCard({ veiculo }: VehicleCardProps) {
     const imagens =
         veiculo.imagens && veiculo.imagens.length > 0
             ? veiculo.imagens.map((imagem) => imagem.url)
-            : ["/placeholder-carro.png"];
+            : ["/Moveo-motors3.svg"];
 
     const [imagemAtual, setImagemAtual] = useState(0);
     const [mouseEmCima, setMouseEmCima] = useState(false);
