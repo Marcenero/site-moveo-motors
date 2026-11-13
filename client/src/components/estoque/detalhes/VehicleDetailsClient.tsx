@@ -35,7 +35,7 @@ export default function VehicleDetailsClient({ veiculo }: Props) {
     const [imagemAtiva, setImagemAtiva] = useState(0);
     const [linkCopiado, setLinkCopiado] = useState(false);
 
-    const imagens = veiculo.imagens?.length > 0 ? veiculo.imagens : [{ url: "/Moveo-motors3.svg" }];
+    const imagens = veiculo.imagens?.length > 0 ? veiculo.imagens : [{ url: "/Moveo-motors3.jpeg" }];
 
     const cambioNormalizado = veiculo.cambio.toLowerCase();
 
